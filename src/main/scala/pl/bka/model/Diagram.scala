@@ -1,24 +1,4 @@
-package pl.bka
-
-sealed trait ComponentType {
-  val legsCount: Int
-  def initLegs: Seq[Leg] = List.tabulate(legsCount)(_.toString).map(Leg)
-}
-case class VoltageSource(voltage: Int, legsCount: Int = 2) extends ComponentType
-case class IC(symbol: String, legsCount: Int) extends ComponentType
-case class Resistor(ohms: Int, legsCount: Int = 2) extends ComponentType
-case class Capacitor(capacitance: Int, electrolytic: Boolean, legsCount: Int = 2) extends ComponentType
-case class Diode(symbol: String, legsCount: Int = 2) extends ComponentType
-case class Transistor(symbol: String, legsCount: Int = 3) extends ComponentType
-
-
-case class Leg(name: String)
-case class ComponentName(value: String)
-case class Component(name: ComponentName, cType: ComponentType, legs: Seq[Leg])
-
-object Component {
-  def apply(name: String, cType: ComponentType): Component = Component(ComponentName(name), cType, cType.initLegs)
-}
+package pl.bka.model
 
 case class Connection(id: Int)
 case class Fail(reason: String)
@@ -42,3 +22,4 @@ object Diagram {
     diagram.validate
   }
 }
+

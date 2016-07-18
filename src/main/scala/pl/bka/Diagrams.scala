@@ -1,5 +1,7 @@
 package pl.bka
 
+import pl.bka.model._
+
 object Diagrams {
   val avtDog = Diagram(
     List(
