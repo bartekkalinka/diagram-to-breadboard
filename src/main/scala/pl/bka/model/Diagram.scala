@@ -9,6 +9,7 @@ case class Diagram(
                   ) {
   lazy val connections: Seq[Connection] = legsConnections.values.toSeq.distinct
   lazy val connectionsComponents: Map[Connection, ComponentName] = legsConnections.toSeq.map(lc => (lc._2, lc._1.cName)).toMap
+  lazy val connectionsLegs: Map[Connection, Seq[LegId]] = legsConnections.toSeq.groupBy(_._2).mapValues(_.map(_._1))
 
   def validate: Either[Fail, Diagram] = {
     val allLegs = components.flatMap(c => c.legs.map(LegId(c.name, _))).toSet

@@ -14,3 +14,12 @@ case class Breadboard(
                      )
 
 
+object Breadboard {
+  def fromDiagram(diagram: Diagram): Breadboard = {
+    val connsTracks: Map[Connection, BreadboardTrack] = diagram.connections.map(conn => (conn, Vertical(true, conn.id, 5))).toMap
+    val logical: Map[LegId, BreadboardTrack] = diagram.connectionsLegs.flatMap {
+      case (conn, legs) => legs.map((_, connsTracks(conn)))
+    }
+    Breadboard(logical, Map.empty[LegId, Hole])
+  }
+}
