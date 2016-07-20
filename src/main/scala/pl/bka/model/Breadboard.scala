@@ -2,10 +2,13 @@ package pl.bka.model
 
 sealed trait BreadboardTrack
 case class LogicalTrack(index: Int) extends BreadboardTrack
-case class Vertical(upper: Boolean, index: Int, length: Int) extends BreadboardTrack
-case class Horizontal(upper: Boolean, left: Boolean, index: Int, length: Int) extends BreadboardTrack
+sealed trait PhysicalTrack extends BreadboardTrack {
+  val length: Int
+}
+case class Vertical(upper: Boolean, index: Int, length: Int) extends PhysicalTrack
+case class Horizontal(upper: Boolean, left: Boolean, index: Int, length: Int) extends PhysicalTrack
 
-case class Hole(track: BreadboardTrack, index: Int)
+case class Hole(track: PhysicalTrack, index: Int)
 
 case class Breadboard(
                      logical: Map[LegId, LogicalTrack],
@@ -15,10 +18,13 @@ case class Breadboard(
 
 object Breadboard {
   def fromDiagram(diagram: Diagram): Breadboard = {
-    val connsTracks: Map[Connection, LogicalTrack] = diagram.connections.map(conn => (conn, LogicalTrack(conn.id))).toMap
-    val logical: Map[LegId, LogicalTrack] = diagram.connectionsLegs.flatMap {
-      case (conn, legs) => legs.map((_, connsTracks(conn)))
+    def logical: Map[LegId, LogicalTrack] = {
+      val connsTracks: Map[Connection, LogicalTrack] = diagram.connections.map(conn => (conn, LogicalTrack(conn.id))).toMap
+      diagram.connectionsLegs.flatMap {
+        case (conn, legs) => legs.map((_, connsTracks(conn)))
+      }
     }
+    def physical(logical: Map[LegId, LogicalTrack]): Map[LegId, Hole] = ???
     Breadboard(logical, Map.empty[LegId, Hole])
   }
 }
