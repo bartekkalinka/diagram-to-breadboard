@@ -16,7 +16,7 @@ case class Logical(tracks: Seq[LogicalTrack], connections: Map[LegId, TrackIndex
 case class Hole(trackIndex: TrackIndex, holeIndex: Int)
 case class Physical(tracks: Seq[PhysicalTrack], connections: Map[LegId, Hole]) {
   def prettyPrint =
-    s"""\n   physical tracks: $tracks 
+    s"""\n   physical tracks: $tracks
        |   physical conns: ${connections.map { case (l, Hole(t, h)) => l.prettyPrint + "-track" + t.index + "/hole" + h }}""".stripMargin
 }
 case class Breadboard(
