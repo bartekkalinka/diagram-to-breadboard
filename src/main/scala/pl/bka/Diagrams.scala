@@ -3,7 +3,7 @@ package pl.bka
 import pl.bka.model._
 
 object Diagrams {
-  val avtDog = Diagram(
+  val example = Diagram(
     List(
       Component("- 1", Transistor("549B")),
       Component("+9V", VoltageSource(9))
