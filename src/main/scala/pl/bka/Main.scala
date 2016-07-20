@@ -8,7 +8,7 @@ object Main {
     Diagrams.example match {
       case Right(diagram) =>
         val exampleBoard = Breadboard.fromDiagram(diagram)
-        println(s"exampleBoard: $exampleBoard")
+        println(s"exampleBoard: ${exampleBoard.prettyPrint}")
       case _ => ()
     }
   }

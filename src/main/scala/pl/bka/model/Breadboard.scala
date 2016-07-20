@@ -10,13 +10,21 @@ sealed trait PhysicalTrack extends BreadboardTrack {
 case class Vertical(upper: Boolean, index: TrackIndex, length: Int = 5) extends PhysicalTrack
 case class Horizontal(upper: Boolean, left: Boolean, index: TrackIndex, length: Int = 25) extends PhysicalTrack
 
-case class Logical(tracks: Seq[LogicalTrack], connections: Map[LegId, TrackIndex])
+case class Logical(tracks: Seq[LogicalTrack], connections: Map[LegId, TrackIndex]) {
+  def prettyPrint = s"""\n   logical: tracks cnt: ${tracks.length} conns: ${connections.map { case (l, i) => l.prettyPrint + "-conn" + i.index }}"""
+}
 case class Hole(trackIndex: TrackIndex, holeIndex: Int)
-case class Physical(tracks: Seq[PhysicalTrack], connections: Map[LegId, Hole])
+case class Physical(tracks: Seq[PhysicalTrack], connections: Map[LegId, Hole]) {
+  def prettyPrint =
+    s"""\n   physical tracks: $tracks 
+       |   physical conns: ${connections.map { case (l, Hole(t, h)) => l.prettyPrint + "-track" + t.index + "/hole" + h }}""".stripMargin
+}
 case class Breadboard(
                      logical: Logical,
                      physical: Physical
-                     )
+                     ) {
+  def prettyPrint = logical.prettyPrint + physical.prettyPrint
+}
 
 
 object Breadboard {
