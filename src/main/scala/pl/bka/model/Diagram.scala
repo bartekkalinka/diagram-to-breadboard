@@ -2,7 +2,9 @@ package pl.bka.model
 
 case class Connection(id: Int)
 case class Fail(reason: String)
-case class LegId(cName: ComponentName, leg: Leg)
+case class LegId(cName: ComponentName, leg: Leg) {
+  def prettyPrint = s"${cName.value} leg${leg.name}"
+}
 case class Diagram(
                     components: Seq[Component],
                     legsConnections: Map[LegId, Connection]
@@ -16,6 +18,10 @@ case class Diagram(
     val allMappedLegs = legsConnections.keys.toSet
     if(allLegs == allMappedLegs) Right(this) else Left(Fail("Not all legs mapped"))
   }
+
+  def prettyPrint =
+    "\n   components: " + components.map(_.prettyPrint).reduce(_ + " | " + _) +
+    "\n   connections: " + legsConnections.toSeq.map { case (legId, conn) => s"${legId.prettyPrint} conn${conn.id}" }.reduce(_ + " : " + _)
 }
 
 object Diagram {
@@ -24,6 +30,11 @@ object Diagram {
       case ((c, l), conn) => (LegId(ComponentName(c), Leg(l)), Connection(conn))
     }.toMap)
     diagram.validate
+  }
+
+  def prettyPrint(applyResult: Either[Fail, Diagram]) = applyResult match {
+    case Right(diagram) => diagram.prettyPrint
+    case Left(fail) => fail.toString
   }
 }
 

@@ -5,10 +5,10 @@ import pl.bka.model._
 object Diagrams {
   val example = Diagram(
     List(
-      Component("- 1", Transistor("549B")),
+      Component("Tr549B.1", Transistor("549B")),
       Component("+9V", VoltageSource(9))
     ),
-    Map(("- 1", "0") -> 0, ("- 1", "1") -> 1, ("- 1", "2") -> 2,
+    Map(("Tr549B.1", "0") -> 0, ("Tr549B.1", "1") -> 1, ("Tr549B.1", "2") -> 2,
       ("+9V", "0") -> 0, ("+9V", "1") -> 1)
   )
 }
