@@ -11,21 +11,23 @@ case class Vertical(upper: Boolean, index: TrackIndex, length: Int = 5) extends 
 case class Horizontal(upper: Boolean, left: Boolean, index: TrackIndex, length: Int = 25) extends PhysicalTrack
 
 case class Logical(tracks: Seq[LogicalTrack], connections: Map[LegId, TrackIndex]) {
-  def prettyPrint = s"""\n   logical: tracks cnt: ${tracks.length} conns: ${connections.map { case (l, i) => l.prettyPrint + "-conn" + i.index }}"""
+  def prettyPrint: Seq[String] = Seq(
+    s"""   logical: tracks cnt: ${tracks.length} conns: ${connections.map { case (l, i) => l.prettyPrint + "-conn" + i.index }}"""
+  )
 }
 case class Hole(trackIndex: TrackIndex, holeIndex: Int)
 case class Physical(tracks: Seq[PhysicalTrack], connections: Map[LegId, Hole]) {
-  def prettyPrint =
-    s"""\n   physical tracks: $tracks
-       |   physical conns: ${connections.map { case (l, Hole(t, h)) => l.prettyPrint + "-track" + t.index + "/hole" + h }}""".stripMargin
+  def prettyPrint: Seq[String] = Seq(
+    s"""   physical tracks: $tracks""",
+    s"""   physical conns: ${connections.map { case (l, Hole(t, h)) => l.prettyPrint + "-track" + t.index + "/hole" + h }}"""
+  )
 }
 case class Breadboard(
                      logical: Logical,
                      physical: Physical
                      ) {
-  def prettyPrint = logical.prettyPrint + physical.prettyPrint
+  def prettyPrint: Seq[String] = logical.prettyPrint ++ physical.prettyPrint
 }
-
 
 object Breadboard {
   def fromDiagram(diagram: Diagram): Breadboard = {

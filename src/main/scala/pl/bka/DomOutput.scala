@@ -4,7 +4,7 @@ import org.scalajs.dom
 import org.scalajs.dom.{html, _}
 
 object DomOutput {
-  def domPrintln(text: String) = {
+  def println(text: String) = {
     val textNode = document.createTextNode(text)
     val parNode = document.createElement("p")
     parNode.appendChild(textNode)

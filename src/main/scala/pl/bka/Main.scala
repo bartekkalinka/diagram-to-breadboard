@@ -11,11 +11,13 @@ object Main {
   @JSExport
   def main(): Unit = {
     DomOutput.canvasTest()
-    DomOutput.domPrintln(s"avtDog: ${Diagram.prettyPrint(Diagrams.example)}")
+    DomOutput.println("diagram")
+    Diagram.prettyPrint(Diagrams.example).foreach(DomOutput.println)
     Diagrams.example match {
       case Right(diagram) =>
         val exampleBoard = Breadboard.fromDiagram(diagram)
-        DomOutput.domPrintln(s"exampleBoard: ${exampleBoard.prettyPrint}")
+        DomOutput.println("board")
+        exampleBoard.prettyPrint.foreach(DomOutput.println)
       case _ => ()
     }
   }

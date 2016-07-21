@@ -19,9 +19,10 @@ case class Diagram(
     if(allLegs == allMappedLegs) Right(this) else Left(Fail("Not all legs mapped"))
   }
 
-  def prettyPrint =
-    "\n   components: " + components.map(_.prettyPrint).reduce(_ + " | " + _) +
-    "\n   connections: " + legsConnections.toSeq.map { case (legId, conn) => s"${legId.prettyPrint} conn${conn.id}" }.reduce(_ + " : " + _)
+  def prettyPrint: Seq[String] = Seq(
+    "   components: " + components.map(_.prettyPrint).reduce(_ + " | " + _),
+    "   connections: " + legsConnections.toSeq.map { case (legId, conn) => s"${legId.prettyPrint} conn${conn.id}" }.reduce(_ + " : " + _)
+  )
 }
 
 object Diagram {
@@ -32,9 +33,9 @@ object Diagram {
     diagram.validate
   }
 
-  def prettyPrint(applyResult: Either[Fail, Diagram]) = applyResult match {
+  def prettyPrint(applyResult: Either[Fail, Diagram]): Seq[String] = applyResult match {
     case Right(diagram) => diagram.prettyPrint
-    case Left(fail) => fail.toString
+    case Left(fail) => Seq(fail.toString)
   }
 }
 
