@@ -10,7 +10,6 @@ object Main {
 
   @JSExport
   def main(): Unit = {
-    DomOutput.canvasTest()
     DomOutput.println("diagram")
     Diagram.prettyPrint(Diagrams.example).foreach(DomOutput.println)
     Diagrams.example match {
@@ -18,6 +17,7 @@ object Main {
         val exampleBoard = Breadboard.fromDiagram(diagram)
         DomOutput.println("board")
         exampleBoard.prettyPrint.foreach(DomOutput.println)
+        exampleBoard.physical.draw()
       case _ => ()
     }
   }
