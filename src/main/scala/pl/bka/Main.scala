@@ -13,9 +13,11 @@ object Main {
     val parNode = document.createElement("p")
     parNode.appendChild(textNode)
     document.body.appendChild(parNode)
+
   }
 
-  def canvasTest(canvas: html.Canvas) = {
+  def canvasTest() = {
+    val canvas = document.getElementById("canvas").asInstanceOf[html.Canvas]
     val renderer = canvas.getContext("2d")
       .asInstanceOf[dom.CanvasRenderingContext2D]
 
@@ -27,8 +29,8 @@ object Main {
   }
 
   @JSExport
-  def main(canvas: html.Canvas): Unit = {
-    canvasTest(canvas)
+  def main(): Unit = {
+    canvasTest()
     domPrintln(s"avtDog: ${Diagram.prettyPrint(Diagrams.example)}")
     Diagrams.example match {
       case Right(diagram) =>
