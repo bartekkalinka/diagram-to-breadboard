@@ -1,11 +1,12 @@
 package pl.bka
 
-import scala.scalajs.js.JSApp
 import org.scalajs.dom
-import dom.document
+import org.scalajs.dom.{html, document}
 import pl.bka.model.{Diagram, Breadboard}
+import scala.scalajs.js.annotation.JSExport
 
-object Main extends JSApp {
+@JSExport
+object Main {
 
   def domPrintln(text: String) = {
     val textNode = document.createTextNode(text)
@@ -14,7 +15,20 @@ object Main extends JSApp {
     document.body.appendChild(parNode)
   }
 
-  def main(): Unit = {
+  def canvasTest(canvas: html.Canvas) = {
+    val renderer = canvas.getContext("2d")
+      .asInstanceOf[dom.CanvasRenderingContext2D]
+
+    canvas.width = canvas.parentElement.clientWidth
+    canvas.height = canvas.parentElement.clientHeight
+
+    renderer.fillStyle = "#111111"
+    renderer.fillRect(0, 0, canvas.width, canvas.height)
+  }
+
+  @JSExport
+  def main(canvas: html.Canvas): Unit = {
+    canvasTest(canvas)
     domPrintln(s"avtDog: ${Diagram.prettyPrint(Diagrams.example)}")
     Diagrams.example match {
       case Right(diagram) =>

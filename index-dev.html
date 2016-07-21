@@ -6,8 +6,11 @@
 </head>
 <body>
 <script type="text/javascript" src="./target/scala-2.11/diagram-to-breadboard-fastopt.js"></script>
+    <div>
+        <canvas style="display: block" id="canvas" width="700" height="300"/>
+    </div>
     <script type="text/javascript">
-      pl.bka.Main().main();
+      pl.bka.Main().main(document.getElementById('canvas'));
     </script>
 </body>
 </html>
