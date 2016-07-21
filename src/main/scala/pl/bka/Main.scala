@@ -8,34 +8,14 @@ import scala.scalajs.js.annotation.JSExport
 @JSExport
 object Main {
 
-  def domPrintln(text: String) = {
-    val textNode = document.createTextNode(text)
-    val parNode = document.createElement("p")
-    parNode.appendChild(textNode)
-    document.body.appendChild(parNode)
-
-  }
-
-  def canvasTest() = {
-    val canvas = document.getElementById("canvas").asInstanceOf[html.Canvas]
-    val renderer = canvas.getContext("2d")
-      .asInstanceOf[dom.CanvasRenderingContext2D]
-
-    canvas.width = canvas.parentElement.clientWidth
-    canvas.height = canvas.parentElement.clientHeight
-
-    renderer.fillStyle = "#111111"
-    renderer.fillRect(0, 0, canvas.width, canvas.height)
-  }
-
   @JSExport
   def main(): Unit = {
-    canvasTest()
-    domPrintln(s"avtDog: ${Diagram.prettyPrint(Diagrams.example)}")
+    DomOutput.canvasTest()
+    DomOutput.domPrintln(s"avtDog: ${Diagram.prettyPrint(Diagrams.example)}")
     Diagrams.example match {
       case Right(diagram) =>
         val exampleBoard = Breadboard.fromDiagram(diagram)
-        domPrintln(s"exampleBoard: ${exampleBoard.prettyPrint}")
+        DomOutput.domPrintln(s"exampleBoard: ${exampleBoard.prettyPrint}")
       case _ => ()
     }
   }
