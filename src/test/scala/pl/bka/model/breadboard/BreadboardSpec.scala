@@ -36,5 +36,12 @@ class BreadboardSpec extends FlatSpec with Matchers {
     }
     board.physical.connections.keys.toSeq shouldBe diagram.legsConnections.keys.toSeq
   }
+
+  it should "map each component leg to same hole level inside the track" in {
+    val board = Breadboard.fromDiagram(diagram)
+    board.physical.connections.toSeq.groupBy(_._1.cName).mapValues(_.map { case (_, Hole(_, holeIndex)) => holeIndex }.distinct).foreach {
+      case (cName, holeIndices) => holeIndices.length shouldBe 1
+    }
+  }
 }
 
