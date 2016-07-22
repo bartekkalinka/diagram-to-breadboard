@@ -14,9 +14,27 @@ class BreadboardSpec extends FlatSpec with Matchers {
   )
   val diagram = example match { case Right(d) => d; case _ => fail()}
 
-  it should "do something" in {
+  "Breadboard" should "render correct tracks length" in {
     val board = Breadboard.fromDiagram(diagram)
-    board.physical.tracks.length shouldBe 3
+    val connectionsNumber = 3
+    board.logical.tracks.length shouldBe connectionsNumber
+    board.logical.connections.values.toSeq.distinct.length shouldBe connectionsNumber
+    board.physical.tracks.length shouldBe connectionsNumber
+    board.physical.connections.values.toSeq.map(_.trackIndex).distinct.length shouldBe connectionsNumber
+  }
+
+  it should "map connections to logical tracks" in {
+    val board = Breadboard.fromDiagram(diagram)
+    val connectionsLegs = diagram.connectionsLegs
+    board.logical.connections.foreach { case (legId, trackIndex) => connectionsLegs(Connection(trackIndex.index)) should contain (legId) }
+  }
+
+  it should "map each leg to some physical hole of logical track" in {
+    val board = Breadboard.fromDiagram(diagram)
+    board.physical.connections.foreach { case (legId, Hole(trackIndex, holeIndex)) =>
+      board.logical.connections(legId) shouldBe trackIndex
+    }
+    board.physical.connections.keys.toSeq shouldBe diagram.legsConnections.keys.toSeq
   }
 }
 
