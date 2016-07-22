@@ -33,10 +33,11 @@ object Breadboard {
     }
     def toPhysical(logical: Logical): Physical = {
       val tracks: Seq[Track] = logical.tracks.map(t => Vertical(upper = true, t.index))
-      val map: Map[LegId, Hole] = logical.connections.toSeq.groupBy(_._2).mapValues(v => v.map(_._1)).flatMap {
+      val mapTrackLegs: Map[TrackIndex, Seq[LegId]] = logical.connections.toSeq.groupBy(_._2).mapValues(v => v.map(_._1))
+      val mapLegHole: Map[LegId, Hole] = mapTrackLegs.flatMap {
         case (trackIndex, legIds) => legIds.zipWithIndex.map { case (legId, holeIndex) => (legId, Hole(trackIndex, holeIndex)) }
       }
-      Physical(tracks, map)
+      Physical(tracks, mapLegHole)
     }
     val logical = toLogical
     Breadboard(logical, toPhysical(logical))
