@@ -1,8 +1,10 @@
 package pl.bka
 
 import org.scalajs.dom
-import org.scalajs.dom.{html, document}
-import pl.bka.model.{Diagram, Breadboard}
+import org.scalajs.dom.{document, html}
+import pl.bka.model.Diagram
+import pl.bka.model.breadboard.Breadboard
+
 import scala.scalajs.js.annotation.JSExport
 
 @JSExport
