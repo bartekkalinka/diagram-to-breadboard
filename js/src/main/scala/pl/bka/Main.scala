@@ -1,14 +1,12 @@
 package pl.bka
 
-import org.scalajs.dom
-import org.scalajs.dom.{document, html}
 import pl.bka.model.Diagram
 import pl.bka.model.breadboard.Breadboard
-
 import scala.scalajs.js.annotation.JSExport
 
 @JSExport
 object Main {
+  import Drawers._
 
   @JSExport
   def main(): Unit = {
@@ -19,7 +17,7 @@ object Main {
         val exampleBoard = Breadboard.fromDiagram(diagram)
         DomOutput.println("board")
         exampleBoard.prettyPrint.foreach(DomOutput.println)
-        //exampleBoard.physical.draw()
+        exampleBoard.physical.draw(0)
       case _ => ()
     }
   }
