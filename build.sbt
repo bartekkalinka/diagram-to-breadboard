@@ -1,19 +1,18 @@
-import sbt.Keys._
-
 name := "diagram-to-breadboard root"
 
+scalaVersion in ThisBuild := "2.11.8"
+
 lazy val root = project.in(file(".")).
-  aggregate(dtbJS, dtbJVM).
+  aggregate(fooJS, fooJVM).
   settings(
     publish := {},
     publishLocal := {}
   )
 
-lazy val diagramToBreadboard = crossProject.in(file(".")).
+lazy val foo = crossProject.in(file(".")).
   settings(
     name := "diagram-to-breadboard",
-    version := "0.1-SNAPSHOT",
-    scalaVersion := "2.11.8"
+    version := "0.1-SNAPSHOT"
   ).
   jvmSettings(
     libraryDependencies ++= Seq(
@@ -27,6 +26,5 @@ lazy val diagramToBreadboard = crossProject.in(file(".")).
     )
   )
 
-
-lazy val dtbJVM = diagramToBreadboard.jvm
-lazy val dtbJS = diagramToBreadboard.js
+lazy val fooJVM = foo.jvm
+lazy val fooJS = foo.js
