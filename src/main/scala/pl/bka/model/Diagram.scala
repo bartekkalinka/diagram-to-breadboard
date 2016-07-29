@@ -9,12 +9,14 @@ case class Diagram(
                     components: Seq[Component],
                     legsConnections: Map[LegId, Connection]
                   ) {
+  //TODO which lazy vals are really needed?
   lazy val connections: Seq[Connection] = legsConnections.values.toSeq.distinct
   lazy val connectionsComponents: Map[Connection, ComponentName] = legsConnections.toSeq.map(lc => (lc._2, lc._1.cName)).toMap
   lazy val connectionsLegs: Map[Connection, Seq[LegId]] = legsConnections.toSeq.groupBy(_._2).mapValues(_.map(_._1))
+  lazy val allLegs: Set[LegId] = components.flatMap(c => c.legs.map(LegId(c.name, _))).toSet
+  lazy val componentsLegs: Map[ComponentName, Seq[LegId]] = components.map(c => (c.name, c.legs.map(LegId(c.name, _)))).toMap
 
   def validate: Either[Fail, Diagram] = {
-    val allLegs = components.flatMap(c => c.legs.map(LegId(c.name, _))).toSet
     val allMappedLegs = legsConnections.keys.toSet
     if(allLegs == allMappedLegs) Right(this) else Left(Fail("Not all legs mapped"))
   }

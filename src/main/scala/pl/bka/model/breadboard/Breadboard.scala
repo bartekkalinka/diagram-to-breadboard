@@ -7,7 +7,8 @@ case class Logical(tracks: Seq[Track], connections: Map[LegId, TrackIndex]) {
     s"""   logical: tracks cnt: ${tracks.length} conns: ${connections.map { case (l, i) => l.prettyPrint + "-conn" + i.index }}"""
   )
 }
-case class Hole(trackIndex: TrackIndex, holeIndex: Int)
+case class VerticalPosition(position: Int)
+case class Hole(trackIndex: TrackIndex, holeIndex: VerticalPosition)
 case class Physical(tracks: Seq[Track], connections: Map[LegId, Hole]) {
   def prettyPrint: Seq[String] = Seq(
     s"""   physical tracks: $tracks""",
@@ -33,9 +34,25 @@ object Breadboard {
     }
     def toPhysical(logical: Logical): Physical = {
       val tracks: Seq[Track] = logical.tracks.map(t => Vertical(upper = true, t.index))
-      val mapTrackLegs: Map[TrackIndex, Seq[LegId]] = logical.connections.toSeq.groupBy(_._2).mapValues(v => v.map(_._1))
-      val mapLegHole: Map[LegId, Hole] = mapTrackLegs.flatMap {
-        case (trackIndex, legIds) => legIds.zipWithIndex.map { case (legId, holeIndex) => (legId, Hole(trackIndex, holeIndex)) }
+      def insertComponent(cName: ComponentName, mapLegHole: Map[LegId, Hole],
+                          freePositions: Map[TrackIndex, Seq[VerticalPosition]]): (Map[LegId, Hole], Map[TrackIndex, Seq[VerticalPosition]]) = {
+        val compLegs: Seq[LegId] = diagram.componentsLegs(cName)
+        val minPositions: Seq[VerticalPosition] = compLegs.map { legId =>
+          val track = logical.connections(legId)
+          freePositions(track).minBy(_.position)
+        }
+        val targetPosition: VerticalPosition = minPositions.maxBy(_.position)
+        val legHoleDelta: Map[LegId, Hole] = compLegs.map { legId => (legId, Hole(logical.connections(legId), targetPosition)) }.toMap
+        val newMapLegHole: Map[LegId, Hole] = mapLegHole ++ legHoleDelta
+        val newFreePositions: Map[TrackIndex, Seq[VerticalPosition]] = legHoleDelta.toSeq.foldLeft(freePositions) { case (fps, (legId, hole)) =>
+          val track = logical.connections(legId)
+          val newFps = fps(track).filterNot(_.position == hole.holeIndex)
+          fps.updated(track, newFps)
+        }
+        (newMapLegHole, newFreePositions)
+      }
+      val (mapLegHole, _) = diagram.components.map(_.name).foldLeft((Map[LegId, Hole](), Map[TrackIndex, Seq[VerticalPosition]]())) {
+        case ((mLegHole, freePositions), cName) => insertComponent(cName, mLegHole, freePositions)
       }
       Physical(tracks, mapLegHole)
     }
