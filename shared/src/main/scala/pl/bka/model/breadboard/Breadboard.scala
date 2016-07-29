@@ -51,7 +51,10 @@ object Breadboard {
         }
         (newMapLegHole, newFreePositions)
       }
-      val (mapLegHole, _) = diagram.components.map(_.name).foldLeft((Map[LegId, Hole](), Map[TrackIndex, Seq[VerticalPosition]]())) {
+      val initialFreePositions: Map[TrackIndex, Seq[VerticalPosition]] = tracks.map { track =>
+        (track.index, List.tabulate(track.length)(VerticalPosition))
+      }.toMap
+      val (mapLegHole, _) = diagram.components.map(_.name).foldLeft((Map[LegId, Hole](), initialFreePositions)) {
         case ((mLegHole, freePositions), cName) => insertComponent(cName, mLegHole, freePositions)
       }
       Physical(tracks, mapLegHole)
