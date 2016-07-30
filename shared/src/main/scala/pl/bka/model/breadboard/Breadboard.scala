@@ -12,9 +12,8 @@ case class Hole(trackIndex: TrackIndex, holeIndex: VerticalPosition)
 case class Physical(tracks: Seq[Track], connections: Map[LegId, Hole]) {
   def prettyPrint: Seq[String] = Seq(
     s"""   physical tracks: $tracks""",
-    s"""   physical conns: ${connections.map { case (l, Hole(t, h)) => l.prettyPrint + "-track" + t.index + "/hole" + h }}"""
+    s"""   physical conns: ${connections.map { case (l, Hole(t, h)) => l.prettyPrint + "-track" + t.index + "/hole" + h.position }}"""
   )
-  //def draw(): Unit = tracks.foreach(_.draw(10))
 }
 case class Breadboard(
                      logical: Logical,
