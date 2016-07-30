@@ -48,7 +48,7 @@ object Breadboard {
         val newMapLegHole: Map[LegId, Hole] = mapLegHole ++ legHoleDelta
         val newFreePositions: Map[TrackIndex, Seq[VerticalPosition]] = legHoleDelta.toSeq.foldLeft(freePositions) { case (fps, (legId, hole)) =>
           val track = logical.connections(legId)
-          val newFps = fps(track).filterNot(_.position == hole.holeIndex)
+          val newFps = fps(track).filterNot(_ == hole.holeIndex)
           fps.updated(track, newFps)
         }
         (newMapLegHole, newFreePositions)
