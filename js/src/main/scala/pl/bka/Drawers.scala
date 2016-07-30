@@ -7,26 +7,31 @@ trait Drawer {
 }
 
 object Drawers {
+  val verticalTracksStep = 15
+  val verticalTrackLength = 125
+  val verticalTracksHorizontalOffset = 2 * verticalTracksStep
+  val verticalTracksVerticalOffset = 10
+
   implicit def verticalDrawer(vertical: Vertical): Drawer = new Drawer {
-    def draw(position: Int): Unit = {
+    def draw(offset: Int): Unit = {
       val ctx = DomOutput.renderer
       ctx.strokeStyle = "#000000"
       ctx.lineWidth = 2
       ctx.beginPath()
-      ctx.moveTo(vertical.index.index * 15 + 30, position)
-      ctx.lineTo(vertical.index.index * 15 + 30, position + 125)
+      ctx.moveTo(vertical.index.index * verticalTracksStep + verticalTracksHorizontalOffset, offset)
+      ctx.lineTo(vertical.index.index * verticalTracksStep + verticalTracksHorizontalOffset, offset + verticalTrackLength)
       ctx.stroke()
     }
   }
 
   implicit def trackDrawer(track: Track): Drawer = new Drawer {
-    def draw(position: Int): Unit = track match {
-      case v: Vertical => v.draw(position)
+    def draw(offset: Int): Unit = track match {
+      case v: Vertical => v.draw(offset)
       case _ => ()
     }
   }
 
   implicit def physicalDrawer(physical: Physical): Drawer = new Drawer {
-    def draw(position: Int): Unit = physical.tracks.foreach(_.draw(10))
+    def draw(offset: Int): Unit = physical.tracks.foreach(_.draw(verticalTracksVerticalOffset))
   }
 }
