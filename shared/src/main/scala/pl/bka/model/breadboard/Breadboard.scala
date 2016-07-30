@@ -10,9 +10,12 @@ case class Logical(tracks: Seq[Track], connections: Map[LegId, TrackIndex]) {
 case class VerticalPosition(position: Int)
 case class Hole(trackIndex: TrackIndex, holeIndex: VerticalPosition)
 case class Physical(tracks: Seq[Track], connections: Map[LegId, Hole]) {
+  def sortedConnections: Seq[(LegId, Hole)] = connections.toSeq.groupBy(_._1.cName).toSeq.flatMap {
+    case (_, legHolePairs) => legHolePairs.sortBy(_._1.leg.name)
+  }
   def prettyPrint: Seq[String] = Seq(
     s"""   physical tracks: $tracks""",
-    s"""   physical conns: ${connections.map { case (l, Hole(t, h)) => l.prettyPrint + "-track" + t.index + "/hole" + h.position }}"""
+    s"""   physical conns: ${sortedConnections.map { case (l, Hole(t, h)) => l.prettyPrint + "-track" + t.index + "/hole" + h.position }}"""
   )
 }
 case class Breadboard(
