@@ -1,5 +1,6 @@
 package pl.bka
 
+import pl.bka.model.Diagram
 import pl.bka.model.breadboard.{Physical, Track, Vertical}
 
 trait Drawer {
@@ -31,7 +32,9 @@ object Drawers {
     }
   }
 
-  implicit def physicalDrawer(physical: Physical): Drawer = new Drawer {
-    def draw(offset: Int): Unit = physical.tracks.foreach(_.draw(verticalTracksVerticalOffset))
+  def physicalWithDiagramDrawer(physical: Physical, diagram: Diagram): Drawer = new Drawer {
+    def draw(offset: Int): Unit = {
+      physical.tracks.foreach(_.draw(verticalTracksVerticalOffset))
+    }
   }
 }

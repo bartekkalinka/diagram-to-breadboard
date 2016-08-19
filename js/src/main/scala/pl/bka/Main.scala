@@ -17,7 +17,7 @@ object Main {
         val exampleBoard = Breadboard.fromDiagram(diagram)
         DomOutput.println("board")
         exampleBoard.prettyPrint.foreach(DomOutput.println)
-        exampleBoard.physical.draw(0)
+        Drawers.physicalWithDiagramDrawer(exampleBoard.physical, diagram).draw(0)
       case _ => ()
     }
   }
