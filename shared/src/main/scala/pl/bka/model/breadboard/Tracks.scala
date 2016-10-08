@@ -8,8 +8,12 @@ sealed trait Track {
   val length: Int
 }
 
-case class Vertical(upper: Boolean, index: TrackIndex, length: Int = 5) extends Track
+case class Vertical(upper: Boolean, index: TrackIndex, length: Int = Tracks.verticalTrackLength) extends Track
 
-case class Horizontal(upper: Boolean, left: Boolean, index: TrackIndex, length: Int = 25)
+case class Horizontal(upper: Boolean, left: Boolean, index: TrackIndex, length: Int = Tracks.horizontalTrackLength)
 
+object Tracks {
+  val verticalTrackLength = 5
+  val horizontalTrackLength = 25
+}
 
