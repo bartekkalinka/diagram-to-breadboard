@@ -9,6 +9,7 @@ object Drawers {
   val verticalTrackLength = 25 * Tracks.verticalTrackLength
   val verticalTracksHorizontalOffset = 2 * verticalTracksStep
   val verticalTracksVerticalOffset = 10
+  val holeRadius = 5
 
   val ctx = DomOutput.canvas.getContext("2d")
     .asInstanceOf[dom.CanvasRenderingContext2D]
@@ -25,6 +26,14 @@ object Drawers {
     diagram.components.foreach(drawComponent)
   }
 
+  private def drawHole(x: Int, y: Int): Unit = {
+    ctx.strokeStyle = "#000000"
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.arc(x, y, holeRadius, 0, 2*Math.PI)
+    ctx.stroke()
+  }
+
   private def drawVerticalTrack(vertical: Vertical): Unit = {
     ctx.strokeStyle = "#000000"
     ctx.lineWidth = 2
@@ -32,6 +41,11 @@ object Drawers {
     ctx.moveTo(vertical.index.index * verticalTracksStep + verticalTracksHorizontalOffset, verticalTracksVerticalOffset)
     ctx.lineTo(vertical.index.index * verticalTracksStep + verticalTracksHorizontalOffset, verticalTracksVerticalOffset + verticalTrackLength)
     ctx.stroke()
+    //TODO
+    val holeStep = verticalTrackLength / Tracks.verticalTrackLength
+    for(h <- 1 to Tracks.verticalTrackLength) {
+      drawHole(vertical.index.index * verticalTracksStep + verticalTracksHorizontalOffset, verticalTracksVerticalOffset + ((h - 0.5) * holeStep).toInt)
+    }
   }
 
   private def drawTrack(track: Track, offset: Int): Unit = track match {
