@@ -5,7 +5,7 @@ import pl.bka.model.{Component, Diagram, LegId}
 import pl.bka.model.breadboard._
 
 object Drawers {
-  val verticalTracksStep = 15
+  val verticalTracksStep = 30
   val verticalTrackLength = 25 * Tracks.verticalTrackLength
   val verticalTracksHorizontalOffset = 2 * verticalTracksStep
   val verticalTracksVerticalOffset = 10
@@ -27,11 +27,13 @@ object Drawers {
   }
 
   private def drawHole(x: Int, y: Int): Unit = {
+    ctx.fillStyle = "#FFFFFF"
     ctx.strokeStyle = "#000000"
     ctx.lineWidth = 1
     ctx.beginPath()
     ctx.arc(x, y, holeRadius, 0, 2*Math.PI)
     ctx.stroke()
+    ctx.fill()
   }
 
   private def drawVerticalTrack(vertical: Vertical): Unit = {
