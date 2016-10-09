@@ -26,6 +26,11 @@ object Drawers {
     diagram.components.foreach(drawComponent)
   }
 
+  val holeStep = verticalTrackLength / Tracks.verticalTrackLength
+
+  private def holePosition(hole: Hole): (Int, Int) =
+    (hole.trackIndex.index * verticalTracksStep + verticalTracksHorizontalOffset, verticalTracksVerticalOffset + ((hole.holeIndex.position - 0.5) * holeStep).toInt)
+
   private def drawHole(x: Int, y: Int): Unit = {
     ctx.fillStyle = "#FFFFFF"
     ctx.strokeStyle = "#000000"
@@ -43,10 +48,9 @@ object Drawers {
     ctx.moveTo(vertical.index.index * verticalTracksStep + verticalTracksHorizontalOffset, verticalTracksVerticalOffset)
     ctx.lineTo(vertical.index.index * verticalTracksStep + verticalTracksHorizontalOffset, verticalTracksVerticalOffset + verticalTrackLength)
     ctx.stroke()
-    //TODO
-    val holeStep = verticalTrackLength / Tracks.verticalTrackLength
+
     for(h <- 1 to Tracks.verticalTrackLength) {
-      drawHole(vertical.index.index * verticalTracksStep + verticalTracksHorizontalOffset, verticalTracksVerticalOffset + ((h - 0.5) * holeStep).toInt)
+      (drawHole _).tupled(holePosition(Hole(vertical.index, VerticalPosition(h))))
     }
   }
 
