@@ -23,9 +23,9 @@ object Drawers {
           }
           val centerHole = holePosition(holes(1))
           val center = (centerHole._1, centerHole._2 - (0.5 * holeStep).toInt)
-          drawHole(center)
           drawLine(holePosition(holes.head), center, 1)
           drawLine(holePosition(holes(2)), center, 1)
+          drawHole(center)
           //TODO
         case _ => ()
       }
@@ -37,7 +37,7 @@ object Drawers {
   val holeStep = verticalTrackLength / Tracks.verticalTrackLength
 
   private def holePosition(hole: Hole): (Int, Int) =
-    (hole.trackIndex.index * verticalTracksStep + verticalTracksHorizontalOffset, verticalTracksVerticalOffset + ((hole.holeIndex.position - 0.5) * holeStep).toInt)
+    (hole.trackIndex.index * verticalTracksStep + verticalTracksHorizontalOffset, verticalTracksVerticalOffset + ((hole.holeIndex.position + 0.5) * holeStep).toInt)
 
   private def drawHole(pos: (Int, Int)): Unit = {
     ctx.fillStyle = "#FFFFFF"
@@ -63,7 +63,7 @@ object Drawers {
     val to = (vertical.index.index * verticalTracksStep + verticalTracksHorizontalOffset, verticalTracksVerticalOffset + verticalTrackLength)
     drawLine(from, to, 2)
 
-    for(h <- 1 to Tracks.verticalTrackLength) {
+    for(h <- 0 until Tracks.verticalTrackLength) {
       drawHole(holePosition(Hole(vertical.index, VerticalPosition(h))))
     }
   }
