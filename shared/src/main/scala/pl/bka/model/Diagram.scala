@@ -6,10 +6,6 @@ object Power {
   case object GND extends PowerConnection
 }
 case class Connection(id: Either[Int, Power.PowerConnection]) {
-  def powerOption: Option[Power.PowerConnection] = id match {
-    case Left(_) => None
-    case Right(power) => Some(power)
-  }
   def initialTrackIndex: Int = id match {
     case Right(Power.Plus) => 0
     case Right(Power.GND) => 1
