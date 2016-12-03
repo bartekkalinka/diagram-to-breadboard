@@ -2,15 +2,16 @@ package pl.bka.model.breadboard
 
 import org.scalatest.{FlatSpec, Matchers}
 import pl.bka.model._
+import pl.bka.model.Power._
 
 class BreadboardSpec extends FlatSpec with Matchers {
   val example = Diagram(
     List(
       Component("Tr549B.1", Transistor("549B")),
-      Component("+9V", VoltageSource(9))
+      Component("Tr549B.2", Transistor("549B"))
     ),
-    Map(("Tr549B.1", "0") -> 0, ("Tr549B.1", "1") -> 1, ("Tr549B.1", "2") -> 2,
-      ("+9V", "0") -> 0, ("+9V", "1") -> 1)
+    Map(("Tr549B.1", "0") -> Right(Plus), ("Tr549B.1", "1") -> Left(1), ("Tr549B.1", "2") -> Right(GND),
+      ("Tr549B.2", "0") -> Right(Plus), ("Tr549B.2", "1") -> Left(1), ("Tr549B.2", "2") -> Right(GND))
   )
   val diagram = example match { case Right(d) => d; case _ => fail()}
 
@@ -26,7 +27,8 @@ class BreadboardSpec extends FlatSpec with Matchers {
   it should "map connections to logical tracks" in {
     val board = Breadboard.fromDiagram(diagram)
     val connectionsLegs = diagram.connectionsLegs
-    board.logical.connections.foreach { case (legId, trackIndex) => connectionsLegs(Connection(trackIndex.index)) should contain (legId) }
+    val connectionsIndices = diagram.connections.groupBy(identity).toSeq.map { case (k, v) => (k.initialTrackIndex, v.head) }.toMap
+    board.logical.connections.foreach { case (legId, trackIndex) => connectionsLegs(connectionsIndices(trackIndex.index)) should contain (legId) }
   }
 
   it should "map each leg to some physical hole of logical track" in {
