@@ -6,7 +6,7 @@ import pl.bka.model.breadboard._
 
 object Drawers {
   val verticalTracksStep = 30
-  val verticalTrackLength = 25 * Tracks.verticalTrackLength
+  val verticalTrackLength = 40 * Tracks.verticalTrackLength
   val verticalTracksHorizontalOffset = 2 * verticalTracksStep
   val verticalTracksVerticalOffset = 20
   val holeRadius = 5
