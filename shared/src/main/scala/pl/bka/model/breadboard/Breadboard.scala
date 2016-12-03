@@ -28,7 +28,15 @@ case class Breadboard(
 object Breadboard {
   def fromDiagram(diagram: Diagram): Breadboard = {
     def toLogical: Logical = {
-      val tracks: Seq[Track] = diagram.connections.map(conn => Vertical(upper = true, TrackIndex(conn.initialTrackIndex), conn)).toList
+      val transistors = diagram.components.filter(_.cType.isInstanceOf[Transistor])
+      val transistorsLegs: Seq[LegId] = transistors.flatMap { t =>
+           t.legs.map { leg => LegId(t.name, leg) }
+        }
+      val tracks: Seq[Track] = transistorsLegs.zipWithIndex.map {
+        case (legId, index) =>
+          Vertical(upper = true, TrackIndex(index), diagram.legsConnections(legId))
+        }
+      //TODO map below is wrong
       val map = diagram.connectionsLegs.flatMap {
         case (conn, legs) => legs.map((_, TrackIndex(conn.initialTrackIndex)))
       }
