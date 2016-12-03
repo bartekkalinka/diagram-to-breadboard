@@ -12,6 +12,8 @@ object Drawers {
   val holeRadius = 5
   val transistorBodyRadius = 12
   val transistorLegsSpread = 3
+  val fontSize = 8
+  val font = s"${fontSize}px Arial"
 
   val ctx = DomOutput.canvas.getContext("2d")
     .asInstanceOf[dom.CanvasRenderingContext2D]
@@ -28,7 +30,7 @@ object Drawers {
           drawLine(holePosition(holes.head), (centerX - transistorLegsSpread, centerY), 2)
           drawLine(holePosition(holes(1)), (centerX, centerY), 2)
           drawLine(holePosition(holes(2)), (centerX + transistorLegsSpread, centerY), 2)
-          drawTransistorBody((centerX, centerY))
+          drawTransistorBody(symbol, (centerX, centerY))
           //TODO
         case _ => ()
       }
@@ -42,7 +44,7 @@ object Drawers {
   private def holePosition(hole: Hole): (Int, Int) =
     (hole.trackIndex.index * verticalTracksStep + verticalTracksHorizontalOffset, verticalTracksVerticalOffset + ((hole.holeIndex.position + 0.5) * holeStep).toInt)
 
-  private def drawTransistorBody(pos: (Int, Int)): Unit = {
+  private def drawTransistorBody(symbol: String, pos: (Int, Int)): Unit = {
     ctx.fillStyle = "#FFFFFF"
     ctx.strokeStyle = "#000000"
     ctx.lineWidth = 1
@@ -51,7 +53,10 @@ object Drawers {
     ctx.moveTo(pos._1 - transistorBodyRadius, pos._2)
     ctx.lineTo(pos._1 + transistorBodyRadius, pos._2)
     ctx.stroke()
-    //ctx.fill()
+    ctx.fill()
+    ctx.font = font
+    ctx.fillStyle = "#000000"
+    ctx.fillText(symbol, pos._1 - transistorBodyRadius + 2, pos._2 - 2)
   }
 
   private def drawHole(pos: (Int, Int)): Unit = {
