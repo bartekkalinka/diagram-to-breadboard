@@ -28,14 +28,14 @@ case class Breadboard(
 object Breadboard {
   def fromDiagram(diagram: Diagram): Breadboard = {
     def toLogical: Logical = {
-      val tracks: Seq[Track] = diagram.connections.map(conn => Vertical(upper = true, TrackIndex(conn.id))).toList
+      val tracks: Seq[Track] = diagram.connections.map(conn => Vertical(upper = true, TrackIndex(conn.initialTrackIndex), conn.powerOption)).toList
       val map = diagram.connectionsLegs.flatMap {
-        case (conn, legs) => legs.map((_, TrackIndex(conn.id)))
+        case (conn, legs) => legs.map((_, TrackIndex(conn.initialTrackIndex)))
       }
       Logical(tracks, map)
     }
     def toPhysical(logical: Logical): Physical = {
-      val tracks: Seq[Track] = logical.tracks.map(t => Vertical(upper = true, t.index))
+      val tracks: Seq[Track] = logical.tracks.collect { case t: Vertical => t }
       def insertComponent(cName: ComponentName, mapLegHole: Map[LegId, Hole],
                           freePositions: Map[TrackIndex, Seq[VerticalPosition]]): (Map[LegId, Hole], Map[TrackIndex, Seq[VerticalPosition]]) = {
         val compLegs: Seq[LegId] = diagram.componentsLegs(cName)
