@@ -8,8 +8,10 @@ object Drawers {
   val verticalTracksStep = 30
   val verticalTrackLength = 25 * Tracks.verticalTrackLength
   val verticalTracksHorizontalOffset = 2 * verticalTracksStep
-  val verticalTracksVerticalOffset = 10
+  val verticalTracksVerticalOffset = 20
   val holeRadius = 5
+  val transistorBodyRadius = 12
+  val transistorLegsSpread = 3
 
   val ctx = DomOutput.canvas.getContext("2d")
     .asInstanceOf[dom.CanvasRenderingContext2D]
@@ -22,10 +24,11 @@ object Drawers {
             physical.connections(LegId(component.name, leg))
           }
           val centerHole = holePosition(holes(1))
-          val center = (centerHole._1, centerHole._2 - (0.5 * holeStep).toInt)
-          drawLine(holePosition(holes.head), center, 1)
-          drawLine(holePosition(holes(2)), center, 1)
-          drawHole(center)
+          val (centerX, centerY) = (centerHole._1, centerHole._2 - (0.5 * holeStep).toInt)
+          drawLine(holePosition(holes.head), (centerX - transistorLegsSpread, centerY), 2)
+          drawLine(holePosition(holes(1)), (centerX, centerY), 2)
+          drawLine(holePosition(holes(2)), (centerX + transistorLegsSpread, centerY), 2)
+          drawTransistorBody((centerX, centerY))
           //TODO
         case _ => ()
       }
@@ -38,6 +41,18 @@ object Drawers {
 
   private def holePosition(hole: Hole): (Int, Int) =
     (hole.trackIndex.index * verticalTracksStep + verticalTracksHorizontalOffset, verticalTracksVerticalOffset + ((hole.holeIndex.position + 0.5) * holeStep).toInt)
+
+  private def drawTransistorBody(pos: (Int, Int)): Unit = {
+    ctx.fillStyle = "#FFFFFF"
+    ctx.strokeStyle = "#000000"
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.arc(pos._1, pos._2, transistorBodyRadius, - Math.PI, 0)
+    ctx.moveTo(pos._1 - transistorBodyRadius, pos._2)
+    ctx.lineTo(pos._1 + transistorBodyRadius, pos._2)
+    ctx.stroke()
+    //ctx.fill()
+  }
 
   private def drawHole(pos: (Int, Int)): Unit = {
     ctx.fillStyle = "#FFFFFF"
@@ -61,7 +76,7 @@ object Drawers {
   private def drawVerticalTrack(vertical: Vertical): Unit = {
     val from = (vertical.index.index * verticalTracksStep + verticalTracksHorizontalOffset, verticalTracksVerticalOffset)
     val to = (vertical.index.index * verticalTracksStep + verticalTracksHorizontalOffset, verticalTracksVerticalOffset + verticalTrackLength)
-    drawLine(from, to, 2)
+    drawLine(from, to, 1)
 
     for(h <- 0 until Tracks.verticalTrackLength) {
       drawHole(holePosition(Hole(vertical.index, VerticalPosition(h))))
