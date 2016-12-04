@@ -28,9 +28,22 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
 
   //TODO all connections are preserved after mapping
 
-  //TODO transistor legs order is maintained
+  property("transistor legs are placed into consecutive logical tracks") {
+    forAll(testInputs) { testInput =>
+      val diagram = testDiagram(testInput)
+      val board = Breadboard.fromDiagram(diagram)
+      val transistors = diagram.components.filter(_.cType.isInstanceOf[Transistor])
+      val physicalConns = board.physical.connections.toSeq.groupBy(_._1.cName)
+      transistors.foreach { transistor =>
+        val transConns = physicalConns(transistor.name)
+        val legsTracks = transConns.map { case (legId, hole) => (legId.leg.name.toInt, hole.trackIndex.index) }.sortBy(_._1)
+        val (legs, indices) = legsTracks.map { case (legName, index) => (legName, index - legsTracks.head._2)}.unzip
+        legs shouldBe indices
+      }
+    }
+  }
 
-  property("each leg is inserted into some physical hole of logical track") {
+  property("each leg is inserted into some physical hole of its logical track") {
     forAll(testInputs) { testInput =>
       val diagram = testDiagram(testInput)
       val board = Breadboard.fromDiagram(diagram)
