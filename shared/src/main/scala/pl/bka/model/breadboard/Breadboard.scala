@@ -32,14 +32,15 @@ object Breadboard {
       val transistorsLegs: Seq[LegId] = transistors.flatMap { t =>
            t.legs.map { leg => LegId(t.name, leg) }
         }
-      val tracks: Seq[Track] = transistorsLegs.zipWithIndex.map {
+      val (tracks: Seq[Track], transistorMap: Seq[(LegId, TrackIndex)]) = transistorsLegs.zipWithIndex.map {
         case (legId, index) =>
-          Vertical(upper = true, TrackIndex(index), diagram.legsConnections(legId))
-        }
-      //TODO map below is wrong
-      val map = diagram.connectionsLegs.flatMap {
-        case (conn, legs) => legs.map((_, TrackIndex(conn.initialTrackIndex)))
-      }
+          (
+            Vertical(upper = true, TrackIndex(index), diagram.legsConnections(legId)),
+            (legId, TrackIndex(index))
+          )
+        }.unzip
+      //TODO parts other than transistors
+      val map: Map[LegId, TrackIndex] = transistorMap.toMap
       Logical(tracks, map)
     }
     def toPhysical(logical: Logical): Physical = {
