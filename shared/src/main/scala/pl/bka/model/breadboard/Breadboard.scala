@@ -26,51 +26,72 @@ case class Breadboard(
 }
 
 object Breadboard {
-  def fromDiagram(diagram: Diagram): Breadboard = {
-    def toLogical: Logical = {
-      val transistors = diagram.components.filter(_.cType.isInstanceOf[Transistor])
-      val transistorsLegs: Seq[LegId] = transistors.flatMap { t =>
-           t.legs.map { leg => LegId(t.name, leg) }
-        }
-      val (tracks: Seq[Track], transistorMap: Seq[(LegId, TrackIndex)]) = transistorsLegs.zipWithIndex.map {
-        case (legId, index) =>
-          (
-            Vertical(upper = true, TrackIndex(index), diagram.legsConnections(legId)),
-            (legId, TrackIndex(index))
+  def toLogical(diagram: Diagram): (Diagram, Logical) = {
+    val transistors = diagram.components.filter(_.cType.isInstanceOf[Transistor])
+    val transistorsLegs: Seq[LegId] = transistors.flatMap { t =>
+      t.legs.map { leg => LegId(t.name, leg) }
+    }
+    val (tracks: Seq[Vertical], transistorMap: Seq[(LegId, TrackIndex)]) = transistorsLegs.zipWithIndex.map {
+      case (legId, index) =>
+        (
+          Vertical(upper = true, TrackIndex(index), diagram.legsConnections(legId)),
+          (legId, TrackIndex(index))
           )
-        }.unzip
-      //TODO parts other than transistors
-      val map: Map[LegId, TrackIndex] = transistorMap.toMap
-      Logical(tracks, map)
-    }
-    def toPhysical(logical: Logical): Physical = {
-      val tracks: Seq[Track] = logical.tracks.collect { case t: Vertical => t }
-      def insertComponent(cName: ComponentName, mapLegHole: Map[LegId, Hole],
-                          freePositions: Map[TrackIndex, Seq[VerticalPosition]]): (Map[LegId, Hole], Map[TrackIndex, Seq[VerticalPosition]]) = {
-        val compLegs: Seq[LegId] = diagram.componentsLegs(cName)
-        val minPositions: Seq[VerticalPosition] = compLegs.map { legId =>
-          val track = logical.connections(legId)
-          freePositions(track).minBy(_.position)
-        }
-        val targetPosition: VerticalPosition = minPositions.maxBy(_.position)
-        val legHoleDelta: Map[LegId, Hole] = compLegs.map { legId => (legId, Hole(logical.connections(legId), targetPosition)) }.toMap
-        val newMapLegHole: Map[LegId, Hole] = mapLegHole ++ legHoleDelta
-        val newFreePositions: Map[TrackIndex, Seq[VerticalPosition]] = legHoleDelta.toSeq.foldLeft(freePositions) { case (fps, (legId, hole)) =>
-          val track = logical.connections(legId)
-          val newFps = fps(track).filterNot(_ == hole.holeIndex)
-          fps.updated(track, newFps)
-        }
-        (newMapLegHole, newFreePositions)
+    }.unzip
+    def calcCables: (Seq[Component], Map[LegId, TrackIndex]) = {
+      val connectionTracks = tracks.groupBy(_.diagramConnection)
+      connectionTracks.toSeq.foldLeft((Seq[Component](), Map[LegId, TrackIndex]())) {
+        case ((comps, legsMap), (connection, tracksGroup)) =>
+          if(tracksGroup.length > 1) {
+            val (cables, cableLegs) = tracksGroup.zipWithIndex.map { case (track, i) =>
+              val cName = s"${connection.id}-$i"
+              val component = Component(cName, Cable(""))
+              val legs = component.legs.map(leg => (LegId(ComponentName(cName), leg), track.index))
+              (component, legs)
+            }.unzip
+            (comps ++ cables, legsMap ++ cableLegs.flatten.toMap)
+          }
+          else {
+            (comps ++ Seq[Component](), legsMap ++ Map[LegId, TrackIndex]())
+          }
       }
-      val initialFreePositions: Map[TrackIndex, Seq[VerticalPosition]] = tracks.map { track =>
-        (track.index, List.tabulate(track.length)(VerticalPosition))
-      }.toMap
-      val (mapLegHole, _) = diagram.components.map(_.name).foldLeft((Map[LegId, Hole](), initialFreePositions)) {
-        case ((mLegHole, freePositions), cName) => insertComponent(cName, mLegHole, freePositions)
-      }
-      Physical(tracks, mapLegHole)
     }
-    val logical = toLogical
-    Breadboard(logical, toPhysical(logical))
+    val (cables, cablesLegs) = calcCables
+    val map: Map[LegId, TrackIndex] = transistorMap.toMap ++ cablesLegs
+    val extDiagram: Diagram = diagram.copy(components = diagram.components ++ cables)
+    (extDiagram, Logical(tracks, map))
+  }
+
+  def toPhysical(diagram: Diagram, logical: Logical): Physical = {
+    val tracks: Seq[Track] = logical.tracks.collect { case t: Vertical => t }
+    def insertComponent(cName: ComponentName, mapLegHole: Map[LegId, Hole],
+                        freePositions: Map[TrackIndex, Seq[VerticalPosition]]): (Map[LegId, Hole], Map[TrackIndex, Seq[VerticalPosition]]) = {
+      val compLegs: Seq[LegId] = diagram.componentsLegs(cName)
+      val minPositions: Seq[VerticalPosition] = compLegs.map { legId =>
+        val track = logical.connections(legId)
+        freePositions(track).minBy(_.position)
+      }
+      val targetPosition: VerticalPosition = minPositions.maxBy(_.position)
+      val legHoleDelta: Map[LegId, Hole] = compLegs.map { legId => (legId, Hole(logical.connections(legId), targetPosition)) }.toMap
+      val newMapLegHole: Map[LegId, Hole] = mapLegHole ++ legHoleDelta
+      val newFreePositions: Map[TrackIndex, Seq[VerticalPosition]] = legHoleDelta.toSeq.foldLeft(freePositions) { case (fps, (legId, hole)) =>
+        val track = logical.connections(legId)
+        val newFps = fps(track).filterNot(_ == hole.holeIndex)
+        fps.updated(track, newFps)
+      }
+      (newMapLegHole, newFreePositions)
+    }
+    val initialFreePositions: Map[TrackIndex, Seq[VerticalPosition]] = tracks.map { track =>
+      (track.index, List.tabulate(track.length)(VerticalPosition))
+    }.toMap
+    val (mapLegHole, _) = diagram.components.map(_.name).foldLeft((Map[LegId, Hole](), initialFreePositions)) {
+      case ((mLegHole, freePositions), cName) => insertComponent(cName, mLegHole, freePositions)
+    }
+    Physical(tracks, mapLegHole)
+  }
+
+  def fromDiagram(diagram: Diagram): Breadboard = {
+    val (extDiagram, logical) = toLogical(diagram)
+    Breadboard(logical, toPhysical(extDiagram, logical))
   }
 }
