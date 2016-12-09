@@ -43,11 +43,14 @@ object Breadboard {
       connectionTracks.toSeq.foldLeft((Seq[Component](), Map[LegId, TrackIndex]())) {
         case ((comps, legsMap), (connection, tracksGroup)) =>
           if(tracksGroup.length > 1) {
-            val (cables, cableLegs) = tracksGroup.zipWithIndex.map { case (track, i) =>
+            val (cables, cableLegs) = tracksGroup.init.zip(tracksGroup.tail).zipWithIndex.map { case ((prevTrack, nextTrack), i) =>
               val cName = s"${connection.id}-$i"
-              val component = Component(cName, Cable(""))
-              val legs = component.legs.map(leg => (LegId(ComponentName(cName), leg), track.index))
-              (component, legs)
+              val cable = Component(cName, Cable(""))
+              val legs = Seq(
+                (LegId(ComponentName(cName), cable.legs.head), prevTrack.index),
+                (LegId(ComponentName(cName), cable.legs(1)), nextTrack.index)
+              )
+              (cable, legs)
             }.unzip
             (comps ++ cables, legsMap ++ cableLegs.flatten.toMap)
           }
