@@ -36,6 +36,13 @@ case class Diagram(
     "   components: " + components.map(_.prettyPrint).reduce(_ + " | " + _),
     "   connections: " + legsConnections.toSeq.map { case (legId, conn) => s"${legId.prettyPrint} conn${conn.id}" }.reduce(_ + " : " + _)
   )
+
+  def noCables: Diagram = {
+    val restrictedComps = components.filter(c => !c.cType.isInstanceOf[Cable])
+    val compsMap = restrictedComps.groupBy(_.name)
+    val restrictedLegsConns = legsConnections.toSeq.filter { case (legId, conn) => compsMap.get(legId.cName).isDefined}.toMap
+    Diagram(restrictedComps, restrictedLegsConns)
+  }
 }
 
 object Diagram {

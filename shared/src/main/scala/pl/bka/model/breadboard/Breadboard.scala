@@ -18,7 +18,7 @@ case class Physical(tracks: Seq[Track], connections: Map[LegId, Hole]) {
     s"""   physical conns: ${sortedConnections.map { case (l, Hole(t, h)) => l.prettyPrint + "-track" + t.index + "/hole" + h.position }}"""
   )
 }
-case class Breadboard(
+case class Breadboard(extDiagram: Diagram,
                      logical: Logical,
                      physical: Physical
                      ) {
@@ -61,7 +61,10 @@ object Breadboard {
     }
     val (cables, cablesLegs) = calcCables
     val map: Map[LegId, TrackIndex] = transistorMap.toMap ++ cablesLegs
-    val extDiagram: Diagram = diagram.copy(components = diagram.components ++ cables)
+    val extComponents = diagram.components ++ cables
+    val extConnections: Map[LegId, Connection] =
+      map.toSeq.map {case (legId, trackIndex) => (legId, tracks(trackIndex.index).diagramConnection)}.toMap
+    val extDiagram: Diagram = Diagram(extComponents, extConnections)
     (extDiagram, Logical(tracks, map))
   }
 
@@ -95,6 +98,6 @@ object Breadboard {
 
   def fromDiagram(diagram: Diagram): Breadboard = {
     val (extDiagram, logical) = toLogical(diagram)
-    Breadboard(logical, toPhysical(extDiagram, logical))
+    Breadboard(extDiagram, logical, toPhysical(extDiagram, logical))
   }
 }
