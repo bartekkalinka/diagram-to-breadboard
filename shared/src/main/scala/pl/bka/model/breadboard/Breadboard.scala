@@ -2,8 +2,7 @@ package pl.bka.model.breadboard
 
 import pl.bka.model._
 
-case class Breadboard(extDiagram: Diagram,
-                     logical: Logical,
+case class Breadboard(logical: Logical,
                      physical: Physical
                      ) {
   def prettyPrint: Seq[String] = logical.prettyPrint ++ physical.prettyPrint
@@ -11,7 +10,7 @@ case class Breadboard(extDiagram: Diagram,
 
 object Breadboard {
   def apply(diagram: Diagram): Breadboard = {
-    val (extDiagram, logical) = Logical(diagram)
-    Breadboard(extDiagram, logical, Physical(extDiagram, logical))
+    val logical = Logical(diagram)
+    Breadboard(logical, Physical(logical))
   }
 }

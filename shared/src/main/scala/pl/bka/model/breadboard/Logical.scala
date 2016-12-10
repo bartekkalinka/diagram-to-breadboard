@@ -2,14 +2,16 @@ package pl.bka.model.breadboard
 
 import pl.bka.model._
 
-case class Logical(tracks: Seq[Track], connections: Map[LegId, TrackIndex]) {
+case class Logical(components: Seq[Component], tracks: Seq[Track], connections: Map[LegId, TrackIndex]) {
+  def componentsLegs: Map[ComponentName, Seq[LegId]] = components.map(c => (c.name, c.legs.map(LegId(c.name, _)))).toMap
+
   def prettyPrint: Seq[String] = Seq(
     s"""   logical: tracks cnt: ${tracks.length} conns: ${connections.map { case (l, i) => l.prettyPrint + "-conn" + i.index }}"""
   )
 }
 
 object Logical {
-  def apply(diagram: Diagram): (Diagram, Logical) = {
+  def apply(diagram: Diagram): Logical = {
     val transistors = diagram.components.filter(_.cType.isInstanceOf[Transistor])
     val transistorsLegs: Seq[LegId] = transistors.flatMap { t =>
       t.legs.map { leg => LegId(t.name, leg) }
@@ -45,10 +47,7 @@ object Logical {
     val (cables, cablesLegs) = calcCables
     val map: Map[LegId, TrackIndex] = transistorMap.toMap ++ cablesLegs
     val extComponents = diagram.components ++ cables
-    val extConnections: Map[LegId, Connection] =
-      map.toSeq.map {case (legId, trackIndex) => (legId, tracks(trackIndex.index).diagramConnection)}.toMap
-    val extDiagram: Diagram = Diagram(extComponents, extConnections)
-    (extDiagram, Logical(tracks, map))
+    Logical(extComponents, tracks, map)
   }
 }
 
