@@ -1,5 +1,7 @@
 package pl.bka.model
 
+import pl.bka.model.breadboard.{Hole, Physical, TrackIndex, Vertical}
+
 object Power {
   sealed trait PowerConnection
   case object Plus extends PowerConnection
@@ -23,6 +25,8 @@ case class Diagram(
   def validate: Either[Fail, Diagram] = {
     val allMappedLegs = legsConnections.keys.toSet
     if(allLegs == allMappedLegs) Right(this) else Left(Fail("Not all legs mapped"))
+    val componentsDuplicatedNames = components.groupBy(_.name).toSeq.filter { case (name, comps) => comps.length > 1 }.map(_._1)
+    if(componentsDuplicatedNames.nonEmpty) Left(Fail(s"Components with duplicated name: $componentsDuplicatedNames")) else Right(this)
   }
 
   def prettyPrint: Seq[String] = Seq(
@@ -43,6 +47,14 @@ object Diagram {
   def prettyPrint(applyResult: Either[Fail, Diagram]): Seq[String] = applyResult match {
     case Right(diagram) => diagram.prettyPrint
     case Left(fail) => Seq(fail.toString)
+  }
+
+  def apply(physical: Physical): Diagram = {
+    val verticalsMap: Map[TrackIndex, Seq[Vertical]] = physical.tracks.collect { case t: Vertical => t }.groupBy(_.index)
+    val legsConnections = physical.connections.toSeq.map { case (legId, Hole(trackIndex, _)) =>
+      (legId, verticalsMap(trackIndex).head.diagramConnection)
+    }.toMap
+    Diagram(physical.components, legsConnections)
   }
 }
 
