@@ -47,7 +47,7 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
     forAll(testInputs) { testInput =>
       val diagram = testDiagram(testInput)
       val board = Breadboard(diagram)
-      diagram shouldBe board.extDiagram.noCables
+      diagram.components shouldBe board.physical.noCables
     }
   }
 
@@ -58,7 +58,7 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
       board.physical.connections.foreach { case (legId, Hole(trackIndex, holeIndex)) =>
         board.logical.connections(legId) shouldBe trackIndex
       }
-      board.physical.connections.keys.toSeq shouldBe board.extDiagram.legsConnections.keys.toSeq
+      board.physical.connections.keys.toSet shouldBe board.logical.componentsLegs.values.toSeq.flatten.toSet
     }
   }
 

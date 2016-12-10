@@ -19,13 +19,12 @@ case class LegId(cName: ComponentName, leg: Leg) {
 case class Diagram(
                     components: Seq[Component],
                     legsConnections: Map[LegId, Connection]
-                  ) {
+                  ) extends Container {
   //TODO which lazy vals are really needed?
   lazy val connections: Seq[Connection] = legsConnections.values.toSeq.distinct
   lazy val connectionsComponents: Map[Connection, ComponentName] = legsConnections.toSeq.map(lc => (lc._2, lc._1.cName)).toMap
   lazy val connectionsLegs: Map[Connection, Seq[LegId]] = legsConnections.toSeq.groupBy(_._2).mapValues(_.map(_._1))
   lazy val allLegs: Set[LegId] = components.flatMap(c => c.legs.map(LegId(c.name, _))).toSet
-  lazy val componentsLegs: Map[ComponentName, Seq[LegId]] = components.map(c => (c.name, c.legs.map(LegId(c.name, _)))).toMap
 
   def validate: Either[Fail, Diagram] = {
     val allMappedLegs = legsConnections.keys.toSet
@@ -36,13 +35,6 @@ case class Diagram(
     "   components: " + components.map(_.prettyPrint).reduce(_ + " | " + _),
     "   connections: " + legsConnections.toSeq.map { case (legId, conn) => s"${legId.prettyPrint} conn${conn.id}" }.reduce(_ + " : " + _)
   )
-
-  def noCables: Diagram = {
-    val restrictedComps = components.filter(c => !c.cType.isInstanceOf[Cable])
-    val compsMap = restrictedComps.groupBy(_.name)
-    val restrictedLegsConns = legsConnections.toSeq.filter { case (legId, conn) => compsMap.get(legId.cName).isDefined}.toMap
-    Diagram(restrictedComps, restrictedLegsConns)
-  }
 }
 
 object Diagram {

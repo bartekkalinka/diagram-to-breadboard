@@ -2,9 +2,7 @@ package pl.bka.model.breadboard
 
 import pl.bka.model._
 
-case class Logical(components: Seq[Component], tracks: Seq[Track], connections: Map[LegId, TrackIndex]) {
-  def componentsLegs: Map[ComponentName, Seq[LegId]] = components.map(c => (c.name, c.legs.map(LegId(c.name, _)))).toMap
-
+case class Logical(components: Seq[Component], tracks: Seq[Track], connections: Map[LegId, TrackIndex]) extends Container {
   def prettyPrint: Seq[String] = Seq(
     s"""   logical: tracks cnt: ${tracks.length} conns: ${connections.map { case (l, i) => l.prettyPrint + "-conn" + i.index }}"""
   )
