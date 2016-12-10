@@ -48,13 +48,5 @@ object Diagram {
     case Right(diagram) => diagram.prettyPrint
     case Left(fail) => Seq(fail.toString)
   }
-
-  def apply(physical: Physical): Diagram = {
-    val verticalsMap: Map[TrackIndex, Seq[Vertical]] = physical.tracks.collect { case t: Vertical => t }.groupBy(_.index)
-    val legsConnections = physical.connections.toSeq.map { case (legId, Hole(trackIndex, _)) =>
-      (legId, verticalsMap(trackIndex).head.diagramConnection)
-    }.toMap
-    Diagram(physical.components, legsConnections)
-  }
 }
 

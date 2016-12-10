@@ -19,6 +19,20 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
 
   def testDiagram(testInput: Either[Fail, Diagram]): Diagram = testInput match { case Right(d) => d; case _ => fail() }
 
+  def physicalToDiagram(physical: Physical): Diagram = {
+    val compsByName = physical.componentsByName
+    val cableConnections: Seq[(ComponentName, TrackIndex, String)] = physical.connections.toSeq
+      .filter { case (legId, _) => compsByName(legId.cName).cType.isInstanceOf[Cable] }
+      .map {case (legId, Hole(index, _)) => (legId.cName, index, legId.leg.name)}
+    val rawTrackConns: Seq[(TrackIndex, TrackIndex)] = cableConnections.groupBy(_._1).values.map { legs =>
+      val sortedLegs = legs.sortBy(_._3)
+      (legs.head._2, legs(1)._2)
+    }.toSeq
+    val trackConns: Map[TrackIndex, Seq[TrackIndex]] = rawTrackConns.groupBy(_._1).mapValues(_.map(_._2))
+    //TODO retrieve connections recursively
+    Diagram(physical.components, ???)
+  }
+
   property("each diagram should be a valid diagram") {
     forAll(testInputs) { testInput =>
       val diagram = testInput match { case Right(d) => Some(d); case _ => None }
