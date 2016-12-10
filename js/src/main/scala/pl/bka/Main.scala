@@ -14,7 +14,7 @@ object Main {
     Diagram.prettyPrint(Diagrams.example).foreach(DomOutput.println)
     Diagrams.example match {
       case Right(diagram) =>
-        val exampleBoard = Breadboard.fromDiagram(diagram)
+        val exampleBoard = Breadboard(diagram)
         DomOutput.println("board")
         exampleBoard.prettyPrint.foreach(DomOutput.println)
         Drawers.drawPhysical(exampleBoard.physical, diagram)

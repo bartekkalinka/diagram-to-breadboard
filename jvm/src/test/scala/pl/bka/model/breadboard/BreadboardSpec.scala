@@ -31,7 +31,7 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
   property("transistor legs are placed into consecutive logical tracks") {
     forAll(testInputs) { testInput =>
       val diagram = testDiagram(testInput)
-      val board = Breadboard.fromDiagram(diagram)
+      val board = Breadboard(diagram)
       val transistors = diagram.components.filter(_.cType.isInstanceOf[Transistor])
       val physicalConns = board.physical.connections.toSeq.groupBy(_._1.cName)
       transistors.foreach { transistor =>
@@ -46,7 +46,7 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
   property("breadboard's extended diagram without cables should be original diagram") {
     forAll(testInputs) { testInput =>
       val diagram = testDiagram(testInput)
-      val board = Breadboard.fromDiagram(diagram)
+      val board = Breadboard(diagram)
       diagram shouldBe board.extDiagram.noCables
     }
   }
@@ -54,7 +54,7 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
   property("each leg is inserted into some physical hole of its logical track") {
     forAll(testInputs) { testInput =>
       val diagram = testDiagram(testInput)
-      val board = Breadboard.fromDiagram(diagram)
+      val board = Breadboard(diagram)
       board.physical.connections.foreach { case (legId, Hole(trackIndex, holeIndex)) =>
         board.logical.connections(legId) shouldBe trackIndex
       }
@@ -65,7 +65,7 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
   property("one hole holds not more than one leg") {
     forAll(testInputs) { testInput =>
       val diagram = testDiagram(testInput)
-      val board = Breadboard.fromDiagram(diagram)
+      val board = Breadboard(diagram)
       board.physical.connections.groupBy(_._2).toSeq.filter(_._2.toSeq.length > 1).toList shouldBe List()
     }
   }
@@ -73,7 +73,7 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
   property("each component leg should be on same hole level inside the track") {
     forAll(testInputs) { testInput =>
       val diagram = testDiagram(testInput)
-      val board = Breadboard.fromDiagram(diagram)
+      val board = Breadboard(diagram)
       board.physical.connections.toSeq.groupBy(_._1.cName).mapValues(_.map { case (_, Hole(_, holeIndex)) => holeIndex }.distinct).foreach {
         case (cName, holeIndices) => holeIndices.length shouldBe 1
       }

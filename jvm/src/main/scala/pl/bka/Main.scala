@@ -8,7 +8,7 @@ object Main {
     println(s"avtDog: ${Diagram.prettyPrint(Diagrams.example)}")
     Diagrams.example match {
       case Right(diagram) =>
-        val exampleBoard = Breadboard.fromDiagram(diagram)
+        val exampleBoard = Breadboard(diagram)
         println(s"exampleBoard: ${exampleBoard.prettyPrint}")
       case _ => ()
     }
