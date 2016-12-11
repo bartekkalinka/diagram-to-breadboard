@@ -29,8 +29,21 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
       (legs.head._2, legs(1)._2)
     }.toSeq
     val trackConns: Map[TrackIndex, Seq[TrackIndex]] = rawTrackConns.groupBy(_._1).mapValues(_.map(_._2))
-    //TODO retrieve connections recursively
-    Diagram(physical.components, ???)
+    def pullConnection(index: TrackIndex): Seq[TrackIndex] =
+      index +: trackConns.get(index).map(children => children.flatMap(pullConnection)).getOrElse(Seq[TrackIndex]())
+    def connections(toTraverse: Seq[TrackIndex], acc: Seq[Seq[TrackIndex]]): Seq[Seq[TrackIndex]] =
+      if(toTraverse.nonEmpty) {
+        val conn = pullConnection(toTraverse.head)
+        connections(toTraverse.diff(conn), acc :+ conn)
+      }
+      else acc
+    val connectionByTrack: Map[TrackIndex, Connection] =
+      connections(physical.tracks.map(_.index), Seq[Seq[TrackIndex]]())
+        .zipWithIndex.flatMap { case (tracks, i) => tracks.map((_, Connection(Left(i)))) }.toMap
+    val legsConnections: Map[LegId, Connection] = physical.connections.toSeq.map {
+      case (legId, Hole(trackIndex, _)) => (legId, connectionByTrack(trackIndex))
+    }.toMap
+    Diagram(physical.components, legsConnections)
   }
 
   property("each diagram should be a valid diagram") {
