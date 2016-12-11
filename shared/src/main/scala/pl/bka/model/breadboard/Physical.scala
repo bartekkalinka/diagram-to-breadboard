@@ -15,7 +15,7 @@ case class Physical(components: Seq[Component], tracks: Seq[Track], connections:
 
   //this is for testing purposes
   //so it doesn't use Vertical.diagramConnection attribute on purpose
-  def physicalToDiagram: Diagram = {
+  def toDiagram: Diagram = {
     val compsByName = this.componentsByName
     val cableConnections: Seq[(ComponentName, TrackIndex, String)] = this.connections.toSeq
       .filter { case (legId, _) => compsByName(legId.cName).cType.isInstanceOf[Cable] }

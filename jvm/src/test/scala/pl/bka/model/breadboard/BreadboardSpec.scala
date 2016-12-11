@@ -26,7 +26,13 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
     }
   }
 
-  //TODO all connections are preserved after mapping
+  property("physical breadboard layout preserves diagram connections") {
+    forAll(testInputs) { testInput =>
+      val diagram = testDiagram(testInput)
+      val board = Breadboard(diagram)
+      board.physical.toDiagram.isEquivalentTo(diagram) shouldBe true
+    }
+  }
 
   property("transistor legs are placed into consecutive logical tracks") {
     forAll(testInputs) { testInput =>

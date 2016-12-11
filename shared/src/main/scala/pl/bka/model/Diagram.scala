@@ -33,6 +33,14 @@ case class Diagram(
     "   components: " + components.map(_.prettyPrint).reduce(_ + " | " + _),
     "   connections: " + legsConnections.toSeq.map { case (legId, conn) => s"${legId.prettyPrint} conn${conn.id}" }.reduce(_ + " : " + _)
   )
+
+  private def equivalenceSets: (Set[Component], Set[Set[LegId]]) = (
+      components.toSet,
+      legsConnections.toSeq.groupBy(_._2).mapValues(v => v.map(_._1)).values.map(_.toSet).toSet
+    )
+
+  def isEquivalentTo(that: Diagram): Boolean =
+    this.equivalenceSets == that.equivalenceSets
 }
 
 object Diagram {
