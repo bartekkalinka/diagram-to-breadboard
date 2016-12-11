@@ -27,7 +27,7 @@ object Logical {
         case ((comps, legsMap), (connection, tracksGroup)) =>
           if(tracksGroup.length > 1) {
             val (cables, cableLegs) = tracksGroup.init.zip(tracksGroup.tail).map { case (prev, next) =>
-              val cName = s"${connection.id}-${prev.index.index}-${next.index.index}"
+              val cName = s"cable-${connection.id.fold(identity, identity)}-${prev.index.index}-${next.index.index}"
               val cable = Component(cName, Cable(""))
               val legs = Seq(
                 (LegId(ComponentName(cName), cable.legs.head), prev.index),

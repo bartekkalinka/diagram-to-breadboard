@@ -1,7 +1,7 @@
 package pl.bka
 
 import org.scalajs.dom
-import pl.bka.model.{Component, Diagram, LegId, Transistor}
+import pl.bka.model._
 import pl.bka.model.breadboard._
 
 object Drawers {
@@ -14,35 +14,52 @@ object Drawers {
   val transistorLegsSpread = 3
   val fontSize = 8
   val font = s"${fontSize}px Arial"
+  val cableArcRadiusFactor = 0.75
 
   val ctx = DomOutput.canvas.getContext("2d")
     .asInstanceOf[dom.CanvasRenderingContext2D]
 
   def drawPhysical(physical: Physical, diagram: Diagram): Unit = {
-    def drawComponent(component: Component): Unit = {
+    def drawComponent(component: Component, compIndex: Int): Unit = {
+      val holes: Seq[Hole] = component.legs.map { leg =>
+        physical.connections(LegId(component.name, leg))
+      }
+      val color: String = Seq("#000000", "#FF0000", "#0000FF", "#00FF00")(compIndex % 4)
       component.cType match {
         case Transistor(symbol, _) =>
-          val holes: Seq[Hole] = component.legs.map { leg =>
-            physical.connections(LegId(component.name, leg))
-          }
           val centerHole = holePosition(holes(1))
           val (centerX, centerY) = (centerHole._1, centerHole._2 - (0.5 * holeStep).toInt)
           drawLine(holePosition(holes.head), (centerX - transistorLegsSpread, centerY), 2)
           drawLine(holePosition(holes(1)), (centerX, centerY), 2)
           drawLine(holePosition(holes(2)), (centerX + transistorLegsSpread, centerY), 2)
           drawTransistorBody(symbol, (centerX, centerY))
-          //TODO
+        case Cable(_, _) =>
+          drawCable(holePosition(holes.head), holePosition(holes(1)), color)
         case _ => ()
       }
     }
+    dom.console.log("drawing...")
     physical.tracks.foreach(drawTrack(_, verticalTracksVerticalOffset))
-    diagram.components.foreach(drawComponent)
+    physical.components.reverse.zipWithIndex.foreach((drawComponent _).tupled)
   }
 
   val holeStep = verticalTrackLength / Tracks.verticalTrackLength
 
   private def holePosition(hole: Hole): (Int, Int) =
     (hole.trackIndex.index * verticalTracksStep + verticalTracksHorizontalOffset, verticalTracksVerticalOffset + ((hole.holeIndex.position + 0.5) * holeStep).toInt)
+
+  private def drawCable(from: (Int, Int), to: (Int, Int), color: String): Unit = {
+    ctx.strokeStyle = color
+    ctx.lineWidth = 2
+    ctx.beginPath()
+    val xDelta = (to._1 - from._1) / 2
+    val radius = (to._1 - from._1) * cableArcRadiusFactor
+    val yDelta = Math.sqrt(radius * radius - xDelta * xDelta).toInt
+    val angle = Math.atan2(xDelta, yDelta)
+    val (centerX, centerY) = (from._1 + xDelta, from._2 + yDelta)
+    ctx.arc(centerX, centerY, radius, - Math.PI / 2 - angle, - Math.PI / 2 + angle)
+    ctx.stroke()
+  }
 
   private def drawTransistorBody(symbol: String, pos: (Int, Int)): Unit = {
     ctx.fillStyle = "#FFFFFF"
@@ -69,8 +86,8 @@ object Drawers {
     ctx.fill()
   }
 
-  private def drawLine(from: (Int, Int), to: (Int, Int), lineWidth: Int): Unit = {
-    ctx.strokeStyle = "#000000"
+  private def drawLine(from: (Int, Int), to: (Int, Int), lineWidth: Int, color: String = "#000000"): Unit = {
+    ctx.strokeStyle = color
     ctx.lineWidth = lineWidth
     ctx.beginPath()
     ctx.moveTo(from._1, from._2)
