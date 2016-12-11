@@ -40,10 +40,10 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
     val connectionByTrack: Map[TrackIndex, Connection] =
       connections(physical.tracks.map(_.index), Seq[Seq[TrackIndex]]())
         .zipWithIndex.flatMap { case (tracks, i) => tracks.map((_, Connection(Left(i)))) }.toMap
-    val legsConnections: Map[LegId, Connection] = physical.connections.toSeq.map {
-      case (legId, Hole(trackIndex, _)) => (legId, connectionByTrack(trackIndex))
-    }.toMap
-    Diagram(physical.components, legsConnections)
+    val legsConnections: Map[LegId, Connection] = physical.connections.toSeq
+      .filterNot { case (legId, _) => compsByName(legId.cName).cType.isInstanceOf[Cable] }
+      .map { case (legId, Hole(trackIndex, _)) => (legId, connectionByTrack(trackIndex)) }.toMap
+    Diagram(physical.noCables, legsConnections)
   }
 
   property("each diagram should be a valid diagram") {
