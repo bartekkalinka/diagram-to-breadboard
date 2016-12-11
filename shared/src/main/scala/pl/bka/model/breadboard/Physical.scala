@@ -12,6 +12,35 @@ case class Physical(components: Seq[Component], tracks: Seq[Track], connections:
     s"""   physical tracks: $tracks""",
     s"""   physical conns: ${sortedConnections.map { case (l, Hole(t, h)) => l.prettyPrint + "-track" + t.index + "/hole" + h.position }}"""
   )
+
+  //this is for testing purposes
+  //so it doesn't use Vertical.diagramConnection attribute on purpose
+  def physicalToDiagram: Diagram = {
+    val compsByName = this.componentsByName
+    val cableConnections: Seq[(ComponentName, TrackIndex, String)] = this.connections.toSeq
+      .filter { case (legId, _) => compsByName(legId.cName).cType.isInstanceOf[Cable] }
+      .map {case (legId, Hole(index, _)) => (legId.cName, index, legId.leg.name)}
+    val rawTrackConns: Seq[(TrackIndex, TrackIndex)] = cableConnections.groupBy(_._1).values.map { legs =>
+      val sortedLegs = legs.sortBy(_._3)
+      (legs.head._2, legs(1)._2)
+    }.toSeq
+    val trackConns: Map[TrackIndex, Seq[TrackIndex]] = rawTrackConns.groupBy(_._1).mapValues(_.map(_._2))
+    def pullConnection(index: TrackIndex): Seq[TrackIndex] =
+      index +: trackConns.get(index).map(children => children.flatMap(pullConnection)).getOrElse(Seq[TrackIndex]())
+    def connections(toTraverse: Seq[TrackIndex], acc: Seq[Seq[TrackIndex]]): Seq[Seq[TrackIndex]] =
+      if(toTraverse.nonEmpty) {
+        val conn = pullConnection(toTraverse.head)
+        connections(toTraverse.diff(conn), acc :+ conn)
+      }
+      else acc
+    val connectionByTrack: Map[TrackIndex, Connection] =
+      connections(this.tracks.map(_.index), Seq[Seq[TrackIndex]]())
+        .zipWithIndex.flatMap { case (tracks, i) => tracks.map((_, Connection(Left(i)))) }.toMap
+    val legsConnections: Map[LegId, Connection] = this.connections.toSeq
+      .filterNot { case (legId, _) => compsByName(legId.cName).cType.isInstanceOf[Cable] }
+      .map { case (legId, Hole(trackIndex, _)) => (legId, connectionByTrack(trackIndex)) }.toMap
+    Diagram(this.noCables, legsConnections)
+  }
 }
 
 object Physical {
