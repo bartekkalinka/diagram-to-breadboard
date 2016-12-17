@@ -101,7 +101,7 @@ object Drawers {
     drawLine(from, to, 1)
 
     for(h <- 0 until Tracks.verticalTrackLength) {
-      drawHole(holePosition(Hole(vertical.index, VerticalPosition(h))))
+      drawHole(holePosition(Hole(vertical.index, TrackPosition(h))))
     }
   }
 

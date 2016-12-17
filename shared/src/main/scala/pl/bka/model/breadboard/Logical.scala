@@ -14,7 +14,7 @@ object Logical {
     val transistorsLegs: Seq[LegId] = transistors.flatMap { t =>
       t.legs.map { leg => LegId(t.name, leg) }
     }
-    val (tracks: Seq[Vertical], transistorMap: Seq[(LegId, TrackIndex)]) = transistorsLegs.zipWithIndex.map {
+    val (vertical: Seq[Vertical], transistorMap: Seq[(LegId, TrackIndex)]) = transistorsLegs.zipWithIndex.map {
       case (legId, index) =>
         (
           Vertical(upper = true, TrackIndex(index), diagram.legsConnections(legId)),
@@ -22,7 +22,7 @@ object Logical {
           )
     }.unzip
     def calcCables: (Seq[Component], Map[LegId, TrackIndex]) = {
-      val connectionTracks = tracks.groupBy(_.diagramConnection)
+      val connectionTracks = vertical.groupBy(_.diagramConnection)
       connectionTracks.toSeq.foldLeft((Seq[Component](), Map[LegId, TrackIndex]())) {
         case ((comps, legsMap), (connection, tracksGroup)) =>
           if(tracksGroup.length > 1) {
@@ -45,7 +45,11 @@ object Logical {
     val (cables, cablesLegs) = calcCables
     val map: Map[LegId, TrackIndex] = transistorMap.toMap ++ cablesLegs
     val extComponents = diagram.components ++ cables
-    Logical(extComponents, tracks, map)
+    val horizontal = Seq(
+      Horizontal(upper = true, left = true, index = TrackIndex(0), power = Power.Plus),
+      Horizontal(upper = true, left = true, index = TrackIndex(1), power = Power.GND)
+    )
+    Logical(extComponents, vertical ++ horizontal, map)
   }
 }
 
