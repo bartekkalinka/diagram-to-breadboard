@@ -31,7 +31,7 @@ object Drawers {
       component.cType match {
         case Transistor(symbol, _) =>
           val centerHole = verticalHolePosition(holes(1))
-          val (centerX, centerY) = (centerHole._1, centerHole._2 - (0.5 * holeStep).toInt)
+          val (centerX, centerY) = (centerHole._1, centerHole._2 - (0.3 * holeStep).toInt)
           drawLine(verticalHolePosition(holes.head), (centerX - transistorLegsSpread, centerY), 2)
           drawLine(verticalHolePosition(holes(1)), (centerX, centerY), 2)
           drawLine(verticalHolePosition(holes(2)), (centerX + transistorLegsSpread, centerY), 2)
