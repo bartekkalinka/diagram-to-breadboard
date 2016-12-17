@@ -6,9 +6,9 @@ import pl.bka.model.breadboard._
 
 object Drawers {
   val verticalTracksStep = 30
-  val verticalTrackLength = 40 * Tracks.verticalTrackLength
+  val verticalTrackLength = 30 * Tracks.verticalTrackLength
   val verticalTracksHorizontalOffset = 2 * verticalTracksStep
-  val verticalTracksVerticalOffset = 20
+  val verticalTracksVerticalOffset = 40
   val holeRadius = 5
   val transistorBodyRadius = 12
   val transistorLegsSpread = 3
@@ -43,10 +43,10 @@ object Drawers {
     physical.components.reverse.zipWithIndex.foreach((drawComponent _).tupled)
   }
 
-  val holeStep = verticalTrackLength / Tracks.verticalTrackLength
+  val holeStep = verticalTrackLength / (Tracks.verticalTrackLength - 1)
 
   private def holePosition(hole: Hole): (Int, Int) =
-    (hole.trackIndex.index * verticalTracksStep + verticalTracksHorizontalOffset, verticalTracksVerticalOffset + ((hole.holeIndex.position + 0.5) * holeStep).toInt)
+    (hole.trackIndex.index * verticalTracksStep + verticalTracksHorizontalOffset, verticalTracksVerticalOffset + (hole.holeIndex.position * holeStep).toInt)
 
   private def drawCable(from: (Int, Int), to: (Int, Int), color: String): Unit = {
     ctx.strokeStyle = color
