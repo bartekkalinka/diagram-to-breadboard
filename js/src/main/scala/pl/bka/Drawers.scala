@@ -6,6 +6,7 @@ import pl.bka.model.breadboard._
 
 object Drawers {
   val tracksStep = 30
+  val holeStep = tracksStep
   val verticalTrackLength = tracksStep * (Tracks.verticalTrackLength - 1)
   val horizontalTrackLength = tracksStep * (Tracks.horizontalTrackLength - 1)
   val horizontalTracksVerticalOffset = tracksStep
@@ -45,13 +46,36 @@ object Drawers {
     physical.components.reverse.zipWithIndex.foreach((drawComponent _).tupled)
   }
 
-  val holeStep = verticalTrackLength / (Tracks.verticalTrackLength - 1)
-
   private def verticalHolePosition(hole: Hole): (Int, Int) =
     (hole.trackIndex.index * tracksStep + tracksHorizontalOffset, verticalTracksVerticalOffset + hole.holeIndex.position * holeStep)
 
   private def horizontalHolePosition(hole: Hole): (Int, Int) =
     (tracksHorizontalOffset + hole.holeIndex.position * holeStep, hole.trackIndex.index * tracksStep + horizontalTracksVerticalOffset)
+
+  private def drawVerticalTrack(vertical: Vertical): Unit = {
+    val from = (vertical.index.index * tracksStep + tracksHorizontalOffset, verticalTracksVerticalOffset)
+    val to = (vertical.index.index * tracksStep + tracksHorizontalOffset, verticalTracksVerticalOffset + verticalTrackLength)
+    drawLine(from, to, 1)
+
+    for(h <- 0 until Tracks.verticalTrackLength) {
+      drawHole(verticalHolePosition(Hole(vertical.index, TrackPosition(h))))
+    }
+  }
+
+  private def drawHorizontalTrack(horizontal: Horizontal): Unit = {
+    val from = (tracksHorizontalOffset, horizontal.index.index * tracksStep + horizontalTracksVerticalOffset)
+    val to = (tracksHorizontalOffset + horizontalTrackLength, horizontal.index.index * tracksStep + horizontalTracksVerticalOffset)
+    drawLine(from, to, 1)
+
+    for(h <- 0 until Tracks.horizontalTrackLength) {
+      drawHole(horizontalHolePosition(Hole(horizontal.index, TrackPosition(h))))
+    }
+  }
+
+  private def drawTrack(track: Track, offset: Int): Unit = track match {
+    case v: Vertical => drawVerticalTrack(v)
+    case h: Horizontal => drawHorizontalTrack(h)
+  }
 
   private def drawCable(from: (Int, Int), to: (Int, Int), color: String): Unit = {
     ctx.strokeStyle = color
@@ -98,30 +122,5 @@ object Drawers {
     ctx.moveTo(from._1, from._2)
     ctx.lineTo(to._1, to._2)
     ctx.stroke()
-  }
-
-  private def drawVerticalTrack(vertical: Vertical): Unit = {
-    val from = (vertical.index.index * tracksStep + tracksHorizontalOffset, verticalTracksVerticalOffset)
-    val to = (vertical.index.index * tracksStep + tracksHorizontalOffset, verticalTracksVerticalOffset + verticalTrackLength)
-    drawLine(from, to, 1)
-
-    for(h <- 0 until Tracks.verticalTrackLength) {
-      drawHole(verticalHolePosition(Hole(vertical.index, TrackPosition(h))))
-    }
-  }
-
-  private def drawHorizontalTrack(horizontal: Horizontal): Unit = {
-    val from = (tracksHorizontalOffset, horizontal.index.index * tracksStep + horizontalTracksVerticalOffset)
-    val to = (tracksHorizontalOffset + horizontalTrackLength, horizontal.index.index * tracksStep + horizontalTracksVerticalOffset)
-    drawLine(from, to, 1)
-
-    for(h <- 0 until Tracks.horizontalTrackLength) {
-      drawHole(horizontalHolePosition(Hole(horizontal.index, TrackPosition(h))))
-    }
-  }
-
-  private def drawTrack(track: Track, offset: Int): Unit = track match {
-    case v: Vertical => drawVerticalTrack(v)
-    case h: Horizontal => drawHorizontalTrack(h)
   }
 }
