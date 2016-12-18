@@ -66,7 +66,8 @@ object Physical {
     val initialFreePositions: Map[TrackIndex, Seq[TrackPosition]] = tracks.map { track =>
       (track.index, List.tabulate(track.length)(TrackPosition))
     }.toMap
-    val (mapLegHole, _) = logical.components.map(_.name).foldLeft((Map[LegId, Hole](), initialFreePositions)) {
+    val sortedComponents = logical.components.sortBy(_.cType.physicalInsertOrder)
+    val (mapLegHole, _) = sortedComponents.map(_.name).foldLeft((Map[LegId, Hole](), initialFreePositions)) {
       case ((mLegHole, freePositions), cName) => insertComponent(cName, mLegHole, freePositions)
     }
     Physical(logical.components, tracks, mapLegHole)
