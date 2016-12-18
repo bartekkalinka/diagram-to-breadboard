@@ -9,7 +9,7 @@ case class Logical(components: Seq[Component], tracks: Seq[Track], connections: 
 }
 
 object Logical {
-  def apply(diagram: Diagram): Logical = {
+  def transistorsToTracks(diagram: Diagram): (Seq[Vertical], Seq[(LegId, TrackIndex)]) = {
     val transistors = diagram.components.filter(_.cType.isInstanceOf[Transistor])
     val transistorsLegs: Seq[LegId] = transistors.flatMap { t =>
       t.legs.map { leg => LegId(t.name, leg) }
@@ -21,28 +21,34 @@ object Logical {
           (legId, TrackIndex(index))
           )
     }.unzip
-    def calcCables: (Seq[Component], Map[LegId, TrackIndex]) = {
-      val connectionTracks = vertical.groupBy(_.diagramConnection)
-      connectionTracks.toSeq.foldLeft((Seq[Component](), Map[LegId, TrackIndex]())) {
-        case ((comps, legsMap), (connection, tracksGroup)) =>
-          if(tracksGroup.length > 1) {
-            val (cables, cableLegs) = tracksGroup.init.zip(tracksGroup.tail).map { case (prev, next) =>
-              val cName = s"cable-${connection.id.fold(identity, identity)}-${prev.index.index}-${next.index.index}"
-              val cable = Component(cName, Cable(""))
-              val legs = Seq(
-                (LegId(ComponentName(cName), cable.legs.head), prev.index),
-                (LegId(ComponentName(cName), cable.legs(1)), next.index)
-              )
-              (cable, legs)
-            }.unzip
-            (comps ++ cables, legsMap ++ cableLegs.flatten.toMap)
-          }
-          else {
-            (comps ++ Seq[Component](), legsMap ++ Map[LegId, TrackIndex]())
-          }
-      }
+    (vertical, transistorMap)
+  }
+
+  def calcCables(vertical: Seq[Vertical]): (Seq[Component], Map[LegId, TrackIndex]) = {
+    def addCable(connection: Connection)(prev: Track, next: Track): (Component, Seq[(LegId, TrackIndex)]) = {
+      val cName = s"cable-${connection.id.fold(identity, identity)}-${prev.index.index}-${next.index.index}"
+      val cable = Component(cName, Cable(""))
+      val legs = Seq(
+        (LegId(ComponentName(cName), cable.legs.head), prev.index),
+        (LegId(ComponentName(cName), cable.legs(1)), next.index)
+      )
+      (cable, legs)
     }
-    val (cables, cablesLegs) = calcCables
+    def connectTracksWithCables(comps: Seq[Component], legsMap: Map[LegId, TrackIndex],
+                                connection: Connection, tracksGroup: Seq[Vertical]): (Seq[Component], Map[LegId, TrackIndex]) = {
+      val (cables, cableLegs) = tracksGroup.init.zip(tracksGroup.tail).map((addCable(connection) _).tupled).unzip
+      (comps ++ cables, legsMap ++ cableLegs.flatten.toMap)
+    }
+    val connectionTracks = vertical.groupBy(_.diagramConnection)
+    connectionTracks.toSeq.foldLeft((Seq[Component](), Map[LegId, TrackIndex]())) {
+      case ((comps, legsMap), (connection, tracksGroup)) =>
+        if(tracksGroup.length > 1) connectTracksWithCables(comps, legsMap, connection, tracksGroup) else (comps, legsMap)
+    }
+  }
+
+  def apply(diagram: Diagram): Logical = {
+    val (vertical, transistorMap) = transistorsToTracks(diagram)
+    val (cables, cablesLegs) = calcCables(vertical)
     val map: Map[LegId, TrackIndex] = transistorMap.toMap ++ cablesLegs
     val extComponents = diagram.components ++ cables
     val horizontal = Seq(
