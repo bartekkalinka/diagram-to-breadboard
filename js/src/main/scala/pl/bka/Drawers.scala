@@ -1,6 +1,7 @@
 package pl.bka
 
 import org.scalajs.dom
+import pl.bka.model.Power.{GND, Plus}
 import pl.bka.model._
 import pl.bka.model.breadboard._
 
@@ -70,11 +71,22 @@ object Drawers {
     for(h <- 0 until Tracks.horizontalTrackLength) {
       drawHole(horizontalHolePosition(Hole(horizontal.index, TrackPosition(h))))
     }
+    drawPowerSign(horizontal.power, (from._1 - 12, from._2))
   }
 
   private def drawTrack(track: Track, offset: Int): Unit = track match {
     case v: Vertical => drawVerticalTrack(v)
     case h: Horizontal => drawHorizontalTrack(h)
+  }
+
+  private def drawPowerSign(power: Power.PowerConnection, pos: (Int, Int)) = power match {
+    case Plus =>
+      drawLine(from = (pos._1 - 5, pos._2), to = (pos._1 + 5, pos._2), 1)
+      drawLine(from = (pos._1, pos._2 - 5), to = (pos._1, pos._2 + 5), 1)
+    case GND =>
+      drawLine(from = (pos._1 - 5, pos._2), to = (pos._1 + 5, pos._2), 1)
+      drawLine(from = (pos._1 - 3, pos._2 + 3), to = (pos._1 + 3, pos._2 + 3), 1)
+      drawLine(from = (pos._1 - 1, pos._2 + 6), to = (pos._1 + 1, pos._2 + 6), 1)
   }
 
   private def drawCable(from: (Int, Int), to: (Int, Int), color: String): Unit = {
