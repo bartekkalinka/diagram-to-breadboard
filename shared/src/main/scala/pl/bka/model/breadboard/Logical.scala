@@ -9,7 +9,7 @@ case class Logical(components: Seq[Component], tracks: Seq[Track], connections: 
 }
 
 object Logical {
-  def transistorsToTracks(diagram: Diagram): (Seq[Vertical], Seq[(LegId, TrackIndex)]) = {
+  private def transistorsToTracks(diagram: Diagram): (Seq[Vertical], Seq[(LegId, TrackIndex)]) = {
     val transistors = diagram.components.filter(_.cType.isInstanceOf[Transistor])
     val transistorsLegs: Seq[LegId] = transistors.flatMap { t =>
       t.legs.map { leg => LegId(t.name, leg) }
@@ -24,7 +24,7 @@ object Logical {
     (vertical, transistorMap)
   }
 
-  def calcCables(vertical: Seq[Vertical]): (Seq[Component], Map[LegId, TrackIndex]) = {
+  private def calcCables(vertical: Seq[Vertical]): (Seq[Component], Map[LegId, TrackIndex]) = {
     def addCable(connection: Connection)(prev: Track, next: Track): (Component, Seq[(LegId, TrackIndex)]) = {
       val cName = s"cable-${connection.id.fold(identity, identity)}-${prev.index.index}-${next.index.index}"
       val cable = Component(cName, Cable(""))

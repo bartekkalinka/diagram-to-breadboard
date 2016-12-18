@@ -44,7 +44,7 @@ case class Physical(components: Seq[Component], tracks: Seq[Track], connections:
 }
 
 object Physical {
-  def insertComponent(logical: Logical)(cName: ComponentName, allLegsInsertions: Map[LegId, Hole],
+  private def insertComponent(logical: Logical)(cName: ComponentName, allLegsInsertions: Map[LegId, Hole],
                                         freePositions: Map[TrackIndex, Seq[TrackPosition]]): (Map[LegId, Hole], Map[TrackIndex, Seq[TrackPosition]]) = {
     val compLegs: Seq[LegId] = logical.componentsLegs(cName)
     val minPositions: Seq[TrackPosition] = compLegs.map { legId =>
