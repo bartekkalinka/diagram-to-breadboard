@@ -20,10 +20,8 @@ case class Physical(components: Seq[Component], tracks: Seq[Track], connections:
     val cableConnections: Seq[(ComponentName, TrackIndex, String)] = this.connections.toSeq
       .filter { case (legId, _) => compsByName(legId.cName).cType.isInstanceOf[Cable] }
       .map {case (legId, Hole(index, _)) => (legId.cName, index, legId.leg.name)}
-    val rawTrackConns: Seq[(TrackIndex, TrackIndex)] = cableConnections.groupBy(_._1).values.map { legs =>
-      val sortedLegs = legs.sortBy(_._3)
-      (legs.head._2, legs(1)._2)
-    }.toSeq
+    val rawTrackConns: Seq[(TrackIndex, TrackIndex)] =
+      cableConnections.groupBy(_._1).values.map { legs => (legs.head._2, legs(1)._2) }.toSeq
     val trackConns: Map[TrackIndex, Seq[TrackIndex]] = rawTrackConns.groupBy(_._1).mapValues(_.map(_._2))
     def pullConnection(index: TrackIndex): Seq[TrackIndex] =
       index +: trackConns.get(index).map(children => children.flatMap(pullConnection)).getOrElse(Seq[TrackIndex]())
