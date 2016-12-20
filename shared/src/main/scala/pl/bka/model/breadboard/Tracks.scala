@@ -3,7 +3,7 @@ package pl.bka.model.breadboard
 import pl.bka.model.Connection
 import pl.bka.model.Power._
 
-case class TrackIndex(index: Int)
+case class TrackIndex(horizontal: Boolean, index: Int)
 
 sealed trait Track {
   val upper: Boolean

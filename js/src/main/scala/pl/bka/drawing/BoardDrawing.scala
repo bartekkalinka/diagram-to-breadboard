@@ -15,14 +15,19 @@ object BoardDrawing extends Const {
       val color: String = Seq("#000000", "#FF0000", "#0000FF", "#00FF00")(compIndex % 4)
       component.cType match {
         case Transistor(symbol, _) =>
-          val centerHole = verticalHolePosition(holes(1))
+          val centerHole = holePosition(holes(1))
           val (centerX, centerY) = (centerHole._1, centerHole._2 - (0.3 * holeStep).toInt)
-          DirectDrawing.drawLine(verticalHolePosition(holes.head), (centerX - transistorLegsSpread, centerY), 2)
-          DirectDrawing.drawLine(verticalHolePosition(holes(1)), (centerX, centerY), 2)
-          DirectDrawing.drawLine(verticalHolePosition(holes(2)), (centerX + transistorLegsSpread, centerY), 2)
+          DirectDrawing.drawLine(holePosition(holes.head), (centerX - transistorLegsSpread, centerY), 2)
+          DirectDrawing.drawLine(holePosition(holes(1)), (centerX, centerY), 2)
+          DirectDrawing.drawLine(holePosition(holes(2)), (centerX + transistorLegsSpread, centerY), 2)
           DirectDrawing.drawTransistorBody(symbol, (centerX, centerY))
         case Cable(_, _) =>
-          DirectDrawing.drawCable(verticalHolePosition(holes.head), verticalHolePosition(holes(1)), color)
+          val (from, to) = (holePosition(holes.head), holePosition(holes(1)))
+          if(from._2 == to._2) {
+            DirectDrawing.drawArcCable(from, to, color)
+          } else {
+            DirectDrawing.drawStraightCable(from, to, color)
+          }
         case _ => ()
       }
     }
@@ -31,11 +36,12 @@ object BoardDrawing extends Const {
     physical.components.reverse.zipWithIndex.foreach((drawComponent _).tupled)
   }
 
-  private def verticalHolePosition(hole: Hole): (Int, Int) =
-    (hole.trackIndex.index * tracksStep + tracksHorizontalOffset, verticalTracksVerticalOffset + hole.holeIndex.position * holeStep)
-
-  private def horizontalHolePosition(hole: Hole): (Int, Int) =
-    (tracksHorizontalOffset + hole.holeIndex.position * holeStep, hole.trackIndex.index * tracksStep + horizontalTracksVerticalOffset)
+  private def holePosition(hole: Hole): (Int, Int) =
+    if(hole.trackIndex.horizontal) {
+      (tracksHorizontalOffset + hole.holeIndex.position * holeStep, hole.trackIndex.index * tracksStep + horizontalTracksVerticalOffset)
+    } else {
+      (hole.trackIndex.index * tracksStep + tracksHorizontalOffset, verticalTracksVerticalOffset + hole.holeIndex.position * holeStep)
+    }
 
   private def drawVerticalTrack(vertical: Vertical): Unit = {
     val from = (vertical.index.index * tracksStep + tracksHorizontalOffset, verticalTracksVerticalOffset)
@@ -43,7 +49,7 @@ object BoardDrawing extends Const {
     DirectDrawing.drawLine(from, to, 1)
 
     for(h <- 0 until Tracks.verticalTrackLength) {
-      DirectDrawing.drawHole(verticalHolePosition(Hole(vertical.index, TrackPosition(h))))
+      DirectDrawing.drawHole(holePosition(Hole(vertical.index, TrackPosition(h))))
     }
   }
 
@@ -53,7 +59,7 @@ object BoardDrawing extends Const {
     DirectDrawing.drawLine(from, to, 1)
 
     for(h <- 0 until Tracks.horizontalTrackLength) {
-      DirectDrawing.drawHole(horizontalHolePosition(Hole(horizontal.index, TrackPosition(h))))
+      DirectDrawing.drawHole(holePosition(Hole(horizontal.index, TrackPosition(h))))
     }
     drawPowerSign(horizontal.power, (from._1 - 12, from._2))
   }

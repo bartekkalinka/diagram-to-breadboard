@@ -7,7 +7,7 @@ object DirectDrawing extends Const {
   val ctx = DomOutput.canvas.getContext("2d")
     .asInstanceOf[dom.CanvasRenderingContext2D]
 
-  def drawCable(from: (Int, Int), to: (Int, Int), color: String): Unit = {
+  def drawArcCable(from: (Int, Int), to: (Int, Int), color: String): Unit = {
     ctx.strokeStyle = color
     ctx.lineWidth = 2
     ctx.beginPath()
@@ -19,6 +19,9 @@ object DirectDrawing extends Const {
     ctx.arc(centerX, centerY, radius, - Math.PI / 2 - angle, - Math.PI / 2 + angle)
     ctx.stroke()
   }
+
+  def drawStraightCable(from: (Int, Int), to: (Int, Int), color: String): Unit =
+    drawLine(from, to, 2, color)
 
   def drawTransistorBody(symbol: String, pos: (Int, Int)): Unit = {
     ctx.fillStyle = "#FFFFFF"
