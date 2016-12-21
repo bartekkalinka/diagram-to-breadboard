@@ -76,11 +76,13 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
     }
   }
 
-  property("each component leg should be on same hole level inside the track") {
+  property("each transistor's leg should be on same hole level inside the track") {
     forAll(testInputs) { testInput =>
       val diagram = testDiagram(testInput)
       val board = Breadboard(diagram)
-      board.physical.connections.toSeq.groupBy(_._1.cName).mapValues(_.map { case (_, Hole(_, holeIndex)) => holeIndex }.distinct).foreach {
+      board.physical.connections.toSeq.filter { conn =>
+        board.logical.componentsByName(conn._1.cName).cType.isInstanceOf[Transistor]
+      }.groupBy(_._1.cName).mapValues(_.map { case (_, Hole(_, holeIndex)) => holeIndex }.distinct).foreach {
         case (cName, holeIndices) => holeIndices.length shouldBe 1
       }
     }
