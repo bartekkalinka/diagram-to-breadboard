@@ -13,6 +13,8 @@ trait Const {
   val holeRadius = 5
   val transistorBodyRadius = 12
   val transistorLegsSpread = 3
+  val resistorLegsSpread = 3
+  val resistorBodySize = (10, 5)
   val fontSize = 8
   val font = s"${fontSize}px Arial"
   val cableArcRadiusFactor = 0.75
