@@ -12,7 +12,7 @@ object BoardDrawing extends Const {
       val holes: Seq[Hole] = component.legs.map { leg =>
         physical.connections(LegId(component.name, leg))
       }
-      val color: String = Seq("#000000", "#FF0000", "#0000FF", "#00FF00")(compIndex % 4)
+      val color: String = Seq("#FFBB00", "#FF0000", "#0000FF", "#00FF00")(compIndex % 4)
       component.cType match {
         case Transistor(symbol, _) =>
           val centerHole = holePosition(holes(1))
