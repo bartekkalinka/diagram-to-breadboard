@@ -45,12 +45,21 @@ object Physical {
   private def insertComponent(logical: Logical)(cName: ComponentName, allLegsInsertions: Map[LegId, Hole],
                                         freePositions: Map[TrackIndex, Seq[TrackPosition]]): (Map[LegId, Hole], Map[TrackIndex, Seq[TrackPosition]]) = {
     val compLegs: Seq[LegId] = logical.componentsLegs(cName)
+    val compType = logical.componentsByName(cName).cType
     val minPositions: Seq[TrackPosition] = compLegs.map { legId =>
       val track = logical.connections(legId)
       freePositions(track).minBy(_.position)
     }
-    val targetPosition: TrackPosition = minPositions.maxBy(_.position)
-    val compLegsInsertions: Map[LegId, Hole] = compLegs.map { legId => (legId, Hole(logical.connections(legId), targetPosition)) }.toMap
+    val targetPositions: Seq[TrackPosition] = compType match {
+      case t: Transistor =>
+        val targetPosition = minPositions.maxBy(_.position)
+        Seq.tabulate(compLegs.length)(_ => targetPosition)
+      case _ => minPositions
+    }
+    val compLegsInsertions: Map[LegId, Hole] =
+      compLegs.zipWithIndex.map { case (legId, i) =>
+        (legId, Hole(logical.connections(legId), targetPositions(i)))
+      }.toMap
     val newAllLegsInsertions: Map[LegId, Hole] = allLegsInsertions ++ compLegsInsertions
     val newFreePositions: Map[TrackIndex, Seq[TrackPosition]] = compLegsInsertions.toSeq.foldLeft(freePositions) { case (fps, (legId, hole)) =>
       val track = logical.connections(legId)
