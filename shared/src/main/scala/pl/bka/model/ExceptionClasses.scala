@@ -1,0 +1,4 @@
+package pl.bka.model
+
+class NoPossibilityOfMappingLegsConnectionsToConsecutiveTracks extends Exception
+

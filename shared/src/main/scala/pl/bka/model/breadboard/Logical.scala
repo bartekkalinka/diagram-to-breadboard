@@ -74,13 +74,17 @@ object Logical {
 
   private def otherToTracks(diagram: Diagram, vertical: Seq[Vertical]): Map[LegId, TrackIndex] = {
     val other = diagram.components.filterNot(_.cType.isInstanceOf[Transistor])
-    val otherLegs: Seq[LegId] = other.flatMap { t =>
-      t.legs.map { leg => LegId(t.name, leg) }
+    val otherLegs: Seq[(Component, Seq[LegId])] = other.map { t =>
+      (t, t.legs.map { leg => LegId(t.name, leg) })
     }
     val verticalByConnection = vertical.groupBy(_.diagramConnection)
-    otherLegs.map { legId =>
-      val conn = diagram.legsConnections(legId)
-      (legId, verticalByConnection(conn).head.index)
+    otherLegs.flatMap { case (component, legs) =>
+      legs.foldLeft((0, Seq[(LegId, TrackIndex)]())) { case ((minTrackIndex, legsToTracks), legId) =>
+        val conn = diagram.legsConnections(legId)
+        val possibleTracks = verticalByConnection(conn)
+        val track = possibleTracks.find(_.index.index >= minTrackIndex).getOrElse(throw new NoPossibilityOfMappingLegsConnectionsToConsecutiveTracks)
+        (track.index.index, legsToTracks :+ (legId, track.index))
+      }._2
     }.toMap
   }
 
