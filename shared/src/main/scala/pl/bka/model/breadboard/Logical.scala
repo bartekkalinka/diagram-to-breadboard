@@ -72,20 +72,39 @@ object Logical {
     (horizontal, horizontalMap)
   }
 
-  private def otherToTracks(diagram: Diagram, vertical: Seq[Vertical]): Map[LegId, TrackIndex] = {
+  private def addLegToTrackWithLimit(legId: LegId, trackIndex: TrackIndex, vertical: Map[TrackIndex, Vertical]): (TrackIndex, Map[TrackIndex, Vertical]) = {
+    val track = vertical(trackIndex)
+    if(track.freeSpace > 0) {
+      (trackIndex, vertical + (trackIndex -> track.copy(freeSpace = track.freeSpace - 1)))
+    } else {
+      val newTrackIndex = TrackIndex(horizontal = false, index = vertical.keys.toSeq.length)
+      val newTrack = Vertical(
+        upper = true,
+        index = newTrackIndex,
+        diagramConnection = track.diagramConnection
+      )
+      (newTrackIndex, vertical + (newTrackIndex -> newTrack))
+    }
+  }
+
+  private def otherToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Map[LegId, TrackIndex], Seq[Vertical]) = {
     val other = diagram.components.filterNot(_.cType.isInstanceOf[Transistor])
     val otherLegs: Seq[(Component, Seq[LegId])] = other.map { t =>
       (t, t.legs.map { leg => LegId(t.name, leg) })
     }
     val verticalByConnection = vertical.groupBy(_.diagramConnection)
-    otherLegs.flatMap { case (component, legs) =>
-      legs.foldLeft((0, Seq[(LegId, TrackIndex)]())) { case ((minTrackIndex, legsToTracks), legId) =>
+    val verticalByIndex = vertical.groupBy(_.index).mapValues(_.head)
+    val (finalLegsMap, finalVerticals) = otherLegs.foldLeft((Seq[(LegId, TrackIndex)](), verticalByIndex)) { case ((legsMap, verticalsMap), (component, legs)) =>
+      val (_, newLegs, newVerticalsMap) = legs.foldLeft((0, Seq[(LegId, TrackIndex)](), verticalsMap)) { case ((minTrackIndex, legsToTracks, innerVerticalsMap), legId) =>
         val conn = diagram.legsConnections(legId)
         val possibleTracks = verticalByConnection(conn)
         val track = possibleTracks.find(_.index.index >= minTrackIndex).getOrElse(throw new NoPossibilityOfMappingLegsConnectionsToConsecutiveTracks)
-        (track.index.index, legsToTracks :+ (legId, track.index))
-      }._2
-    }.toMap
+        val (trackIndex, newInnerVerticalsMap) = addLegToTrackWithLimit(legId, track.index, innerVerticalsMap)
+        (track.index.index, legsToTracks :+ (legId, trackIndex), newInnerVerticalsMap)
+      }
+      (legsMap ++ newLegs, newVerticalsMap)
+    }
+    (finalLegsMap.toMap, finalVerticals.values.toSeq)
   }
 
   def apply(diagram: Diagram): Logical = {
@@ -93,10 +112,10 @@ object Logical {
     val (regularCables, regularCablesLegs) = calcRegularConnectionCables(vertical)
     val (horizontal, horizontalMap) = horizontalTracks
     val (powerCables, powerCablesLegs) = calcPowerCables(vertical, horizontalMap)
-    val otherLegs = otherToTracks(diagram, vertical)
+    val (otherLegs, extVertical) = otherToTracks(diagram, vertical)
     val map: Map[LegId, TrackIndex] = transistorMap.toMap ++ regularCablesLegs ++ powerCablesLegs ++ otherLegs
     val extComponents = diagram.components ++ regularCables ++ powerCables
-    Logical(extComponents, vertical ++ horizontal, map)
+    Logical(extComponents, extVertical ++ horizontal, map)
   }
 }
 

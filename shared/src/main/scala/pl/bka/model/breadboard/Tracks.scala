@@ -11,7 +11,8 @@ sealed trait Track {
   val length: Int
 }
 
-case class Vertical(upper: Boolean, index: TrackIndex, diagramConnection: Connection, length: Int = Tracks.verticalTrackLength) extends Track
+case class Vertical(upper: Boolean, index: TrackIndex, diagramConnection: Connection,
+                    length: Int = Tracks.verticalTrackLength, freeSpace: Int = Tracks.verticalTrackLength) extends Track
 
 case class Horizontal(upper: Boolean, left: Boolean, index: TrackIndex,
                       power: PowerConnection, length: Int = Tracks.horizontalTrackLength) extends Track
