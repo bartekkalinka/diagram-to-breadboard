@@ -30,7 +30,7 @@ object BoardDrawing extends Const {
           }
         case Resistor(ohms, _) =>
           val Seq(holePos1, holePos2) = holes.map(holePosition)
-          val (centerX, centerY) = ((holePos1._1 + holePos2._2) / 2, Seq(holePos1._2, holePos2._2).min - (0.3 * holeStep).toInt)
+          val (centerX, centerY) = ((holePos1._1 + holePos2._1) / 2, Seq(holePos1._2, holePos2._2).min - (0.3 * holeStep).toInt)
           DirectDrawing.drawLine(holePos1, (centerX - resistorLegsSpread, centerY), 2)
           DirectDrawing.drawLine(holePos2, (centerX + resistorLegsSpread, centerY), 2)
           DirectDrawing.drawResistorBody(ohms, (centerX, centerY))

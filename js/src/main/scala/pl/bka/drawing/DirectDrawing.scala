@@ -45,13 +45,17 @@ object DirectDrawing extends Const {
     ctx.beginPath()
     ctx.moveTo(pos._1 - resistorBodySize._1 / 2, pos._2 - resistorBodySize._2)
     ctx.lineTo(pos._1 + resistorBodySize._1 / 2, pos._2 - resistorBodySize._2)
+    ctx.stroke()
     ctx.lineTo(pos._1 + resistorBodySize._1 / 2, pos._2)
+    ctx.stroke()
     ctx.lineTo(pos._1 - resistorBodySize._1 / 2, pos._2)
+    ctx.stroke()
+    ctx.lineTo(pos._1 - resistorBodySize._1 / 2, pos._2 - resistorBodySize._2)
     ctx.stroke()
     ctx.fill()
     ctx.font = font
     ctx.fillStyle = "#000000"
-    ctx.fillText(ohms.toString, pos._1 - 5, pos._2 - 5)
+    ctx.fillText(ohms.toString, pos._1 - 5, pos._2 - 2)
   }
 
   def drawHole(pos: (Int, Int)): Unit = {
