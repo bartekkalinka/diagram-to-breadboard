@@ -78,9 +78,10 @@ object Logical {
     val connectionTracks = vertical.filter(_.diagramConnection.id.isLeft).groupBy(_.diagramConnection)
     connectionTracks.toSeq.foldLeft((Seq[Component](), Map[LegId, TrackIndex]())) {
       case ((comps, legsMap), (connection, tracksGroup)) =>
-        tracksGroup.length match {
+        val sortedGroup = tracksGroup.sortBy(_.index.index)
+        sortedGroup.length match {
           case 1 => (comps, legsMap)
-          case 2 => connect2TracksWithCables(comps, legsMap, connection, tracksGroup)
+          case 2 => connect2TracksWithCables(comps, legsMap, connection, sortedGroup)
           case _ => throw new TrackGroupsOfLengthLargerThanTwoAreNotSupported
         }
     }
