@@ -47,16 +47,19 @@ object Logical {
     }
     val verticalByConnection = vertical.groupBy(_.diagramConnection)
     val verticalByIndex = vertical.groupBy(_.index).mapValues(_.head)
-    val (finalLegsMap, finalVerticals) = otherLegs.foldLeft((Seq[(LegId, TrackIndex)](), verticalByIndex)) { case ((legsMap, verticalsMap), (component, legs)) =>
-      val (_, newLegs, newVerticalsMap) = legs.foldLeft((0, Seq[(LegId, TrackIndex)](), verticalsMap)) { case ((minTrackIndex, legsToTracks, innerVerticalsMap), legId) =>
-        val conn = diagram.legsConnections(legId)
-        val possibleTracks = verticalByConnection(conn)
-        val track = possibleTracks.find(_.index.index >= minTrackIndex).getOrElse(throw new NoPossibilityOfMappingLegsConnectionsToConsecutiveTracks)
-        val (trackIndex, newInnerVerticalsMap) = addLegToTrackWithLimit(legId, track.index, innerVerticalsMap)
-        (track.index.index, legsToTracks :+ (legId, trackIndex), newInnerVerticalsMap)
+    val (finalLegsMap, finalVerticals) =
+      otherLegs.foldLeft((Seq[(LegId, TrackIndex)](), verticalByIndex)) { case ((legsMap, verticalsMap), (component, legs)) =>
+        val (_, newLegs, newVerticalsMap) =
+        legs.foldLeft((0, Seq[(LegId, TrackIndex)](), verticalsMap)) { case ((minTrackIndex, legsToTracks, innerVerticalsMap), legId) =>
+          val conn = diagram.legsConnections(legId)
+          val possibleTracks = verticalByConnection(conn)
+          val track = possibleTracks.find(_.index.index >= minTrackIndex).getOrElse(throw new NoPossibilityOfMappingLegsConnectionsToConsecutiveTracks)
+          val (trackIndex, newInnerVerticalsMap) = addLegToTrackWithLimit(legId, track.index, innerVerticalsMap)
+          (track.index.index, legsToTracks :+ (legId, trackIndex), newInnerVerticalsMap)
+        }
+        val sortedLegs = newLegs.map(_._1).zip(newLegs.map(_._2).sortBy(_.index))
+        (legsMap ++ sortedLegs, newVerticalsMap)
       }
-      (legsMap ++ newLegs, newVerticalsMap)
-    }
     (finalLegsMap.toMap, finalVerticals.values.toSeq)
   }
 
