@@ -27,7 +27,7 @@ object Logical {
 
   private def addLegToTrackWithLimit(legId: LegId, trackIndex: TrackIndex, vertical: Map[TrackIndex, Vertical]): (TrackIndex, Map[TrackIndex, Vertical]) = {
     val track = vertical(trackIndex)
-    if(track.freeSpace > 1) {
+    if(track.freeSpace > 1) { //leaving one space for connection cable
       (trackIndex, vertical + (trackIndex -> track.copy(freeSpace = track.freeSpace - 1)))
     } else {
       val newTrackIndex = TrackIndex(horizontal = false, index = vertical.keys.toSeq.length)
