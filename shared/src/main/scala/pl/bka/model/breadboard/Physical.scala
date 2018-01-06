@@ -33,7 +33,7 @@ case class Physical(components: Seq[Component], tracks: Seq[Track], connections:
       else acc
     val connectionByTrack: Map[TrackIndex, Connection] =
       connections(this.tracks.map(_.index), Seq[Seq[TrackIndex]]())
-        .zipWithIndex.flatMap { case (tracks, i) => tracks.map((_, Connection(Left(i)))) }.toMap
+        .zipWithIndex.flatMap { case (trks, i) => trks.map((_, Connection(Left(i)))) }.toMap
     val legsConnections: Map[LegId, Connection] = this.connections.toSeq
       .filterNot { case (legId, _) => compsByName(legId.cName).cType.isInstanceOf[Cable] }
       .map { case (legId, Hole(trackIndex, _)) => (legId, connectionByTrack(trackIndex)) }.toMap

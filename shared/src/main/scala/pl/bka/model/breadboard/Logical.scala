@@ -48,7 +48,7 @@ object Logical {
     val verticalByConnection = vertical.groupBy(_.diagramConnection)
     val verticalByIndex = vertical.groupBy(_.index).mapValues(_.head)
     val (finalLegsMap, finalVerticals) =
-      otherLegs.foldLeft((Seq[(LegId, TrackIndex)](), verticalByIndex)) { case ((legsMap, verticalsMap), (component, legs)) =>
+      otherLegs.foldLeft((Seq[(LegId, TrackIndex)](), verticalByIndex)) { case ((legsMap, verticalsMap), (_, legs)) =>
         val (_, newLegs, newVerticalsMap) =
         legs.foldLeft((0, Seq[(LegId, TrackIndex)](), verticalsMap)) { case ((minTrackIndex, legsToTracks, innerVerticalsMap), legId) =>
           val conn = diagram.legsConnections(legId)
