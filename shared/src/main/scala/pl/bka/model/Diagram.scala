@@ -1,7 +1,5 @@
 package pl.bka.model
 
-import pl.bka.model.breadboard.{Hole, Physical, TrackIndex, Vertical}
-
 object Power {
   sealed trait PowerConnection
   case object Plus extends PowerConnection
