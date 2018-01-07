@@ -29,7 +29,7 @@ object BoardDrawing extends Const {
             DirectDrawing.drawStraightCable(from, to, color)
           }
         case Resistor(ohms, _) =>
-          val Seq(holePos1, holePos2) = holes.map(holePosition)
+          val Seq(holePos1, holePos2) = holes.map(holePosition).sortBy(_._1)
           val (centerX, centerY) = ((holePos1._1 + holePos2._1) / 2, Seq(holePos1._2, holePos2._2).min - (0.3 * holeStep).toInt)
           DirectDrawing.drawLine(holePos1, (centerX - resistorBodySize._1 / 2, centerY - resistorBodySize._2 / 2), 2)
           DirectDrawing.drawLine(holePos2, (centerX + resistorBodySize._1 / 2, centerY - resistorBodySize._2 / 2), 2)
