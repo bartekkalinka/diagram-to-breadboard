@@ -14,7 +14,7 @@ trait Const {
   val transistorBodyRadius = 12
   val transistorLegsSpread = 3
   val resistorLegsSpread = 3
-  val resistorBodySize = (20, 10)
+  val resistorBodySize = (30, 10)
   val fontSize = 8
   val font = s"${fontSize}px Arial"
   val cableArcRadiusFactor = 0.75

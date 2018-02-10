@@ -38,7 +38,7 @@ object DirectDrawing extends Const {
     ctx.fillText(symbol, pos._1 - transistorBodyRadius + 2, pos._2 - 2)
   }
 
-  def drawResistorBody(ohms: String, pos: (Int, Int)): Unit = {
+  def drawResistorBody(cname: String, pos: (Int, Int)): Unit = {
     ctx.fillStyle = "#FFFFFF"
     ctx.strokeStyle = "#000000"
     ctx.lineWidth = 1
@@ -55,7 +55,7 @@ object DirectDrawing extends Const {
     ctx.fill()
     ctx.font = font
     ctx.fillStyle = "#000000"
-    ctx.fillText(ohms, pos._1 - 8, pos._2 - 2)
+    ctx.fillText(cname, pos._1 - 12, pos._2 - 2)
   }
 
   def drawHole(pos: (Int, Int)): Unit = {
