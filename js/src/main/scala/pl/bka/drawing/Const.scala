@@ -3,7 +3,7 @@ package pl.bka.drawing
 import pl.bka.model.breadboard.Tracks
 
 trait Const {
-  val tracksStep = 30
+  val tracksStep = 40
   val holeStep = tracksStep
   val verticalTrackLength = tracksStep * (Tracks.verticalTrackLength - 1)
   val horizontalTrackLength = tracksStep * (Tracks.horizontalTrackLength - 1)
