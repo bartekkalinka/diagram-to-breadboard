@@ -15,6 +15,7 @@ object Logical {
     val (vertical, transistorMap) = transistorsToTracks(diagram)
     val (otherLegs, extVertical) = otherToTracks(diagram, vertical)
     val (regularCables, regularCablesLegs) = calcRegularConnectionCables(extVertical)
+      //(Seq.empty[Component], Map[LegId, TrackIndex]())
     val (horizontal, horizontalMap) = horizontalTracks
     val (powerCables, powerCablesLegs) = calcPowerCables(extVertical, horizontalMap)
     val map: Map[LegId, TrackIndex] = transistorMap.toMap ++ regularCablesLegs ++ powerCablesLegs ++ otherLegs
@@ -37,39 +38,35 @@ object Logical {
     (vertical, transistorMap)
   }
 
-  private def addLegToTrackWithLimit(legId: LegId, trackIndex: TrackIndex, vertical: mutable.Map[TrackIndex, Vertical]): TrackIndex = {
-    val track = vertical(trackIndex)
-    if(track.freeSpace > 1) { //leaving one space for connection cable
-      vertical += (trackIndex -> track.copy(freeSpace = track.freeSpace - 1))
-      trackIndex
-    } else {
-      val newTrackIndex = TrackIndex(horizontal = false, index = vertical.keys.toSeq.length)
-      val newTrack = Vertical(
-        upper = true,
-        index = newTrackIndex,
-        diagramConnection = track.diagramConnection
-      )
-      vertical += (newTrackIndex -> newTrack)
-      newTrackIndex
-    }
-  }
-
   private def otherToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Map[LegId, TrackIndex], Seq[Vertical]) = {
     val other = diagram.components.filterNot(_.cType.isInstanceOf[Transistor])
-    val otherLegs: Seq[(Component, Seq[LegId])] = other.map { t =>
-      (t, t.legs.map { leg => LegId(t.name, leg) })
+    val otherLegs: Seq[(Component, Seq[LegId])] = other.map { c =>
+      (c, c.legs.map { leg => LegId(c.name, leg) })
     }
-    val verticalByConnection = vertical.groupBy(_.diagramConnection)
+    var verticalByConnection = mutable.Map(vertical.groupBy(_.diagramConnection).mapValues(_.map(_.index)).toSeq: _*)
     val verticalByIndex = mutable.Map(vertical.groupBy(_.index).mapValues(_.head).toSeq: _*)
     val legsMap = mutable.Map.empty[LegId, TrackIndex]
-    otherLegs.foreach { case (_, legs) =>
-      var minTrackIndex = 0
+    //TODO 1 loop?
+    otherLegs.foreach { case (c, legs) =>
       legs.foreach { legId =>
         val conn = diagram.legsConnections(legId)
-        val possibleTracks = verticalByConnection(conn)
-        val firstPossibleTrack = possibleTracks.find(_.index.index >= minTrackIndex).getOrElse(throw new NoPossibilityOfMappingLegsConnectionsToConsecutiveTracks)
-        minTrackIndex = firstPossibleTrack.index.index
-        val finalTrackIndex = addLegToTrackWithLimit(legId, firstPossibleTrack.index, verticalByIndex)
+        val possibleTracks = verticalByConnection(conn).map(verticalByIndex)
+        //TODO extract method
+        val finalTrackIndex = possibleTracks.find(_.freeSpace > 1) match {
+          case Some(possible) =>
+            verticalByIndex.update(possible.index, possible.copy(freeSpace = possible.freeSpace - 1))
+            possible.index
+          case None =>
+            val newTrackIndex = TrackIndex(horizontal = false, index = verticalByIndex.keys.toSeq.length)
+            val newTrack = Vertical(
+              upper = true,
+              index = newTrackIndex,
+              diagramConnection = conn
+            )
+            verticalByIndex += newTrackIndex -> newTrack
+            verticalByConnection += conn -> (verticalByConnection(conn) :+ newTrack.index)
+            newTrackIndex
+        }
         legsMap += (legId -> finalTrackIndex)
       }
     }
