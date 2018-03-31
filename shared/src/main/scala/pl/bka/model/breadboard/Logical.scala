@@ -26,20 +26,40 @@ object Logical {
     Logical(extComponents, extVertical ++ horizontal, map)
   }
 
-  private def icsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex]) =
-    (vertical, Seq.empty[(LegId, TrackIndex)].toMap)
+  private def icsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex]) = {
+    val ics = diagram.components.filter(_.cType.isInstanceOf[IC])
+    var startingIndex = vertical.length
+    val (allVertical, allLegs) = ics.map { ic =>
+      val halfLength = ic.legs.length / 2
+      val legsWithUpper = ic.legs.take(halfLength).map(l => (LegId(ic.name, l), true)).zipWithIndex ++
+        ic.legs.drop(halfLength).map(l => (LegId(ic.name, l), false)).zipWithIndex
+      val (newVertical, icsLegs) = legsWithUpper.map {
+        case ((legId, upper), relativeIndex) =>
+          val index = relativeIndex + startingIndex
+          (
+            Vertical(upper = upper, TrackIndex(horizontal = false, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1),
+            (legId, TrackIndex(horizontal = false, index))
+          )
+      }.unzip
+      startingIndex += halfLength
+      (newVertical, icsLegs)
+    }.reduce((vl1, vl2) => (vl1._1 ++ vl2._1, vl1._2 ++ vl2._2))
+    (allVertical, allLegs.toMap)
+  }
 
   private def transistorsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex]) = {
     val transistors = diagram.components.filter(_.cType.isInstanceOf[Transistor])
     val legs: Seq[LegId] = transistors.flatMap { t =>
       t.legs.map { leg => LegId(t.name, leg) }
     }
-    val (newVertical: Seq[Vertical], transistorsLegs: Seq[(LegId, TrackIndex)]) = legs.zipWithIndex.map {
-      case (legId, index) =>
+    val startingIndex = vertical.length
+    val (newVertical, transistorsLegs) = legs.zipWithIndex.map {
+      case (legId, relativeIndex) =>
+        val index = relativeIndex + startingIndex
         (
           Vertical(upper = true, TrackIndex(horizontal = false, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1),
           (legId, TrackIndex(horizontal = false, index))
-          )
+        )
     }.unzip
     (vertical ++ newVertical, transistorsLegs.toMap)
   }
