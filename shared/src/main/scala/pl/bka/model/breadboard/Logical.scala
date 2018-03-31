@@ -12,32 +12,39 @@ case class Logical(components: Seq[Component], tracks: Seq[Track], connections: 
 
 object Logical {
   def apply(diagram: Diagram): Logical = {
-    val (vertical, transistorsLegs) = transistorsToTracks(diagram)
-    val (otherLegs, extVertical) = otherToTracks(diagram, vertical)
+    val (extVertical, componentsLegs) =
+      Seq(icsToTracks _, transistorsToTracks _, otherToTracks _)
+        .foldLeft((Seq.empty[Vertical], Map.empty[LegId, TrackIndex])) { case ((vertical, legs), componentsToTracks) =>
+          val (newVertical, newLegs) = componentsToTracks(diagram, vertical)
+          (newVertical, legs ++ newLegs)
+        }
     val (regularCables, regularCablesLegs) = calcRegularConnectionCables(extVertical)
     val (horizontal, horizontalMap) = horizontalTracks
     val (powerCables, powerCablesLegs) = calcPowerCables(extVertical, horizontalMap)
-    val map: Map[LegId, TrackIndex] = transistorsLegs ++ regularCablesLegs ++ powerCablesLegs ++ otherLegs
+    val map: Map[LegId, TrackIndex] = componentsLegs ++ regularCablesLegs ++ powerCablesLegs
     val extComponents = diagram.components ++ regularCables ++ powerCables
     Logical(extComponents, extVertical ++ horizontal, map)
   }
 
-  private def transistorsToTracks(diagram: Diagram): (Seq[Vertical], Map[LegId, TrackIndex]) = {
+  private def icsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex]) =
+    (vertical, Seq.empty[(LegId, TrackIndex)].toMap)
+
+  private def transistorsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex]) = {
     val transistors = diagram.components.filter(_.cType.isInstanceOf[Transistor])
     val legs: Seq[LegId] = transistors.flatMap { t =>
       t.legs.map { leg => LegId(t.name, leg) }
     }
-    val (vertical: Seq[Vertical], transistorsLegs: Seq[(LegId, TrackIndex)]) = legs.zipWithIndex.map {
+    val (newVertical: Seq[Vertical], transistorsLegs: Seq[(LegId, TrackIndex)]) = legs.zipWithIndex.map {
       case (legId, index) =>
         (
           Vertical(upper = true, TrackIndex(horizontal = false, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1),
           (legId, TrackIndex(horizontal = false, index))
           )
     }.unzip
-    (vertical, transistorsLegs.toMap)
+    (vertical ++ newVertical, transistorsLegs.toMap)
   }
 
-  private def otherToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Map[LegId, TrackIndex], Seq[Vertical]) = {
+  private def otherToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex]) = {
     val other = diagram.components.filterNot(_.cType.isInstanceOf[Transistor])
     val legs = other.flatMap(c => c.legs.map(leg => LegId(c.name, leg)))
     var trackIndexByConnection = mutable.Map(vertical.groupBy(_.diagramConnection).mapValues(_.map(_.index)).toSeq: _*)
@@ -65,7 +72,7 @@ object Logical {
       }
       legsMap += (legId -> finalTrackIndex)
     }
-    (Map(legsMap.toSeq: _*), verticalByIndex.values.toSeq)
+    (verticalByIndex.values.toSeq, Map(legsMap.toSeq: _*))
   }
 
   private def calcRegularConnectionCables(vertical: Seq[Vertical]): (Seq[Component], Map[LegId, TrackIndex]) = {
