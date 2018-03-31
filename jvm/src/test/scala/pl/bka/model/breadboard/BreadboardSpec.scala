@@ -6,6 +6,7 @@ import pl.bka.model._
 import pl.bka.model.Power._
 
 class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matchers {
+  //transistors only
   val testInput1 = Diagram(
     List(
       Component("Tr549B.1", Transistor("549B")),
@@ -15,6 +16,7 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
       ("Tr549B.2", "0") -> Right(Plus), ("Tr549B.2", "1") -> Left(1), ("Tr549B.2", "2") -> Right(GND))
   )
 
+  //transistors + resistors
   val testInput2 = Diagram(
     List(
       Component("Tr549B.1", Transistor("549B")),
@@ -36,7 +38,17 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
       ("R220-6", "0") -> Right(GND), ("R220-6", "1") -> Left(0))
   )
 
-  val testInputs = Table("input items", testInput1, testInput2)
+  //resistors with a connection outside of transistors reach
+  val testInput3 = Diagram(
+    List(
+      Component("Tr549B.1", Transistor("549B")),
+      Component("R220-1", Resistor("220K"))
+    ),
+    Map(("Tr549B.1", "0") -> Right(Plus), ("Tr549B.1", "1") -> Left(0), ("Tr549B.1", "2") -> Right(GND),
+      ("R220-1", "0") -> Right(GND), ("R220-1", "1") -> Left(1))
+  )
+
+  val testInputs = Table("input items", testInput1, testInput2, testInput3)
 
   def testDiagram(testInput: Either[Fail, Diagram]): Diagram = testInput match { case Right(d) => d; case _ => fail() }
 
