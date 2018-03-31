@@ -12,29 +12,29 @@ case class Logical(components: Seq[Component], tracks: Seq[Track], connections: 
 
 object Logical {
   def apply(diagram: Diagram): Logical = {
-    val (vertical, transistorMap) = transistorsToTracks(diagram)
+    val (vertical, transistorsLegs) = transistorsToTracks(diagram)
     val (otherLegs, extVertical) = otherToTracks(diagram, vertical)
     val (regularCables, regularCablesLegs) = calcRegularConnectionCables(extVertical)
     val (horizontal, horizontalMap) = horizontalTracks
     val (powerCables, powerCablesLegs) = calcPowerCables(extVertical, horizontalMap)
-    val map: Map[LegId, TrackIndex] = transistorMap.toMap ++ regularCablesLegs ++ powerCablesLegs ++ otherLegs
+    val map: Map[LegId, TrackIndex] = transistorsLegs ++ regularCablesLegs ++ powerCablesLegs ++ otherLegs
     val extComponents = diagram.components ++ regularCables ++ powerCables
     Logical(extComponents, extVertical ++ horizontal, map)
   }
 
-  private def transistorsToTracks(diagram: Diagram): (Seq[Vertical], Seq[(LegId, TrackIndex)]) = {
+  private def transistorsToTracks(diagram: Diagram): (Seq[Vertical], Map[LegId, TrackIndex]) = {
     val transistors = diagram.components.filter(_.cType.isInstanceOf[Transistor])
-    val transistorsLegs: Seq[LegId] = transistors.flatMap { t =>
+    val legs: Seq[LegId] = transistors.flatMap { t =>
       t.legs.map { leg => LegId(t.name, leg) }
     }
-    val (vertical: Seq[Vertical], transistorMap: Seq[(LegId, TrackIndex)]) = transistorsLegs.zipWithIndex.map {
+    val (vertical: Seq[Vertical], transistorsLegs: Seq[(LegId, TrackIndex)]) = legs.zipWithIndex.map {
       case (legId, index) =>
         (
           Vertical(upper = true, TrackIndex(horizontal = false, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1),
           (legId, TrackIndex(horizontal = false, index))
           )
     }.unzip
-    (vertical, transistorMap)
+    (vertical, transistorsLegs.toMap)
   }
 
   private def otherToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Map[LegId, TrackIndex], Seq[Vertical]) = {
