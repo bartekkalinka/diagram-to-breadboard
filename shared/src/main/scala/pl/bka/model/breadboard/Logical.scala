@@ -18,7 +18,7 @@ object Logical {
           val (newVertical, newLegs) = componentsToTracks(diagram, vertical)
           (newVertical, legs ++ newLegs)
         }
-    println(s"11111111111111 ${extVertical.toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
+    println(s"------------ tracks after components ------------ ${extVertical.toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
     val (regularCables, regularCablesLegs) = calcRegularConnectionCables(extVertical)
     val (horizontal, horizontalMap) = horizontalTracks
     val (powerCables, powerCablesLegs) = calcPowerCables(extVertical, horizontalMap)
@@ -45,7 +45,7 @@ object Logical {
       startingIndex += halfLength
       (newVertical, icsLegs)
     }.reduce((vl1, vl2) => (vl1._1 ++ vl2._1, vl1._2 ++ vl2._2))
-    println(s"222222222222222 ${(vertical ++ allNewVertical).toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
+    println(s"------------ tracks after ICs ------------ ${(vertical ++ allNewVertical).toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
     (vertical ++ allNewVertical, allLegs.toMap)
   }
 
@@ -63,7 +63,7 @@ object Logical {
           (legId, TrackIndex(horizontal = false, index))
         )
     }.unzip
-    println(s"3333333333333333 ${(vertical ++ newVertical).toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
+    println(s"------------ tracks after transistors ------------ ${(vertical ++ newVertical).toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
     (vertical ++ newVertical, transistorsLegs.toMap)
   }
 
@@ -95,7 +95,7 @@ object Logical {
       }
       legsMap += (legId -> finalTrackIndex)
     }
-    println(s"4444444444444 ${verticalByIndex.values.toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
+    println(s"------------ tracks after other components ------------ ${verticalByIndex.values.toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
     (verticalByIndex.values.toSeq, Map(legsMap.toSeq: _*))
   }
 

@@ -9,7 +9,7 @@ object Main {
     Diagrams.example match {
       case Right(diagram) =>
         val exampleBoard = Breadboard(diagram)
-        println(s"exampleBoard: ${exampleBoard.prettyPrint}")
+        println(s"------------ example board ------------ ${exampleBoard.prettyPrint}")
       case _ => ()
     }
   }
