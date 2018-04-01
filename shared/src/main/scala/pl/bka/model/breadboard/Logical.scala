@@ -44,7 +44,8 @@ object Logical {
       }.unzip
       startingIndex += halfLength
       (newVertical, icsLegs)
-    }.reduce((vl1, vl2) => (vl1._1 ++ vl2._1, vl1._2 ++ vl2._2))
+    }.reduceOption((vl1, vl2) => (vl1._1 ++ vl2._1, vl1._2 ++ vl2._2))
+      .getOrElse((Seq.empty[Vertical], Seq.empty[(LegId, TrackIndex)]))
     println(s"------------ tracks after ICs ------------ ${(vertical ++ allNewVertical).toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
     (vertical ++ allNewVertical, allLegs.toMap)
   }
