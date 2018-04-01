@@ -1,5 +1,6 @@
 package pl.bka.drawing
 
+import pl.bka.drawing.BoardDrawing.upperVerticalTracksVerticalOffset
 import pl.bka.model.breadboard.Tracks
 
 trait Const {
@@ -9,7 +10,9 @@ trait Const {
   val horizontalTrackLength = tracksStep * (Tracks.horizontalTrackLength - 1)
   val horizontalTracksVerticalOffset = tracksStep
   val tracksHorizontalOffset = 2 * tracksStep
-  val verticalTracksVerticalOffset = horizontalTracksVerticalOffset + 2 * tracksStep
+  val upperVerticalTracksVerticalOffset = horizontalTracksVerticalOffset + 2 * tracksStep
+  val upperVerticalTrackEnd = upperVerticalTracksVerticalOffset + verticalTrackLength
+  val bottomVerticalTracksVerticalOffset = upperVerticalTrackEnd + 2 * tracksStep
   val holeRadius = 5
   val transistorBodyRadius = 12
   val transistorLegsSpread = 3

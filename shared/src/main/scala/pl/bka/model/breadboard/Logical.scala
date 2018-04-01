@@ -38,7 +38,7 @@ object Logical {
         case ((legId, upper), relativeIndex) =>
           val index = if(upper) relativeIndex + startingIndex else -Breadboard.maxVerticalTracks + relativeIndex
           (
-            Vertical(upper = upper, TrackIndex(horizontal = false, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1),
+            Vertical(TrackIndex(horizontal = false, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1),
             (legId, TrackIndex(horizontal = false, index))
           )
       }.unzip
@@ -60,7 +60,7 @@ object Logical {
       case (legId, relativeIndex) =>
         val index = relativeIndex + startingIndex
         (
-          Vertical(upper = true, TrackIndex(horizontal = false, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1),
+          Vertical(TrackIndex(horizontal = false, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1),
           (legId, TrackIndex(horizontal = false, index))
         )
     }.unzip
@@ -86,7 +86,6 @@ object Logical {
         case None =>
           val newTrackIndex = TrackIndex(horizontal = false, index = verticalByIndex.values.toSeq.count(_.upper))
           val newTrack = Vertical(
-            upper = true,
             index = newTrackIndex,
             diagramConnection = conn
           )
@@ -145,8 +144,8 @@ object Logical {
 
   private def horizontalTracks: (Seq[Horizontal], Map[PowerConnection, Horizontal]) = {
     val horizontal = Seq(
-      Horizontal(upper = true, left = true, index = TrackIndex(horizontal = true, 0), power = Power.Plus),
-      Horizontal(upper = true, left = true, index = TrackIndex(horizontal = true, 1), power = Power.GND)
+      Horizontal(left = true, index = TrackIndex(horizontal = true, 0), power = Power.Plus),
+      Horizontal(left = true, index = TrackIndex(horizontal = true, 1), power = Power.GND)
     )
     val horizontalMap: Map[PowerConnection, Horizontal] = Map(Power.Plus -> horizontal.head, Power.GND -> horizontal(1))
     (horizontal, horizontalMap)

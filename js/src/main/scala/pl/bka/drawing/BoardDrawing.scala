@@ -38,7 +38,7 @@ object BoardDrawing extends Const {
       }
     }
     dom.console.log("drawing...")
-    physical.tracks.foreach(drawTrack(_, verticalTracksVerticalOffset))
+    physical.tracks.foreach(drawTrack)
     physical.components.reverse.zipWithIndex.foreach((drawComponent _).tupled)
   }
 
@@ -46,18 +46,24 @@ object BoardDrawing extends Const {
     if(hole.trackIndex.horizontal) {
       (tracksHorizontalOffset + hole.holeIndex.position * holeStep, hole.trackIndex.index * tracksStep + horizontalTracksVerticalOffset)
     } else {
-      (hole.trackIndex.index * tracksStep + tracksHorizontalOffset, verticalTracksVerticalOffset + hole.holeIndex.position * holeStep)
+      val verticalOffset = verticalTrackVerticalOffset(hole.trackIndex)
+      val locationIndex = hole.trackIndex.verticalLocationIndex
+      (locationIndex * tracksStep + tracksHorizontalOffset, verticalOffset + hole.holeIndex.position * holeStep)
     }
 
   private def drawVerticalTrack(vertical: Vertical): Unit = {
-    val from = (vertical.index.index * tracksStep + tracksHorizontalOffset, verticalTracksVerticalOffset)
-    val to = (vertical.index.index * tracksStep + tracksHorizontalOffset, verticalTracksVerticalOffset + verticalTrackLength)
+    val verticalOffset = verticalTrackVerticalOffset(vertical.index)
+    val locationIndex = vertical.index.verticalLocationIndex
+    val from = (locationIndex * tracksStep + tracksHorizontalOffset, verticalOffset)
+    val to = (locationIndex * tracksStep + tracksHorizontalOffset, verticalOffset + verticalTrackLength)
     DirectDrawing.drawLine(from, to, 1)
-
     for(h <- 0 until Tracks.verticalTrackLength) {
       DirectDrawing.drawHole(holePosition(Hole(vertical.index, TrackPosition(h))))
     }
   }
+
+  private def verticalTrackVerticalOffset(index: TrackIndex) =
+    if(index.upper) upperVerticalTracksVerticalOffset else bottomVerticalTracksVerticalOffset
 
   private def drawHorizontalTrack(horizontal: Horizontal): Unit = {
     val from = (tracksHorizontalOffset, horizontal.index.index * tracksStep + horizontalTracksVerticalOffset)
@@ -70,7 +76,7 @@ object BoardDrawing extends Const {
     drawPowerSign(horizontal.power, (from._1 - 12, from._2))
   }
 
-  private def drawTrack(track: Track, offset: Int): Unit = track match {
+  private def drawTrack(track: Track): Unit = track match {
     case v: Vertical => drawVerticalTrack(v)
     case h: Horizontal => drawHorizontalTrack(h)
   }
