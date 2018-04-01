@@ -57,7 +57,7 @@ object Physical {
         Seq.tabulate(compLegs.length)(_ => targetPosition)
       case c: Cable if isPowerCable =>
         val verticalTrack = logical.connections(compLegs.head)
-        Seq(minPositions.head, TrackPosition(verticalTrack.index))
+        Seq(minPositions.head, TrackPosition(verticalTrack.verticalLocationIndex))
       case _ =>
         minPositions
     }
