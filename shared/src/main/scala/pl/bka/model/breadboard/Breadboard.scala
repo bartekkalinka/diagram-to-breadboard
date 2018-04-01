@@ -9,6 +9,8 @@ case class Breadboard(logical: Logical,
 }
 
 object Breadboard {
+  val maxVerticalTracks = 50
+
   def apply(diagram: Diagram): Breadboard = {
     val logical = Logical(diagram)
     Breadboard(logical, Physical(logical))
