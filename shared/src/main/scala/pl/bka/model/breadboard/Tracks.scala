@@ -4,7 +4,7 @@ import pl.bka.model.Connection
 import pl.bka.model.Power._
 
 case class TrackIndex(horizontal: Boolean, index: Int) {
-  def upper: Boolean = index < 0
+  def upper: Boolean = index >= 0
   def verticalLocationIndex: Int = if(upper) index else index + Breadboard.maxVerticalTracks
 }
 
