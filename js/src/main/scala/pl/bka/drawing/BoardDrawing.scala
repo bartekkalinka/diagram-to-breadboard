@@ -47,7 +47,7 @@ object BoardDrawing extends Const {
 
   private def holePosition(hole: Hole): (Int, Int) =
     if(hole.trackIndex.horizontal) {
-      (tracksHorizontalOffset + hole.holeIndex.position * holeStep, hole.trackIndex.index * tracksStep + horizontalTracksVerticalOffset)
+      (tracksHorizontalOffset + hole.holeIndex.position * holeStep, horizontalTrackVerticalOffset(hole.trackIndex))
     } else {
       val verticalOffset = verticalTrackVerticalOffset(hole.trackIndex)
       val locationIndex = hole.trackIndex.verticalLocationIndex
@@ -75,9 +75,17 @@ object BoardDrawing extends Const {
   private def verticalTrackVerticalOffset(index: TrackIndex) =
     if(index.upper) upperVerticalTracksVerticalOffset else bottomVerticalTracksVerticalOffset
 
+  private def horizontalTrackVerticalOffset(index: TrackIndex) =
+    if(index.upper) {
+      index.index * tracksStep + upperHorizontalTracksVerticalOffset
+    }  else {
+      (index.index + 1) * tracksStep + bottomHorizontalTracksVerticalOffset
+    }
+
   private def drawHorizontalTrack(horizontal: Horizontal): Unit = {
-    val from = (tracksHorizontalOffset, horizontal.index.index * tracksStep + horizontalTracksVerticalOffset)
-    val to = (tracksHorizontalOffset + horizontalTrackLength, horizontal.index.index * tracksStep + horizontalTracksVerticalOffset)
+    val trackY = horizontalTrackVerticalOffset(horizontal.index)
+    val from = (tracksHorizontalOffset, trackY)
+    val to = (tracksHorizontalOffset + horizontalTrackLength, trackY)
     DirectDrawing.drawLine(from, to, 1)
 
     for(h <- 0 until Tracks.horizontalTrackLength) {

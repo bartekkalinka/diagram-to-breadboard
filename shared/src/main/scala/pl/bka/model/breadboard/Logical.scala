@@ -145,7 +145,9 @@ object Logical {
   private def horizontalTracks: (Seq[Horizontal], Map[PowerConnection, Horizontal]) = {
     val horizontal = Seq(
       Horizontal(left = true, index = TrackIndex(horizontal = true, 0), power = Power.Plus),
-      Horizontal(left = true, index = TrackIndex(horizontal = true, 1), power = Power.GND)
+      Horizontal(left = true, index = TrackIndex(horizontal = true, 1), power = Power.GND),
+      Horizontal(left = true, index = TrackIndex(horizontal = true, -2), power = Power.Plus),
+      Horizontal(left = true, index = TrackIndex(horizontal = true, -1), power = Power.GND)
     )
     val horizontalMap: Map[PowerConnection, Horizontal] = Map(Power.Plus -> horizontal.head, Power.GND -> horizontal(1))
     (horizontal, horizontalMap)

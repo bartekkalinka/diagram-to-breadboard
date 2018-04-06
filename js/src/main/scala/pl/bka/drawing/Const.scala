@@ -8,11 +8,12 @@ trait Const {
   val holeStep = tracksStep
   val verticalTrackLength = tracksStep * (Tracks.verticalTrackLength - 1)
   val horizontalTrackLength = tracksStep * (Tracks.horizontalTrackLength - 1)
-  val horizontalTracksVerticalOffset = tracksStep
+  val upperHorizontalTracksVerticalOffset = tracksStep
   val tracksHorizontalOffset = 2 * tracksStep
-  val upperVerticalTracksVerticalOffset = horizontalTracksVerticalOffset + 2 * tracksStep
+  val upperVerticalTracksVerticalOffset = upperHorizontalTracksVerticalOffset + 2 * tracksStep
   val upperVerticalTrackEnd = upperVerticalTracksVerticalOffset + verticalTrackLength
   val bottomVerticalTracksVerticalOffset = upperVerticalTrackEnd + (1 + Tracks.verticalTrackLength) * tracksStep
+  val bottomHorizontalTracksVerticalOffset = bottomVerticalTracksVerticalOffset + 2 * tracksStep
   val holeRadius = 5
   val transistorBodyRadius = 12
   val transistorLegsSpread = 3
