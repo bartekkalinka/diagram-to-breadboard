@@ -25,6 +25,9 @@ object BoardDrawing extends Const {
           val (from, to) = (holePosition(holes.head), holePosition(holes(1)))
           if(from._2 == to._2) {
             DirectDrawing.drawArcCable(from, to, color)
+          } else if(holes(1).trackIndex.upper && !holes.head.trackIndex.upper) {
+            DirectDrawing.drawArcCable(from, to, color)
+            //DirectDrawing.drawStraightCable(from, to, color)
           } else {
             DirectDrawing.drawStraightCable(from, to, color)
           }

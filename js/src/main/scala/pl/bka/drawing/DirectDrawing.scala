@@ -11,12 +11,25 @@ object DirectDrawing extends Const {
     ctx.strokeStyle = color
     ctx.lineWidth = 2
     ctx.beginPath()
-    val xDelta = (to._1 - from._1) / 2
-    val radius = (to._1 - from._1) * cableArcRadiusFactor
-    val yDelta = Math.sqrt(radius * radius - xDelta * xDelta).toInt
-    val angle = Math.atan2(xDelta, yDelta)
-    val (centerX, centerY) = (from._1 + xDelta, from._2 + yDelta)
-    ctx.arc(centerX, centerY, radius, - Math.PI / 2 - angle, - Math.PI / 2 + angle)
+    if(from._2 == to._2) {
+      val xDelta = (to._1 - from._1) / 2
+      val radius = (to._1 - from._1) * shortCableArcRadiusFactor
+      val yDelta = Math.sqrt(radius * radius - xDelta * xDelta).toInt
+      val angle = Math.atan2(xDelta, yDelta)
+      val (centerX, centerY) = (from._1 + xDelta, from._2 + yDelta)
+      val startAngle = -Math.PI / 2 - angle
+      val endAngle = -Math.PI / 2 + angle
+      ctx.arc(centerX, centerY, radius, startAngle, endAngle)
+    } else {
+      val yDelta = (from._2 - to._2) / 2
+      val radius = (from._2 - to._2) * longCableArcRadiusFactor
+      val xDelta = Math.sqrt(radius * radius - yDelta * yDelta).toInt
+      val angle = Math.atan2(yDelta, xDelta)
+      val (centerY, centerX) = (from._2 - yDelta, from._1 + xDelta)
+      val startAngle = -Math.PI  - angle
+      val endAngle = -Math.PI  + angle
+      ctx.arc(centerX, centerY, radius, startAngle, endAngle)
+    }
     ctx.stroke()
   }
 
