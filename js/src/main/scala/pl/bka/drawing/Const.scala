@@ -12,7 +12,7 @@ trait Const {
   val tracksHorizontalOffset = 2 * tracksStep
   val upperVerticalTracksVerticalOffset = horizontalTracksVerticalOffset + 2 * tracksStep
   val upperVerticalTrackEnd = upperVerticalTracksVerticalOffset + verticalTrackLength
-  val bottomVerticalTracksVerticalOffset = upperVerticalTrackEnd + 2 * tracksStep
+  val bottomVerticalTracksVerticalOffset = upperVerticalTrackEnd + (1 + Tracks.verticalTrackLength) * tracksStep
   val holeRadius = 5
   val transistorBodyRadius = 12
   val transistorLegsSpread = 3
