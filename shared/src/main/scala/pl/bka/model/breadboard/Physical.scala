@@ -45,7 +45,8 @@ object Physical {
   private def insertComponent(logical: Logical)(cName: ComponentName, allLegsInsertions: Map[LegId, Hole],
                                         freePositions: Map[TrackIndex, Seq[TrackPosition]]): (Map[LegId, Hole], Map[TrackIndex, Seq[TrackPosition]]) = {
     val compLegs: Seq[LegId] = logical.componentsLegs(cName)
-    val compType = logical.componentsByName(cName).cType
+    val component = logical.componentsByName(cName)
+    val compType = component.cType
     val minPositions: Seq[TrackPosition] = compLegs.map { legId =>
       val track = logical.connections(legId)
       freePositions(track).minBy(_.position)
@@ -58,6 +59,14 @@ object Physical {
       case c: Cable if isPowerCable =>
         val verticalTrack = logical.connections(compLegs.head)
         Seq(minPositions.head, TrackPosition(verticalTrack.verticalLocationIndex))
+      case i: IC =>
+        val halfLength = component.legs.length / 2
+        (component.legs.take(halfLength).map((_, true)) ++ component.legs.drop(halfLength).map((_, false))).map {
+          case (leg, upper) =>
+            val legId = LegId(cName, leg)
+            val verticalTrack = logical.connections(legId)
+            TrackPosition(Tracks.verticalTrackLength - 1)
+        }
       case _ =>
         minPositions
     }
