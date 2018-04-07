@@ -32,9 +32,9 @@ object Logical {
     var startingIndex = vertical.count(_.upper)
     val (allNewVertical, allLegs) = ics.map { ic =>
       val halfLength = ic.legs.length / 2
-      val legsWithUpper = ic.legs.take(halfLength).map(l => (LegId(ic.name, l), true)).zipWithIndex ++
+      val dividedLegs = ic.legs.take(halfLength).map(l => (LegId(ic.name, l), true)).zipWithIndex ++
         ic.legs.drop(halfLength).map(l => (LegId(ic.name, l), false)).zipWithIndex
-      val (newVertical, icsLegs) = legsWithUpper.map {
+      val (newVertical, icsLegs) = dividedLegs.map {
         case ((legId, upper), relativeIndex) =>
           val index = if(upper) relativeIndex + startingIndex else -Breadboard.maxVerticalTracks + relativeIndex
           (
@@ -127,7 +127,7 @@ object Logical {
   }
 
   private def calcPowerCables(vertical: Seq[Vertical],
-                              horizontalMap: Map[PowerConnection, Horizontal]): (Seq[Component], Map[LegId, TrackIndex]) = {
+                              horizontalMap: Map[(Boolean, PowerConnection), Horizontal]): (Seq[Component], Map[LegId, TrackIndex]) = {
     val powerConnectionTracks = vertical.filter(v => v.diagramConnection.id.isRight)
     val (cables, legs) = powerConnectionTracks.map { track =>
       val cName = s"cable-${track.diagramConnection.id.fold(identity, identity)}-${track.index.index}"
@@ -135,21 +135,26 @@ object Logical {
       val Right(power) = track.diagramConnection.id
       val legs = Seq(
         (LegId(ComponentName(cName), cable.legs.head), track.index),
-        (LegId(ComponentName(cName), cable.legs(1)), horizontalMap(power).index)
+        (LegId(ComponentName(cName), cable.legs(1)), horizontalMap((track.upper, power)).index)
       )
       (cable, legs)
     }.unzip
     (cables, legs.flatten.toMap)
   }
 
-  private def horizontalTracks: (Seq[Horizontal], Map[PowerConnection, Horizontal]) = {
+  private def horizontalTracks: (Seq[Horizontal], Map[(Boolean, PowerConnection), Horizontal]) = {
     val horizontal = Seq(
       Horizontal(left = true, index = TrackIndex(horizontal = true, 0), power = Power.Plus),
       Horizontal(left = true, index = TrackIndex(horizontal = true, 1), power = Power.GND),
       Horizontal(left = true, index = TrackIndex(horizontal = true, -2), power = Power.Plus),
       Horizontal(left = true, index = TrackIndex(horizontal = true, -1), power = Power.GND)
     )
-    val horizontalMap: Map[PowerConnection, Horizontal] = Map(Power.Plus -> horizontal.head, Power.GND -> horizontal(1))
+    val horizontalMap: Map[(Boolean, PowerConnection), Horizontal] = Map(
+      (true ,Power.Plus) -> horizontal.head,
+      (true, Power.GND) -> horizontal(1),
+      (false ,Power.Plus) -> horizontal(2),
+      (false, Power.GND) -> horizontal(3)
+    )
     (horizontal, horizontalMap)
   }
 }
