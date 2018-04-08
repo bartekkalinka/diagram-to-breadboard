@@ -19,6 +19,8 @@ object Logical {
           (newVertical, legs ++ newLegs)
         }
     println(s"------------ tracks after components ------------ ${extVertical.toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
+    println(s"------------ legs after components -------------")
+    prettyPrintLegs(componentsLegs)
     val (regularCables, regularCablesLegs) = calcRegularConnectionCables(extVertical)
     val (horizontal, horizontalMap) = horizontalTracks
     val (powerCables, powerCablesLegs) = calcPowerCables(extVertical, horizontalMap)
@@ -47,6 +49,8 @@ object Logical {
     }.reduceOption((vl1, vl2) => (vl1._1 ++ vl2._1, vl1._2 ++ vl2._2))
       .getOrElse((Seq.empty[Vertical], Seq.empty[(LegId, TrackIndex)]))
     println(s"------------ tracks after ICs ------------ ${(vertical ++ allNewVertical).toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
+    println(s"------------ legs after ICs ------------- ")
+    prettyPrintLegs(allLegs.toMap)
     (vertical ++ allNewVertical, allLegs.toMap)
   }
 
@@ -69,7 +73,7 @@ object Logical {
   }
 
   private def otherToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex]) = {
-    val other = diagram.components.filterNot(_.cType.isInstanceOf[Transistor])
+    val other = diagram.components.filterNot(c => c.cType.isInstanceOf[Transistor] || c.cType.isInstanceOf[IC])
     val legs = other.flatMap(c => c.legs.map(leg => LegId(c.name, leg)))
     var trackIndexByConnection = mutable.Map(vertical.groupBy(_.diagramConnection).mapValues(_.map(_.index)).toSeq: _*)
     def getTrackIndexByConnection(conn: Connection): Seq[TrackIndex] =
@@ -156,6 +160,12 @@ object Logical {
       (false, Power.GND) -> horizontal(3)
     )
     (horizontal, horizontalMap)
+  }
+
+  private def prettyPrintLegs(legs: Map[LegId, TrackIndex]): Unit = {
+    legs.toSeq.sortBy(l => (l._1.cName.value, l._1.leg.name)).foreach { case (LegId(cName, leg), TrackIndex(horizontal, index)) =>
+        println(s"  ${cName.value} ${leg.name} -> $horizontal $index")
+    }
   }
 }
 
