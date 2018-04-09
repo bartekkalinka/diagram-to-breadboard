@@ -2,6 +2,7 @@ package pl.bka.model.breadboard
 
 import pl.bka.model.Power.PowerConnection
 import pl.bka.model._
+import pl.bka.PrettyPrint._
 import scala.collection.mutable
 
 case class Logical(components: Seq[Component], tracks: Seq[Track], connections: Map[LegId, TrackIndex]) extends Container {
@@ -20,7 +21,7 @@ object Logical {
         }
     println(s"------------ tracks after components ------------ ${extVertical.toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
     println(s"------------ legs after components -------------")
-    prettyPrintLegs(componentsLegs)
+    componentsLegs.prettyPrint
     val (regularCables, regularCablesLegs) = calcRegularConnectionCables(extVertical)
     val (horizontal, horizontalMap) = horizontalTracks
     val (powerCables, powerCablesLegs) = calcPowerCables(extVertical, horizontalMap)
@@ -50,7 +51,7 @@ object Logical {
       .getOrElse((Seq.empty[Vertical], Seq.empty[(LegId, TrackIndex)]))
     println(s"------------ tracks after ICs ------------ ${(vertical ++ allNewVertical).toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
     println(s"------------ legs after ICs ------------- ")
-    prettyPrintLegs(allLegs.toMap)
+    allLegs.toMap.prettyPrint
     (vertical ++ allNewVertical, allLegs.toMap)
   }
 
@@ -160,12 +161,6 @@ object Logical {
       (false, Power.GND) -> horizontal(3)
     )
     (horizontal, horizontalMap)
-  }
-
-  private def prettyPrintLegs(legs: Map[LegId, TrackIndex]): Unit = {
-    legs.toSeq.sortBy(l => (l._1.cName.value, l._1.leg.name)).foreach { case (LegId(cName, leg), TrackIndex(horizontal, index)) =>
-        println(s"  ${cName.value} ${leg.name} -> $horizontal $index")
-    }
   }
 }
 
