@@ -36,6 +36,15 @@ object DirectDrawing extends Const {
   def drawStraightCable(from: (Int, Int), to: (Int, Int), color: String): Unit =
     drawLine(from, to, 2, color)
 
+  def drawICBody(symbol: String, pos: (Int, Int)): Unit = {
+    ctx.fillStyle = "#FFFFFF"
+    ctx.strokeStyle = "#000000"
+    ctx.lineWidth = 1
+    ctx.font = font
+    ctx.fillStyle = "#000000"
+    ctx.fillText(symbol, pos._1 - transistorBodyRadius + 2, pos._2 - 2)
+  }
+
   def drawTransistorBody(symbol: String, pos: (Int, Int)): Unit = {
     ctx.fillStyle = "#FFFFFF"
     ctx.strokeStyle = "#000000"
