@@ -18,7 +18,7 @@ object BoardDrawing extends Const {
           val (xs, ys) = holes.map(holePosition).unzip
           val (centerX, centerY) = (xs.sum / xs.length, ys.sum / ys.length)
           //TODO draw legs
-          DirectDrawing.drawICBody(component.name.value, (centerX, centerY))
+          DirectDrawing.drawICBody(component.name.value, (centerX, centerY), xs(holes.length / 2 - 1) - xs.head, tracksStep)
         case Transistor(_, _) =>
           val centerHole = holePosition(holes(1))
           val (centerX, centerY) = (centerHole._1, centerHole._2 - (0.3 * holeStep).toInt)
