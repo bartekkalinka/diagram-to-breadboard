@@ -17,7 +17,11 @@ object BoardDrawing extends Const {
         case IC(_, _) =>
           val (xs, ys) = holes.map(holePosition).unzip
           val (centerX, centerY) = (xs.sum / xs.length, ys.sum / ys.length)
-          //TODO draw legs
+          holes.zipWithIndex.foreach { case (hole, i) =>
+            val (x, y) = holePosition(hole)
+            val bodyOffset = if(i < holes.length / 2) tracksStep / 2 else -tracksStep / 2
+            DirectDrawing.drawLine((x, y), (x, y + bodyOffset), 4)
+          }
           DirectDrawing.drawICBody(component.name.value, (centerX, centerY), xs(holes.length / 2 - 1) - xs.head, tracksStep)
         case Transistor(_, _) =>
           val centerHole = holePosition(holes(1))
