@@ -36,17 +36,17 @@ object DirectDrawing extends Const {
   def drawStraightCable(from: (Int, Int), to: (Int, Int), color: String): Unit =
     drawLine(from, to, 2, color)
 
-  def drawICBody(symbol: String, pos: (Int, Int)): Unit = {
+  def drawICBody(name: String, pos: (Int, Int)): Unit = {
     ctx.fillStyle = "#FFFFFF"
     ctx.strokeStyle = "#000000"
     ctx.lineWidth = 1
     ctx.font = font
     ctx.fillStyle = "#000000"
-    val textSize = symbol.length * fontSize
-    ctx.fillText(symbol, pos._1 - textSize / 2, pos._2 - fontSize / 2)
+    val textSize = name.length * fontSize
+    ctx.fillText(name, pos._1 - textSize / 2, pos._2 - fontSize / 2)
   }
 
-  def drawTransistorBody(symbol: String, pos: (Int, Int)): Unit = {
+  def drawTransistorBody(name: String, pos: (Int, Int)): Unit = {
     ctx.fillStyle = "#FFFFFF"
     ctx.strokeStyle = "#000000"
     ctx.lineWidth = 1
@@ -58,7 +58,7 @@ object DirectDrawing extends Const {
     ctx.fill()
     ctx.font = font
     ctx.fillStyle = "#000000"
-    ctx.fillText(symbol, pos._1 - transistorBodyRadius + 2, pos._2 - 2)
+    ctx.fillText(name, pos._1 - transistorBodyRadius + 2, pos._2 - 2)
   }
 
   def drawResistorBody(cname: String, pos: (Int, Int)): Unit = {
