@@ -42,7 +42,8 @@ object DirectDrawing extends Const {
     ctx.lineWidth = 1
     ctx.font = font
     ctx.fillStyle = "#000000"
-    ctx.fillText(symbol, pos._1 - transistorBodyRadius + 2, pos._2 - 2)
+    val textSize = symbol.length * fontSize
+    ctx.fillText(symbol, pos._1 - textSize / 2, pos._2 - fontSize / 2)
   }
 
   def drawTransistorBody(symbol: String, pos: (Int, Int)): Unit = {

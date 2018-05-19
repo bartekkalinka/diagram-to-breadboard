@@ -14,9 +14,11 @@ object BoardDrawing extends Const {
       }
       val color: String = Seq("#FFBB00", "#FF0000", "#0000FF", "#00FF00")(compIndex % 4)
       component.cType match {
-        case IC(symbol, legsCount) =>
+        case IC(symbol, _) =>
           val (xs, ys) = holes.map(holePosition).unzip
           val (centerX, centerY) = (xs.sum / xs.length, ys.sum / ys.length)
+          //TODO draw legs
+          DirectDrawing.drawICBody(symbol, (centerX, centerY))
         case Transistor(symbol, _) =>
           val centerHole = holePosition(holes(1))
           val (centerX, centerY) = (centerHole._1, centerHole._2 - (0.3 * holeStep).toInt)
