@@ -40,7 +40,9 @@ object DirectDrawing extends Const {
     ctx.fillStyle = "#FFFFFF"
     ctx.strokeStyle = "#000000"
     ctx.lineWidth = 1
-    ctx.strokeRect(pos._1 - width / 2 - 2, pos._2 - height / 2, width + 4, height)
+    val leftX = pos._1 - width / 2 - 2
+    ctx.strokeRect(leftX, pos._2 - height / 2, width + 4, height)
+    ctx.strokeRect(leftX, pos._2 - height / 4, 8, height / 2)
     ctx.font = icFont
     ctx.fillStyle = "#000000"
     val textSize = name.length * icFontSize / 2
