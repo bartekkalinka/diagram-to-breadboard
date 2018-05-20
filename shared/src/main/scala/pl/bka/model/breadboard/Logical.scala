@@ -25,8 +25,9 @@ object Logical {
     val (regularCables, regularCablesLegs) = calcRegularConnectionCables(extVertical)
     val (horizontal, horizontalMap) = horizontalTracks
     val (powerCables, powerCablesLegs) = calcPowerCables(extVertical, horizontalMap)
-    val map: Map[LegId, TrackIndex] = componentsLegs ++ regularCablesLegs ++ powerCablesLegs
-    val extComponents = diagram.components ++ regularCables ++ powerCables
+    val (unionCables, unionCablesLegs) = powerUnionCables(horizontalMap)
+    val map: Map[LegId, TrackIndex] = componentsLegs ++ regularCablesLegs ++ powerCablesLegs ++ unionCablesLegs
+    val extComponents = diagram.components ++ regularCables ++ powerCables ++ unionCables
     Logical(extComponents, extVertical ++ horizontal, map)
   }
 
@@ -145,6 +146,22 @@ object Logical {
       (cable, legs)
     }.unzip
     (cables, legs.flatten.toMap)
+  }
+
+  private def powerUnionCables(horizontalMap: Map[(Boolean, PowerConnection), Horizontal]): (Seq[Component], Map[LegId, TrackIndex]) = {
+    val (comps, legs) = Seq(
+       {
+         val cName = "cable-plus-union"
+         val cable = Component(cName, Cable(""))
+         (cable, Map(LegId(ComponentName(cName), cable.legs.head) -> horizontalMap((true, Power.Plus)).index, LegId(ComponentName(cName), cable.legs(1)) -> horizontalMap((false, Power.Plus)).index))
+       },
+      {
+        val cName = "cable-gnd-union"
+        val cable = Component(cName, Cable(""))
+        (cable, Map(LegId(ComponentName(cName), cable.legs.head) -> horizontalMap((true, Power.GND)).index, LegId(ComponentName(cName), cable.legs(1)) -> horizontalMap((false, Power.GND)).index))
+      }
+    ).unzip
+    (comps, legs.reduce(_ ++ _))
   }
 
   private def horizontalTracks: (Seq[Horizontal], Map[(Boolean, PowerConnection), Horizontal]) = {

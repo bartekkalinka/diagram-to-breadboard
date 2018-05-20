@@ -17,15 +17,16 @@ case class Physical(components: Seq[Component], tracks: Seq[Track], connections:
   //so it doesn't use Vertical.diagramConnection attribute on purpose
   def toDiagram: Diagram = {
     val compsByName = this.componentsByName
-    val cableConnections: Seq[(ComponentName, TrackIndex, String)] = this.connections.toSeq
+    val cableConnections: Seq[(ComponentName, TrackIndex)] = this.connections.toSeq
       .filter { case (legId, _) => compsByName(legId.cName).cType.isInstanceOf[Cable] }
-      .map {case (legId, Hole(index, _)) => (legId.cName, index, legId.leg.name)}
+      .map {case (legId, Hole(trackIndex, _)) => (legId.cName, trackIndex)}
     val rawTrackConns: Seq[(TrackIndex, TrackIndex)] =
       cableConnections.groupBy(_._1).values.map { legs => (legs.head._2, legs(1)._2) }.toSeq
-    val trackConns: Map[TrackIndex, Seq[TrackIndex]] = rawTrackConns.groupBy(_._1).mapValues(_.map(_._2))
+    val rawTrackConnsBothWays = (rawTrackConns ++ rawTrackConns.map { case (a, b) => (b, a) }).filter { case (a, b) => a.order > b.order }
+    val trackConns: Map[TrackIndex, Seq[TrackIndex]] = rawTrackConnsBothWays.groupBy(_._1).mapValues(_.map(_._2))
     def pullConnection(index: TrackIndex): Seq[TrackIndex] =
       index +: trackConns.get(index).map(children => children.flatMap(pullConnection)).getOrElse(Seq[TrackIndex]())
-    def connections(toTraverse: Seq[TrackIndex], acc: Seq[Seq[TrackIndex]]): Seq[Seq[TrackIndex]] =
+    def connections(toTraverse: Seq[TrackIndex], acc: Seq[Seq[TrackIndex]]): Seq[Seq[TrackIndex]] = //TODO better name?
       if(toTraverse.nonEmpty) {
         val conn = pullConnection(toTraverse.head)
         connections(toTraverse.diff(conn), acc :+ conn)
