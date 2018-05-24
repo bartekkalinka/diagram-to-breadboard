@@ -19,6 +19,7 @@ trait Const {
   val transistorLegsSpread = 3
   val resistorLegsSpread = 3
   val resistorBodySize = (30, 10)
+  val capacitorSize = (6, 25)
   val fontSize = 8
   val font = s"${fontSize}px Arial"
   val icFontSize = 12

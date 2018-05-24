@@ -84,6 +84,23 @@ object DirectDrawing extends Const {
     ctx.fillText(cname, pos._1 - 12, pos._2 - 2)
   }
 
+  def drawCapacitorBody(cname: String, pos: (Int, Int)): Unit = {
+    ctx.fillStyle = "#FFFFFF"
+    ctx.strokeStyle = "#000000"
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.moveTo(pos._1 - capacitorSize._1 / 2, pos._2 - capacitorSize._2 / 2)
+    ctx.lineTo(pos._1 - capacitorSize._1 / 2, pos._2 + capacitorSize._2 / 2)
+    ctx.stroke()
+    ctx.moveTo(pos._1 + capacitorSize._1 / 2, pos._2 - capacitorSize._2 / 2)
+    ctx.lineTo(pos._1 + capacitorSize._1 / 2, pos._2 + capacitorSize._2 / 2)
+    ctx.stroke()
+    //TODO polarity
+    ctx.font = font
+    ctx.fillStyle = "#000000"
+    ctx.fillText(cname, pos._1 - 12, pos._2 + capacitorSize._2 / 2 + 2)
+  }
+
   def drawHole(pos: (Int, Int)): Unit = {
     ctx.fillStyle = "#FFFFFF"
     ctx.strokeStyle = "#000000"
