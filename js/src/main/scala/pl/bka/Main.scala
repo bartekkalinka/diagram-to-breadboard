@@ -20,7 +20,7 @@ object Main {
         val exampleBoard = Breadboard(diagram)
         DomOutput.println("board")
         exampleBoard.prettyPrint.foreach(DomOutput.println)
-        val boardDrawing = new BoardDrawing(new Size(1d))
+        val boardDrawing = new BoardDrawing(new Size(2d))
         boardDrawing.drawPhysical(exampleBoard.physical, diagram)
       case _ => ()
     }
