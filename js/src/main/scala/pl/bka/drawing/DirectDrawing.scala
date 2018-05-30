@@ -3,7 +3,7 @@ package pl.bka.drawing
 import org.scalajs.dom
 import pl.bka.DomOutput
 
-object DirectDrawing extends Const {
+class DirectDrawing(size: Size) {
   val ctx = DomOutput.canvas.getContext("2d")
     .asInstanceOf[dom.CanvasRenderingContext2D]
 
@@ -13,7 +13,7 @@ object DirectDrawing extends Const {
     ctx.beginPath()
     if(from._2 == to._2) {
       val xDelta = (to._1 - from._1) / 2
-      val radius = (to._1 - from._1) * shortCableArcRadiusFactor
+      val radius = (to._1 - from._1) * size.shortCableArcRadiusFactor
       val yDelta = Math.sqrt(radius * radius - xDelta * xDelta).toInt
       val angle = Math.atan2(xDelta, yDelta)
       val (centerX, centerY) = (from._1 + xDelta, from._2 + yDelta)
@@ -22,7 +22,7 @@ object DirectDrawing extends Const {
       ctx.arc(centerX, centerY, radius, startAngle, endAngle)
     } else {
       val yDelta = (from._2 - to._2) / 2
-      val radius = (from._2 - to._2) * longCableArcRadiusFactor
+      val radius = (from._2 - to._2) * size.longCableArcRadiusFactor
       val xDelta = Math.sqrt(radius * radius - yDelta * yDelta).toInt
       val angle = Math.atan2(yDelta, xDelta)
       val (centerY, centerX) = (from._2 - yDelta, from._1 + xDelta)
@@ -43,9 +43,9 @@ object DirectDrawing extends Const {
     val leftX = pos._1 - width / 2 - 2
     ctx.strokeRect(leftX, pos._2 - height / 2, width + 4, height)
     ctx.strokeRect(leftX, pos._2 - height / 4, 8, height / 2)
-    ctx.font = icFont
+    ctx.font = size.icFont
     ctx.fillStyle = "#000000"
-    val textSize = name.length * icFontSize / 2
+    val textSize = name.length * size.icFontSize / 2
     ctx.fillText(name, pos._1 - textSize / 2, pos._2)
   }
 
@@ -54,14 +54,14 @@ object DirectDrawing extends Const {
     ctx.strokeStyle = "#000000"
     ctx.lineWidth = 1
     ctx.beginPath()
-    ctx.arc(pos._1, pos._2, transistorBodyRadius, - Math.PI, 0)
-    ctx.moveTo(pos._1 - transistorBodyRadius, pos._2)
-    ctx.lineTo(pos._1 + transistorBodyRadius, pos._2)
+    ctx.arc(pos._1, pos._2, size.transistorBodyRadius, - Math.PI, 0)
+    ctx.moveTo(pos._1 - size.transistorBodyRadius, pos._2)
+    ctx.lineTo(pos._1 + size.transistorBodyRadius, pos._2)
     ctx.stroke()
     ctx.fill()
-    ctx.font = font
+    ctx.font = size.font
     ctx.fillStyle = "#000000"
-    ctx.fillText(name, pos._1 - transistorBodyRadius + 2, pos._2 - 2)
+    ctx.fillText(name, pos._1 - size.transistorBodyRadius + 2, pos._2 - 2)
   }
 
   def drawResistorBody(cname: String, pos: (Int, Int)): Unit = {
@@ -69,17 +69,17 @@ object DirectDrawing extends Const {
     ctx.strokeStyle = "#000000"
     ctx.lineWidth = 1
     ctx.beginPath()
-    ctx.moveTo(pos._1 - resistorBodySize._1 / 2, pos._2 - resistorBodySize._2)
-    ctx.lineTo(pos._1 + resistorBodySize._1 / 2, pos._2 - resistorBodySize._2)
+    ctx.moveTo(pos._1 - size.resistorBodySize._1 / 2, pos._2 - size.resistorBodySize._2)
+    ctx.lineTo(pos._1 + size.resistorBodySize._1 / 2, pos._2 - size.resistorBodySize._2)
     ctx.stroke()
-    ctx.lineTo(pos._1 + resistorBodySize._1 / 2, pos._2)
+    ctx.lineTo(pos._1 + size.resistorBodySize._1 / 2, pos._2)
     ctx.stroke()
-    ctx.lineTo(pos._1 - resistorBodySize._1 / 2, pos._2)
+    ctx.lineTo(pos._1 - size.resistorBodySize._1 / 2, pos._2)
     ctx.stroke()
-    ctx.lineTo(pos._1 - resistorBodySize._1 / 2, pos._2 - resistorBodySize._2)
+    ctx.lineTo(pos._1 - size.resistorBodySize._1 / 2, pos._2 - size.resistorBodySize._2)
     ctx.stroke()
     ctx.fill()
-    ctx.font = font
+    ctx.font = size.font
     ctx.fillStyle = "#000000"
     ctx.fillText(cname, pos._1 - 12, pos._2 - 2)
   }
@@ -89,16 +89,16 @@ object DirectDrawing extends Const {
     ctx.strokeStyle = "#000000"
     ctx.lineWidth = 1
     ctx.beginPath()
-    ctx.moveTo(pos._1 - capacitorSize._1 / 2, pos._2 - capacitorSize._2 / 2)
-    ctx.lineTo(pos._1 - capacitorSize._1 / 2, pos._2 + capacitorSize._2 / 2)
+    ctx.moveTo(pos._1 - size.capacitorSize._1 / 2, pos._2 - size.capacitorSize._2 / 2)
+    ctx.lineTo(pos._1 - size.capacitorSize._1 / 2, pos._2 + size.capacitorSize._2 / 2)
     ctx.stroke()
-    ctx.moveTo(pos._1 + capacitorSize._1 / 2, pos._2 - capacitorSize._2 / 2)
-    ctx.lineTo(pos._1 + capacitorSize._1 / 2, pos._2 + capacitorSize._2 / 2)
+    ctx.moveTo(pos._1 + size.capacitorSize._1 / 2, pos._2 - size.capacitorSize._2 / 2)
+    ctx.lineTo(pos._1 + size.capacitorSize._1 / 2, pos._2 + size.capacitorSize._2 / 2)
     ctx.stroke()
     //TODO polarity
-    ctx.font = font
+    ctx.font = size.font
     ctx.fillStyle = "#000000"
-    ctx.fillText(cname, pos._1 - 12, pos._2 + capacitorSize._2 / 2 + 2)
+    ctx.fillText(cname, pos._1 - 12, pos._2 + size.capacitorSize._2 / 2 + 2)
   }
 
   def drawHole(pos: (Int, Int)): Unit = {
@@ -106,7 +106,7 @@ object DirectDrawing extends Const {
     ctx.strokeStyle = "#000000"
     ctx.lineWidth = 1
     ctx.beginPath()
-    ctx.arc(pos._1, pos._2, holeRadius, 0, 2*Math.PI)
+    ctx.arc(pos._1, pos._2, size.holeRadius, 0, 2*Math.PI)
     ctx.stroke()
     ctx.fill()
   }

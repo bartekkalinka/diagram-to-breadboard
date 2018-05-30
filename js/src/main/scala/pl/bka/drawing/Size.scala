@@ -1,10 +1,10 @@
 package pl.bka.drawing
 
-import pl.bka.drawing.BoardDrawing.upperVerticalTracksVerticalOffset
 import pl.bka.model.breadboard.Tracks
 
-trait Const {
-  val tracksStep = 40
+class Size(zoomFactor: Double) {
+  def zoom(pixels: Int): Int = (pixels * zoomFactor).round.toInt
+  val tracksStep = zoom(40)
   val holeStep = tracksStep
   val verticalTrackLength = tracksStep * (Tracks.verticalTrackLength - 1)
   val horizontalTrackLength = tracksStep * (Tracks.horizontalTrackLength - 1)
@@ -14,10 +14,10 @@ trait Const {
   val upperVerticalTrackEnd = upperVerticalTracksVerticalOffset + verticalTrackLength
   val bottomVerticalTracksVerticalOffset = upperVerticalTrackEnd + (1 + Tracks.verticalTrackLength) * tracksStep
   val bottomHorizontalTracksVerticalOffset = bottomVerticalTracksVerticalOffset + 2 * tracksStep
-  val holeRadius = 5
-  val transistorBodyRadius = 15
-  val transistorLegsSpread = 3
-  val resistorLegsSpread = 3
+  val holeRadius = zoom(5)
+  val transistorBodyRadius = zoom(15)
+  val transistorLegsSpread = zoom(3)
+  val resistorLegsSpread = zoom(3)
   val resistorBodySize = (30, 10)
   val capacitorSize = (6, 25)
   val fontSize = 8
