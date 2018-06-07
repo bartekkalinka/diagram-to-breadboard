@@ -88,6 +88,7 @@ class DirectDrawing(size: Size) {
     ctx.fillStyle = "#FFFFFF"
     ctx.strokeStyle = "#000000"
     ctx.lineWidth = 1
+    //body
     ctx.beginPath()
     ctx.moveTo(pos._1 - size.capacitorSize._1 / 2, pos._2 - size.capacitorSize._2 / 2)
     ctx.lineTo(pos._1 - size.capacitorSize._1 / 2, pos._2 + size.capacitorSize._2 / 2)
@@ -95,7 +96,19 @@ class DirectDrawing(size: Size) {
     ctx.moveTo(pos._1 + size.capacitorSize._1 / 2, pos._2 - size.capacitorSize._2 / 2)
     ctx.lineTo(pos._1 + size.capacitorSize._1 / 2, pos._2 + size.capacitorSize._2 / 2)
     ctx.stroke()
-    //TODO polarity
+    //polarity
+    //plus
+    ctx.moveTo(pos._1 - 2 * size.capacitorSize._1 / 2 - 10, pos._2 - size.capacitorSize._2 / 2 + 5)
+    ctx.lineTo(pos._1 - 2 * size.capacitorSize._1 / 2 - 5, pos._2 - size.capacitorSize._2 / 2 + 5)
+    ctx.stroke()
+    ctx.moveTo(pos._1 - 2 * size.capacitorSize._1 / 2 - 7.5, pos._2 - size.capacitorSize._2 / 2 + 2.5)
+    ctx.lineTo(pos._1 - 2 * size.capacitorSize._1 / 2 - 7.5, pos._2 - size.capacitorSize._2 / 2 + 7.5)
+    ctx.stroke()
+    //minus
+    ctx.moveTo(pos._1 + 2 * size.capacitorSize._1 / 2 + 5, pos._2 - size.capacitorSize._2 / 2 + 5)
+    ctx.lineTo(pos._1 + 2 * size.capacitorSize._1 / 2 + 10, pos._2 - size.capacitorSize._2 / 2 + 5)
+    ctx.stroke()
+    //name
     ctx.font = size.font
     ctx.fillStyle = "#000000"
     ctx.fillText(cname, pos._1 - 12, pos._2 + size.capacitorSize._2 / 2 + 2)

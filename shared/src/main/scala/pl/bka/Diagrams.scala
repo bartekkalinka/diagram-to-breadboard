@@ -13,7 +13,7 @@ object Diagrams {
       Component("R220-3", Resistor("220K")),
       Component("R220-4", Resistor("220K")),
       Component("R220-5", Resistor("220K")),
-      Component("C100uF-1", Capacitor(100, true))
+      Component("C100uF-1", Capacitor(capacitance = 100, bipolar = true))
     ),
     Map(
       ("Tr549B.1", "0") -> Right(Plus), ("Tr549B.1", "1") -> Left(0), ("Tr549B.1", "2") -> Right(GND),
