@@ -114,7 +114,7 @@ class DirectDrawing(size: Size) {
     //name
     ctx.font = size.font
     ctx.fillStyle = "#000000"
-    ctx.fillText(cname, pos._1 - 12, pos._2 + size.capacitorSize._2 / 2 + 2)
+    ctx.fillText(cname, pos._1 - 12, pos._2 - size.capacitorSize._2 / 2 - 2)
   }
 
   def drawHole(pos: (Int, Int)): Unit = {
