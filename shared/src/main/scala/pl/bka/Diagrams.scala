@@ -23,7 +23,7 @@ object Diagrams {
       ("R220-3", "0") -> Left(0), ("R220-3", "1") -> Right(GND),
       ("R220-4", "0") -> Right(GND), ("R220-4", "1") -> Left(0),
       ("R220-5", "0") -> Left(0), ("R220-5", "1") -> Right(Plus),
-      ("C100uF-1", "0") -> Left(0), ("C100uF-1", "1") -> Right(Plus)
+      ("C100uF-1", Leg.capMinus) -> Left(0), ("C100uF-1", Leg.capPlus) -> Right(Plus)
     )
   )
 }

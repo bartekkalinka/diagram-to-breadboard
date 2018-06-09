@@ -3,7 +3,7 @@ package pl.bka.model
 sealed trait ComponentType {
   val legsCount: Int
   def physicalInsertOrder: Int = 0
-  def initLegs: Seq[Leg] = List.tabulate(legsCount)(_.toString).map(Leg)
+  def initLegs: Seq[Leg] = List.tabulate(legsCount)(_.toString).map(Leg(_))
 }
 case class IC(symbol: String, legsCount: Int) extends ComponentType {
   override def physicalInsertOrder: Int = -1
