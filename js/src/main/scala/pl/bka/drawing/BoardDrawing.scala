@@ -49,7 +49,8 @@ class BoardDrawing(size: Size) {
           val (centerX, centerY) = ((holePos1._1 + holePos2._1) / 2, Seq(holePos1._2, holePos2._2).min - (0.3 * size.holeStep).toInt)
           directDrawing.drawLine(holePos1, (centerX - size.capacitorSize._1 / 2, centerY), 2)
           directDrawing.drawLine(holePos2, (centerX + size.capacitorSize._1 / 2, centerY), 2)
-          directDrawing.drawCapacitorBody(component.name.value, (centerX, centerY))
+          val minusOnLeft = component.legs.head.name == Leg.capMinus
+          directDrawing.drawCapacitorBody(component.name.value, (centerX, centerY), minusOnLeft)
         case _ => ()
       }
     }

@@ -84,7 +84,7 @@ class DirectDrawing(size: Size) {
     ctx.fillText(cname, pos._1 - 12, pos._2 - 2)
   }
 
-  def drawCapacitorBody(cname: String, pos: (Int, Int)): Unit = {
+  def drawCapacitorBody(cname: String, pos: (Int, Int), minusOnLeft: Boolean): Unit = {
     ctx.fillStyle = "#FFFFFF"
     ctx.strokeStyle = "#000000"
     ctx.lineWidth = 1
@@ -97,16 +97,17 @@ class DirectDrawing(size: Size) {
     ctx.lineTo(pos._1 + size.capacitorSize._1 / 2, pos._2 + size.capacitorSize._2 / 2)
     ctx.stroke()
     //polarity
+    val polarity = if(minusOnLeft) -1 else 1
     //plus
-    ctx.moveTo(pos._1 - 2 * size.capacitorSize._1 / 2 - 10, pos._2 - size.capacitorSize._2 / 2 + 5)
-    ctx.lineTo(pos._1 - 2 * size.capacitorSize._1 / 2 - 5, pos._2 - size.capacitorSize._2 / 2 + 5)
+    ctx.moveTo(pos._1 - 2 * size.capacitorSize._1 * polarity / 2 - 10 * polarity, pos._2 - size.capacitorSize._2 / 2 + 5)
+    ctx.lineTo(pos._1 - 2 * size.capacitorSize._1 * polarity / 2 - 5 * polarity, pos._2 - size.capacitorSize._2 / 2 + 5)
     ctx.stroke()
-    ctx.moveTo(pos._1 - 2 * size.capacitorSize._1 / 2 - 7.5, pos._2 - size.capacitorSize._2 / 2 + 2.5)
-    ctx.lineTo(pos._1 - 2 * size.capacitorSize._1 / 2 - 7.5, pos._2 - size.capacitorSize._2 / 2 + 7.5)
+    ctx.moveTo(pos._1 - 2 * size.capacitorSize._1 * polarity / 2 - 7.5 * polarity, pos._2 - size.capacitorSize._2 / 2 + 2.5)
+    ctx.lineTo(pos._1 - 2 * size.capacitorSize._1 * polarity / 2 - 7.5 * polarity, pos._2 - size.capacitorSize._2 / 2 + 7.5)
     ctx.stroke()
     //minus
-    ctx.moveTo(pos._1 + 2 * size.capacitorSize._1 / 2 + 5, pos._2 - size.capacitorSize._2 / 2 + 5)
-    ctx.lineTo(pos._1 + 2 * size.capacitorSize._1 / 2 + 10, pos._2 - size.capacitorSize._2 / 2 + 5)
+    ctx.moveTo(pos._1 + 2 * size.capacitorSize._1 * polarity / 2 + 5 * polarity, pos._2 - size.capacitorSize._2 / 2 + 5)
+    ctx.lineTo(pos._1 + 2 * size.capacitorSize._1 * polarity / 2 + 10 * polarity, pos._2 - size.capacitorSize._2 / 2 + 5)
     ctx.stroke()
     //name
     ctx.font = size.font
