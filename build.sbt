@@ -1,6 +1,6 @@
 name := "diagram-to-breadboard root"
 
-scalaVersion in ThisBuild := "2.11.8"
+scalaVersion in ThisBuild := "2.12.6"
 
 lazy val root = project.in(file(".")).
   aggregate(fooJS, fooJVM).
@@ -16,13 +16,13 @@ lazy val foo = crossProject.in(file(".")).
   ).
   jvmSettings(
     libraryDependencies ++= Seq(
-      "org.scalatest" %%% "scalatest" % "3.0.0-RC4" % "test"
+      "org.scalatest" %%% "scalatest" % "3.0.0" % "test"
     )
   ).
   jsSettings(
     scalaJSUseRhino in Global := false,
     libraryDependencies ++= Seq(
-      "org.scala-js" %%% "scalajs-dom" % "0.9.0"
+      "org.scala-js" %%% "scalajs-dom" % "0.9.6"
     )
   )
 

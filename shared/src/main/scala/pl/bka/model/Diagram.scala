@@ -20,12 +20,16 @@ case class Diagram(
                     components: Seq[Component],
                     legsConnections: Map[LegId, Connection]
                   ) extends Container {
-  def validate: Either[Fail, Diagram] = {
-    val allMappedLegs = legsConnections.keys.toSet
-    if(allLegs == allMappedLegs) Right(this) else Left(Fail("Not all legs mapped"))
-    val componentsDuplicatedNames = components.groupBy(_.name).toSeq.filter { case (name, comps) => comps.length > 1 }.map(_._1)
-    if(componentsDuplicatedNames.nonEmpty) Left(Fail(s"Components with duplicated name: $componentsDuplicatedNames")) else Right(this)
-  }
+  def validate: Either[Fail, Diagram] = for {
+    _ <- {
+      val allMappedLegs = legsConnections.keys.toSet
+      if (allLegs == allMappedLegs) Right(this) else Left(Fail("Not all legs mapped"))
+    }
+    _ <- {
+      val componentsDuplicatedNames = components.groupBy(_.name).toSeq.filter { case (name, comps) => comps.length > 1 }.map(_._1)
+      if (componentsDuplicatedNames.nonEmpty) Left(Fail(s"Components with duplicated name: $componentsDuplicatedNames")) else Right(this)
+    }
+  } yield this
 
   def prettyPrint: Seq[String] = Seq(
     "   components: " + components.map(_.prettyPrint).reduce(_ + " | " + _),
