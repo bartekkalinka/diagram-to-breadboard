@@ -5,6 +5,8 @@ case class Leg(name: String)
 object Leg {
   val capMinus = "0"
   val capPlus = "1"
+  val cathode = "0" //minus / ring
+  val anode = "1" //plus / no ring
 }
 
 case class ComponentName(value: String)
