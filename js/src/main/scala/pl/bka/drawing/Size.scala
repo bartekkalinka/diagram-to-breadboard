@@ -15,7 +15,7 @@ class Size(zoomFactor: Double) {
   val bottomVerticalTracksVerticalOffset = upperVerticalTrackEnd + (1 + Tracks.verticalTrackLength) * tracksStep
   val bottomHorizontalTracksVerticalOffset = bottomVerticalTracksVerticalOffset + 2 * tracksStep
   val holeRadius = zoom(5)
-  val transistorBodyRadius = zoom(15)
+  val transistorBodyRadius = zoom(pixels = 10)
   val transistorLegsSpread = zoom(3)
   val resistorLegsSpread = zoom(3)
   val resistorBodySize = (30, 10)
