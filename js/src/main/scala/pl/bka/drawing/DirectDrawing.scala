@@ -122,25 +122,25 @@ class DirectDrawing(size: Size) {
     ctx.strokeStyle = "#000000"
     ctx.lineWidth = 1
     ctx.beginPath()
-    ctx.moveTo(pos._1 - size.resistorBodySize._1 / 2, pos._2 - size.resistorBodySize._2)
-    ctx.lineTo(pos._1 + size.resistorBodySize._1 / 2, pos._2 - size.resistorBodySize._2)
+    ctx.moveTo(pos._1 - size.diodeBodySize._1 / 2, pos._2 - size.diodeBodySize._2)
+    ctx.lineTo(pos._1 + size.diodeBodySize._1 / 2, pos._2 - size.diodeBodySize._2)
     ctx.stroke()
-    ctx.lineTo(pos._1 + size.resistorBodySize._1 / 2, pos._2)
+    ctx.lineTo(pos._1 + size.diodeBodySize._1 / 2, pos._2)
     ctx.stroke()
-    ctx.lineTo(pos._1 - size.resistorBodySize._1 / 2, pos._2)
+    ctx.lineTo(pos._1 - size.diodeBodySize._1 / 2, pos._2)
     ctx.stroke()
-    ctx.lineTo(pos._1 - size.resistorBodySize._1 / 2, pos._2 - size.resistorBodySize._2)
+    ctx.lineTo(pos._1 - size.diodeBodySize._1 / 2, pos._2 - size.diodeBodySize._2)
     ctx.stroke()
     ctx.fill()
     val polarity = if(cathodeOnLeft) -1 else 1
     ctx.beginPath()
-    ctx.moveTo(pos._1 + polarity * (size.resistorBodySize._1 / 2 - 4), pos._2 - size.resistorBodySize._2)
-    ctx.lineTo(pos._1 + polarity * (size.resistorBodySize._1 / 2 - 4), pos._2)
+    ctx.moveTo(pos._1 + polarity * (size.diodeBodySize._1 / 2 - 4), pos._2 - size.diodeBodySize._2)
+    ctx.lineTo(pos._1 + polarity * (size.diodeBodySize._1 / 2 - 4), pos._2)
     ctx.stroke()
     ctx.fill()
     ctx.font = size.font
     ctx.fillStyle = "#000000"
-    ctx.fillText(cname, pos._1 - 12, pos._2 - 2)
+    ctx.fillText(cname, pos._1 - size.diodeBodySize._1 / 2, pos._2 - 2)
   }
 
   def drawHole(pos: (Int, Int)): Unit = {

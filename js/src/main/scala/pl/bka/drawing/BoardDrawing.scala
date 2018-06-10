@@ -54,8 +54,8 @@ class BoardDrawing(size: Size) {
         case Diode(_, _) =>
           val Seq(holePos1, holePos2) = holes.map(holePosition).sortBy(_._1)
           val (centerX, centerY) = ((holePos1._1 + holePos2._1) / 2, Seq(holePos1._2, holePos2._2).min - (0.3 * size.holeStep).toInt)
-          directDrawing.drawLine(holePos1, (centerX - size.resistorBodySize._1 / 2, centerY), 2)
-          directDrawing.drawLine(holePos2, (centerX + size.resistorBodySize._1 / 2, centerY), 2)
+          directDrawing.drawLine(holePos1, (centerX - size.diodeBodySize._1 / 2, centerY), 2)
+          directDrawing.drawLine(holePos2, (centerX + size.diodeBodySize._1 / 2, centerY), 2)
           val cathodeOnLeft = holes.head.trackIndex.index < holes(1).trackIndex.index
           directDrawing.drawDiodeBody(component.name.value, (centerX, centerY), cathodeOnLeft)
         case _ => ()

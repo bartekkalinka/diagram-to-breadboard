@@ -20,6 +20,7 @@ class Size(zoomFactor: Double) {
   val resistorLegsSpread = zoom(3)
   val resistorBodySize = (30, 10)
   val capacitorSize = (6, 25)
+  val diodeBodySize = (35, 10)
   val fontSize = 8
   val font = s"${fontSize}px Arial"
   val icFontSize = 12
