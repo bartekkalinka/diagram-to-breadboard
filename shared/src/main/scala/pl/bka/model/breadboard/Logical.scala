@@ -31,6 +31,10 @@ object Logical {
     Logical(extComponents, extVertical ++ horizontal, map)
   }
 
+  //debug utility
+  private def tracksLegsQuantities(legs: Map[LegId, TrackIndex]): Map[TrackIndex, Int] =
+    legs.toSeq.map { case (l, t) => (t, l) }.groupBy(_._1).mapValues(_.length)
+
   private def icsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex]) = {
     val ics = diagram.components.filter(_.cType.isInstanceOf[IC])
     var startingIndex = vertical.count(_.upper)
@@ -85,10 +89,9 @@ object Logical {
     legs.foreach { legId =>
       val conn = diagram.legsConnections(legId)
       val possibleTracks = getTrackIndexByConnection(conn).map(verticalByIndex)
-      val finalTrackIndex = possibleTracks.find(_.freeSpace > 1) match {
+      val finalTrack = possibleTracks.find(_.freeSpace > 1) match {
         case Some(possible) =>
-          verticalByIndex.update(possible.index, possible.copy(freeSpace = possible.freeSpace - 1))
-          possible.index
+          possible
         case None =>
           val newTrackIndex = TrackIndex(horizontal = false, index = verticalByIndex.values.toSeq.count(_.upper))
           val newTrack = Vertical(
@@ -97,9 +100,10 @@ object Logical {
           )
           verticalByIndex += newTrackIndex -> newTrack
           trackIndexByConnection += conn -> (getTrackIndexByConnection(conn) :+ newTrackIndex)
-          newTrackIndex
+          newTrack
       }
-      legsMap += (legId -> finalTrackIndex)
+      verticalByIndex.update(finalTrack.index, finalTrack.copy(freeSpace = finalTrack.freeSpace - 1))
+      legsMap += (legId -> finalTrack.index)
     }
     println(s"------------ tracks after other components ------------ ${verticalByIndex.values.toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
     (verticalByIndex.values.toSeq, Map(legsMap.toSeq: _*))
