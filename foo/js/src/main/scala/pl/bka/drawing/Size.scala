@@ -27,5 +27,6 @@ class Size(zoomFactor: Double) {
   val icFont = s"${icFontSize}px Arial"
   val shortCableArcRadiusFactor = 0.75
   val longCableArcRadiusFactor = 3
+  val selectionDistance = zoom(20)
 }
 

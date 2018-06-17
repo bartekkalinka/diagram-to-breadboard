@@ -15,6 +15,7 @@ object Main {
     val offsetY = DomOutput.canvas.offsetTop
     DomOutput.println("diagram")
     Diagram.prettyPrint(Diagrams.example).foreach(DomOutput.println)
+    val size = new Size(2d)
     val componentPositions =
       Diagrams.example match {
         case Right(diagram) =>
@@ -22,7 +23,7 @@ object Main {
           val exampleBoard = Breadboard(diagram)
           DomOutput.println("board")
           exampleBoard.prettyPrint.foreach(DomOutput.println)
-          val boardDrawing = new BoardDrawing(new Size(2d))
+          val boardDrawing = new BoardDrawing(size)
           boardDrawing.drawPhysical(exampleBoard.physical, diagram)
         case _ => Seq.empty[(ComponentName, Int, Int)]
       }
@@ -30,19 +31,19 @@ object Main {
     val coordDiv = document.getElementById("coord").asInstanceOf[html.Div]
     DomOutput.canvas.onmousemove = { e =>
       val (x, y) = (e.clientX - offsetX, e.clientY - offsetY)
-      val closest = findClosestComponent(componentPositionsMap, x.toInt, y.toInt)
+      val closest = findClosestComponent(componentPositionsMap, size)(x.toInt, y.toInt)
       coordDiv.innerHTML = closest.map(_.value).getOrElse("-")
     }
   }
 
-  private def findClosestComponent(componentPositionsMap: Map[(Int, Int), ComponentName], x: Int, y: Int): Option[ComponentName] =
+  private def findClosestComponent(componentPositionsMap: Map[(Int, Int), ComponentName], size: Size)(x: Int, y: Int): Option[ComponentName] =
     if(componentPositionsMap.isEmpty) {
       None
     } else {
-      val ((closestX, closestY), _) = componentPositionsMap.keys.map { case (cx, cy) =>
+      val ((closestX, closestY), closestDistance) = componentPositionsMap.keys.map { case (cx, cy) =>
         val distance = Math.sqrt((cx - x) * (cx - x) + (cy - y) * (cy - y))
         ((cx, cy), distance)
       }.minBy(_._2)
-      componentPositionsMap.get((closestX, closestY))
+      componentPositionsMap.get((closestX, closestY)).filter(_ => closestDistance <= size.selectionDistance)
     }
 }
