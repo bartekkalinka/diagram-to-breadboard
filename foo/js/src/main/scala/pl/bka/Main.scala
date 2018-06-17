@@ -5,9 +5,9 @@ import pl.bka.drawing.{BoardDrawing, Size}
 import pl.bka.model.Diagram
 import pl.bka.model.breadboard.Breadboard
 
-import scala.scalajs.js.annotation.JSExport
+import scala.scalajs.js.annotation.{JSExport, JSExportTopLevel}
 
-@JSExport
+@JSExportTopLevel("Main")
 object Main {
 
   @JSExport
