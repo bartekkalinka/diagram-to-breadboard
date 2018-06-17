@@ -10,6 +10,8 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 
 @JSExportTopLevel("Main")
 object Main {
+  type CoordWithName = ((Int, Int), ComponentName)
+
   window.onload = { _ =>
     val offsetX = DomOutput.canvas.offsetLeft
     val offsetY = DomOutput.canvas.offsetTop
@@ -27,16 +29,16 @@ object Main {
           boardDrawing.drawPhysical(exampleBoard.physical, diagram)
         case _ => Seq.empty[(ComponentName, Int, Int)]
       }
-    val componentPositionsMap = componentPositions.map { case (name, x, y) => ((x, y), name) }.toMap
+    val componentPositionsMap = componentPositions.map { case (name, x, y) => ((x, y), ((x, y), name)) }.toMap
     val coordDiv = document.getElementById("coord").asInstanceOf[html.Div]
     DomOutput.canvas.onmousemove = { e =>
       val (x, y) = (e.clientX - offsetX, e.clientY - offsetY)
       val closest = findClosestComponent(componentPositionsMap, size)(x.toInt, y.toInt)
-      coordDiv.innerHTML = closest.map(_.value).getOrElse("-")
+      coordDiv.innerHTML = closest.map { case (cx, cy) => s"$cx, $cy" }.getOrElse("-")
     }
   }
 
-  private def findClosestComponent(componentPositionsMap: Map[(Int, Int), ComponentName], size: Size)(x: Int, y: Int): Option[ComponentName] =
+  private def findClosestComponent(componentPositionsMap: Map[(Int, Int), CoordWithName], size: Size)(x: Int, y: Int): Option[CoordWithName] =
     if(componentPositionsMap.isEmpty) {
       None
     } else {
