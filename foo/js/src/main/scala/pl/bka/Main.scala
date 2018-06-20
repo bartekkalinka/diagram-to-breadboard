@@ -34,7 +34,7 @@ object Main {
     DomOutput.canvas.onmousemove = { e =>
       val (x, y) = (e.clientX - offsetX, e.clientY - offsetY)
       val closest = findClosestComponent(componentPositionsMap, size)(x.toInt, y.toInt)
-      coordDiv.innerHTML = closest.map { case (cx, cy) => s"$cx, $cy" }.getOrElse("-")
+      coordDiv.innerHTML = closest.map { case (coord, ComponentName(name)) => s"$coord, $name" }.getOrElse("-")
     }
   }
 
