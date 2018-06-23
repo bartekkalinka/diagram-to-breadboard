@@ -23,7 +23,7 @@ object Main {
         val size = new Size(2d)
         val boardDrawing = new BoardDrawing(size)
         val physical = Breadboard(diagram).physical
-        val componentPositionsMap = boardDrawing.drawPhysical(physical, diagram)
+        var componentPositionsMap = boardDrawing.drawPhysical(physical, diagram)
         val coordDiv = document.getElementById("coord").asInstanceOf[html.Div]
         var draggedComponent: Option[DraggedComponent] = None
         var isMouseDown: Boolean = false
@@ -35,7 +35,7 @@ object Main {
               case Some(dragged) =>
                 val relativeDrag = (x - dragged.startMouseXOffset, y - dragged.startMouseYOffset)
                 coordDiv.innerHTML = s"${dragged.name.value} $relativeDrag"
-                boardDrawing.move(dragged.name, relativeDrag._1, relativeDrag._2, physical, diagram)
+                componentPositionsMap = boardDrawing.move(dragged.name, relativeDrag._1, relativeDrag._2, physical, diagram)
               case None =>
                 draggedComponent = closest.map { case (coord, compName) =>
                   DraggedComponent(compName, x - coord._1, y - coord._2)

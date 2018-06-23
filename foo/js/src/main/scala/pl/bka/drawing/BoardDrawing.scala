@@ -13,12 +13,12 @@ class BoardDrawing(size: Size) {
 
   private val movedComponents: mutable.Map[ComponentName, (Int, Int)] = mutable.Map.empty
 
-  def unselect(physical: Physical, diagram: Diagram) =
-  if(selectionOn) {
-    directDrawing.clear()
-    drawPhysical(physical, diagram)
-    selectionOn = false
-  }
+  def unselect(physical: Physical, diagram: Diagram): Unit =
+    if(selectionOn) {
+      directDrawing.clear()
+      drawPhysical(physical, diagram)
+      selectionOn = false
+    }
 
   def select(coord: (Int, Int), physical: Physical, diagram: Diagram): Unit = {
     unselect(physical, diagram)
@@ -26,7 +26,7 @@ class BoardDrawing(size: Size) {
     selectionOn = true
   }
 
-  def move(componentName: ComponentName, x: Int, y: Int, physical: Physical, diagram: Diagram) = {
+  def move(componentName: ComponentName, x: Int, y: Int, physical: Physical, diagram: Diagram): Map[(Int, Int), ((Int, Int), ComponentName)] = {
     movedComponents.put(componentName, (x, y))
     directDrawing.clear()
     drawPhysical(physical, diagram)
