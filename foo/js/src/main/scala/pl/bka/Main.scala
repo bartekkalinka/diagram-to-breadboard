@@ -1,9 +1,9 @@
 package pl.bka
 
 import org.scalajs.dom
-import org.scalajs.dom.{document, html, window}
-import pl.bka.drawing.{BoardDrawing, Size}
-import pl.bka.model.{ComponentName, Diagram}
+import org.scalajs.dom.window
+import pl.bka.drawing.{BoardDrawing, BoardSelection, DirectDrawing, Size}
+import pl.bka.model.ComponentName
 import pl.bka.model.breadboard.Breadboard
 
 import scala.scalajs.js.annotation.JSExportTopLevel
@@ -20,8 +20,10 @@ object Main {
         val offsetY = DomOutput.canvas.offsetTop
         val size = new Size(2d)
         val physical = Breadboard(diagram).physical
-        val boardDrawing = new BoardDrawing(size, physical, diagram)
-        var componentPositionsMap = boardDrawing.drawPhysical()
+        val directDrawing = new DirectDrawing(size)
+        val boardDrawing = new BoardDrawing(directDrawing, size, physical, diagram)
+        val boardSelection = new BoardSelection(boardDrawing, directDrawing, physical)
+        var componentPositionsMap = boardSelection.draw()
         var draggedComponent: Option[DraggedComponent] = None
         var isMouseDown: Boolean = false
         DomOutput.canvas.onmousemove = { e =>
@@ -31,7 +33,7 @@ object Main {
             draggedComponent match {
               case Some(dragged) =>
                 val relativeDrag = (x - dragged.startMouseXOffset, y - dragged.startMouseYOffset)
-                componentPositionsMap = boardDrawing.move(dragged.name, relativeDrag._1, relativeDrag._2)
+                componentPositionsMap = boardSelection.move(dragged.name, relativeDrag._1, relativeDrag._2)
               case None =>
                 draggedComponent = closest.map { case (coord, compName) =>
                   DraggedComponent(compName, x - coord._1, y - coord._2)
@@ -41,9 +43,9 @@ object Main {
             draggedComponent = None
             closest match {
               case Some((coord, _)) =>
-                boardDrawing.select(coord)
+                boardSelection.select(coord)
               case None =>
-                boardDrawing.unselect()
+                boardSelection.unselect()
             }
           }
         }

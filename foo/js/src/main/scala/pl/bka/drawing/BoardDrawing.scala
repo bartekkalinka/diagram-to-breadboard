@@ -4,35 +4,8 @@ import pl.bka.model.Power.{GND, Plus}
 import pl.bka.model._
 import pl.bka.model.breadboard._
 
-import scala.collection.mutable
-
-class BoardDrawing(size: Size, physical: Physical, diagram: Diagram) {
-  private val directDrawing = new DirectDrawing(size)
-
-  private var selectionOn: Boolean = false
-
-  private val movedComponents: mutable.Map[ComponentName, (Int, Int)] = mutable.Map.empty
-
-  def unselect(): Unit =
-    if(selectionOn) {
-      directDrawing.clear()
-      drawPhysical()
-      selectionOn = false
-    }
-
-  def select(coord: (Int, Int)): Unit = {
-    unselect()
-    directDrawing.drawSelectionMark(coord)
-    selectionOn = true
-  }
-
-  def move(componentName: ComponentName, x: Int, y: Int): Map[(Int, Int), ((Int, Int), ComponentName)] = {
-    movedComponents.put(componentName, (x, y))
-    directDrawing.clear()
-    drawPhysical()
-  }
-
-  def drawPhysical(): Map[(Int, Int), ((Int, Int), ComponentName)] = {
+class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical, diagram: Diagram) {
+  def drawPhysical(movedComponents: Map[ComponentName, (Int, Int)]): Map[(Int, Int), ((Int, Int), ComponentName)] = {
     physical.tracks.foreach(drawTrack)
     val componentPositions = physical.components.reverse.zipWithIndex.flatMap { case (component, index) =>
       val positionOverride = movedComponents.get(component.name)
@@ -44,6 +17,7 @@ class BoardDrawing(size: Size, physical: Physical, diagram: Diagram) {
   def drawComponent(physical: Physical, component: Component, compIndex: Int, positionOverride: Option[(Int, Int)]): Option[(ComponentName, Int, Int)] = {
     val holes: Seq[Hole] = component.legs.map { leg =>
       physical.connections(LegId(component.name, leg))
+
     }
     val color: String = Seq("#FFBB00", "#FF0000", "#0000FF", "#00FF00")(compIndex % 4)
     component.cType match {
