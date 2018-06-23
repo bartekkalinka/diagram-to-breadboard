@@ -21,22 +21,36 @@ object Main {
         Diagram.prettyPrint(Diagrams.example).foreach(DomOutput.println)
         val size = new Size(2d)
         val boardDrawing = new BoardDrawing(size)
-        dom.console.log("calculating...")
         val physical = Breadboard(diagram).physical
         val componentPositions = boardDrawing.drawPhysical(physical, diagram)
         val componentPositionsMap = componentPositions.map { case (name, x, y) => ((x, y), ((x, y), name)) }.toMap
         val coordDiv = document.getElementById("coord").asInstanceOf[html.Div]
+        var draggedComponent: Option[ComponentName] = None
+        var isMouseDown: Boolean = false
         DomOutput.canvas.onmousemove = { e =>
           val (x, y) = (e.clientX - offsetX, e.clientY - offsetY)
           val closest = findClosestComponent(componentPositionsMap, size)(x.toInt, y.toInt)
-          coordDiv.innerHTML = closest.map { case (coord, ComponentName(name)) =>
-            boardDrawing.select(coord, physical, diagram)
-            s"$coord, $name"
-          }.getOrElse {
-            boardDrawing.unselect(physical, diagram)
-            "-"
+          if(isMouseDown) {
+            draggedComponent match {
+              case Some(dragged) =>
+                //TODO
+                ()
+              case None =>
+                draggedComponent = closest.map(_._2)
+            }
+          } else {
+            draggedComponent = None
+            closest match {
+              case Some((coord, ComponentName(name))) =>
+                boardDrawing.select(coord, physical, diagram)
+              case None =>
+                boardDrawing.unselect(physical, diagram)
+            }
           }
+          coordDiv.innerHTML = draggedComponent.map(dc => s"${dc.value}").getOrElse("-")
         }
+        DomOutput.canvas.onmousedown = { _ => isMouseDown = true }
+        DomOutput.canvas.onmouseup = { _ => isMouseDown = false}
       case _ => dom.console.log("diagram validation error")
     }
   }
