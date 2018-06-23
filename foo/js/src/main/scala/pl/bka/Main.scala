@@ -11,6 +11,7 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 @JSExportTopLevel("Main")
 object Main {
   type CoordWithName = ((Int, Int), ComponentName)
+  case class DraggedComponent(name: ComponentName, startMouseX: Int, startMouseY: Int)
 
   window.onload = { _ =>
     Diagrams.example match {
@@ -25,18 +26,19 @@ object Main {
         val componentPositions = boardDrawing.drawPhysical(physical, diagram)
         val componentPositionsMap = componentPositions.map { case (name, x, y) => ((x, y), ((x, y), name)) }.toMap
         val coordDiv = document.getElementById("coord").asInstanceOf[html.Div]
-        var draggedComponent: Option[ComponentName] = None
+        var draggedComponent: Option[DraggedComponent] = None
         var isMouseDown: Boolean = false
         DomOutput.canvas.onmousemove = { e =>
-          val (x, y) = (e.clientX - offsetX, e.clientY - offsetY)
-          val closest = findClosestComponent(componentPositionsMap, size)(x.toInt, y.toInt)
+          val (x, y) = ((e.clientX - offsetX).toInt, (e.clientY - offsetY).toInt)
+          val closest = findClosestComponent(componentPositionsMap, size)(x, y)
           if(isMouseDown) {
             draggedComponent match {
               case Some(dragged) =>
-                //TODO
-                ()
+                val relativeDrag = (x - dragged.startMouseX, y - dragged.startMouseY)
+                coordDiv.innerHTML = s"${dragged.name.value} $relativeDrag"
+                //TODO redrawing with drag
               case None =>
-                draggedComponent = closest.map(_._2)
+                draggedComponent = closest.map(close => DraggedComponent(close._2, x, y))
             }
           } else {
             draggedComponent = None
@@ -46,8 +48,9 @@ object Main {
               case None =>
                 boardDrawing.unselect(physical, diagram)
             }
+            coordDiv.innerHTML = "-"
           }
-          coordDiv.innerHTML = draggedComponent.map(dc => s"${dc.value}").getOrElse("-")
+
         }
         DomOutput.canvas.onmousedown = { _ => isMouseDown = true }
         DomOutput.canvas.onmouseup = { _ => isMouseDown = false}
