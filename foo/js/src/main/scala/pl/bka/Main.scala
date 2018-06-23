@@ -24,7 +24,6 @@ object Main {
         val boardDrawing = new BoardDrawing(size)
         val physical = Breadboard(diagram).physical
         var componentPositionsMap = boardDrawing.drawPhysical(physical, diagram)
-        val coordDiv = document.getElementById("coord").asInstanceOf[html.Div]
         var draggedComponent: Option[DraggedComponent] = None
         var isMouseDown: Boolean = false
         DomOutput.canvas.onmousemove = { e =>
@@ -34,7 +33,6 @@ object Main {
             draggedComponent match {
               case Some(dragged) =>
                 val relativeDrag = (x - dragged.startMouseXOffset, y - dragged.startMouseYOffset)
-                coordDiv.innerHTML = s"${dragged.name.value} $relativeDrag"
                 componentPositionsMap = boardDrawing.move(dragged.name, relativeDrag._1, relativeDrag._2, physical, diagram)
               case None =>
                 draggedComponent = closest.map { case (coord, compName) =>
@@ -49,9 +47,7 @@ object Main {
               case None =>
                 boardDrawing.unselect(physical, diagram)
             }
-            coordDiv.innerHTML = "-"
           }
-
         }
         DomOutput.canvas.onmousedown = { _ => isMouseDown = true }
         DomOutput.canvas.onmouseup = { _ => isMouseDown = false}
