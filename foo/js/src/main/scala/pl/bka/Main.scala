@@ -18,8 +18,6 @@ object Main {
       case Right(diagram) =>
         val offsetX = DomOutput.canvas.offsetLeft
         val offsetY = DomOutput.canvas.offsetTop
-        DomOutput.println("diagram")
-        Diagram.prettyPrint(Diagrams.example).foreach(DomOutput.println)
         val size = new Size(2d)
         val physical = Breadboard(diagram).physical
         val boardDrawing = new BoardDrawing(size, physical, diagram)
@@ -42,7 +40,7 @@ object Main {
           } else {
             draggedComponent = None
             closest match {
-              case Some((coord, ComponentName(name))) =>
+              case Some((coord, _)) =>
                 boardDrawing.select(coord)
               case None =>
                 boardDrawing.unselect()
