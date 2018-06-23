@@ -11,15 +11,15 @@ class BoardDrawing(size: Size) {
 
   var selectionOn: Boolean = false
 
-  def clearSelectionMark(physical: Physical, diagram: Diagram) =
+  def unselect(physical: Physical, diagram: Diagram) =
   if(selectionOn) {
     directDrawing.clear()
     drawPhysical(physical, diagram)
     selectionOn = false
   }
 
-  def drawSelectionMark(coord: (Int, Int), physical: Physical, diagram: Diagram): Unit = {
-    clearSelectionMark(physical, diagram)
+  def select(coord: (Int, Int), physical: Physical, diagram: Diagram): Unit = {
+    unselect(physical, diagram)
     directDrawing.drawSelectionMark(coord)
     selectionOn = true
   }
