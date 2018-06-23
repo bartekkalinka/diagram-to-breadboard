@@ -1,15 +1,17 @@
 package pl.bka.drawing
 
-import org.scalajs.dom
-import pl.bka.DomOutput
 import pl.bka.model.Power.{GND, Plus}
 import pl.bka.model._
 import pl.bka.model.breadboard._
 
-class BoardDrawing(size: Size) {
-  val directDrawing = new DirectDrawing(size)
+import scala.collection.mutable
 
-  var selectionOn: Boolean = false
+class BoardDrawing(size: Size) {
+  private val directDrawing = new DirectDrawing(size)
+
+  private var selectionOn: Boolean = false
+
+  private val movedComponents: mutable.Map[ComponentName, (Int, Int)] = mutable.Map.empty
 
   def unselect(physical: Physical, diagram: Diagram) =
   if(selectionOn) {
@@ -24,12 +26,20 @@ class BoardDrawing(size: Size) {
     selectionOn = true
   }
 
-  def drawPhysical(physical: Physical, diagram: Diagram): Seq[(ComponentName, Int, Int)] = {
-    physical.tracks.foreach(drawTrack)
-    physical.components.reverse.zipWithIndex.flatMap { case (component, index) => drawComponent(physical, component, index) }
+  def move(componentName: ComponentName, x: Int, y: Int, physical: Physical, diagram: Diagram) = {
+    movedComponents.put(componentName, (x, y))
+    //TODO redraw
   }
 
-  def drawComponent(physical: Physical, component: Component, compIndex: Int): Option[(ComponentName, Int, Int)] = {
+  def drawPhysical(physical: Physical, diagram: Diagram): Seq[(ComponentName, Int, Int)] = {
+    physical.tracks.foreach(drawTrack)
+    physical.components.reverse.zipWithIndex.flatMap { case (component, index) =>
+      val positionOverride = movedComponents.get(component.name)
+      drawComponent(physical, component, index, positionOverride)
+    }
+  }
+
+  def drawComponent(physical: Physical, component: Component, compIndex: Int, positionOverride: Option[(Int, Int)]): Option[(ComponentName, Int, Int)] = {
     val holes: Seq[Hole] = component.legs.map { leg =>
       physical.connections(LegId(component.name, leg))
     }
@@ -37,7 +47,7 @@ class BoardDrawing(size: Size) {
     component.cType match {
       case IC(_, _) =>
         val (xs, ys) = holes.map(holePosition).unzip
-        val (centerX, centerY) = (xs.sum / xs.length, ys.sum / ys.length)
+        val (centerX, centerY) = positionOverride.getOrElse((xs.sum / xs.length, ys.sum / ys.length))
         holes.zipWithIndex.foreach { case (hole, i) =>
           val (x, y) = holePosition(hole)
           val bodyOffset = if(i < holes.length / 2) size.tracksStep / 2 else -size.tracksStep / 2
@@ -47,7 +57,7 @@ class BoardDrawing(size: Size) {
         Some((component.name, centerX, centerY))
       case Transistor(_, _) =>
         val centerHole = holePosition(holes(1))
-        val (centerX, centerY) = (centerHole._1, centerHole._2 - (0.3 * size.holeStep).toInt)
+        val (centerX, centerY) = positionOverride.getOrElse((centerHole._1, centerHole._2 - (0.3 * size.holeStep).toInt))
         directDrawing.drawLine(holePosition(holes.head), (centerX - size.transistorLegsSpread, centerY), 2)
         directDrawing.drawLine(holePosition(holes(1)), (centerX, centerY), 2)
         directDrawing.drawLine(holePosition(holes(2)), (centerX + size.transistorLegsSpread, centerY), 2)
@@ -63,14 +73,18 @@ class BoardDrawing(size: Size) {
         None
       case Resistor(_, _) =>
         val Seq(holePos1, holePos2) = holes.map(holePosition).sortBy(_._1)
-        val (centerX, centerY) = ((holePos1._1 + holePos2._1) / 2, Seq(holePos1._2, holePos2._2).min - (0.3 * size.holeStep).toInt)
+        val (centerX, centerY) = positionOverride.getOrElse(
+          ((holePos1._1 + holePos2._1) / 2, Seq(holePos1._2, holePos2._2).min - (0.3 * size.holeStep).toInt)
+        )
         directDrawing.drawLine(holePos1, (centerX - size.resistorBodySize._1 / 2, centerY - size.resistorBodySize._2 / 2), 2)
         directDrawing.drawLine(holePos2, (centerX + size.resistorBodySize._1 / 2, centerY - size.resistorBodySize._2 / 2), 2)
         directDrawing.drawResistorBody(component.name.value, (centerX, centerY))
         Some((component.name, centerX, centerY))
       case Capacitor(_, bipolar, _) =>
         val Seq(holePos1, holePos2) = holes.map(holePosition).sortBy(_._1)
-        val (centerX, centerY) = ((holePos1._1 + holePos2._1) / 2, Seq(holePos1._2, holePos2._2).min - (0.3 * size.holeStep).toInt)
+        val (centerX, centerY) = positionOverride.getOrElse(
+          ((holePos1._1 + holePos2._1) / 2, Seq(holePos1._2, holePos2._2).min - (0.3 * size.holeStep).toInt)
+        )
         directDrawing.drawLine(holePos1, (centerX - size.capacitorSize._1 / 2, centerY), 2)
         directDrawing.drawLine(holePos2, (centerX + size.capacitorSize._1 / 2, centerY), 2)
         val minusOnLeft = Some(holes.head.trackIndex.index < holes(1).trackIndex.index).filter(_ => bipolar)
@@ -78,7 +92,9 @@ class BoardDrawing(size: Size) {
         Some((component.name, centerX, centerY))
       case Diode(_, _) =>
         val Seq(holePos1, holePos2) = holes.map(holePosition).sortBy(_._1)
-        val (centerX, centerY) = ((holePos1._1 + holePos2._1) / 2, Seq(holePos1._2, holePos2._2).min - (0.3 * size.holeStep).toInt)
+        val (centerX, centerY) = positionOverride.getOrElse(
+          ((holePos1._1 + holePos2._1) / 2, Seq(holePos1._2, holePos2._2).min - (0.3 * size.holeStep).toInt)
+        )
         directDrawing.drawLine(holePos1, (centerX - size.diodeBodySize._1 / 2, centerY), 2)
         directDrawing.drawLine(holePos2, (centerX + size.diodeBodySize._1 / 2, centerY), 2)
         val cathodeOnLeft = holes.head.trackIndex.index < holes(1).trackIndex.index
