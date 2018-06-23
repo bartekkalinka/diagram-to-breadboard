@@ -28,7 +28,7 @@ class BoardDrawing(size: Size) {
 
   def move(componentName: ComponentName, x: Int, y: Int, physical: Physical, diagram: Diagram) = {
     movedComponents.put(componentName, (x, y))
-    //TODO redraw
+    drawPhysical(physical, diagram)
   }
 
   def drawPhysical(physical: Physical, diagram: Diagram): Seq[(ComponentName, Int, Int)] = {

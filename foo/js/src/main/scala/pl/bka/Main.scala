@@ -11,7 +11,7 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 @JSExportTopLevel("Main")
 object Main {
   type CoordWithName = ((Int, Int), ComponentName)
-  case class DraggedComponent(name: ComponentName, startMouseX: Int, startMouseY: Int)
+  case class DraggedComponent(name: ComponentName, startMouseXOffset: Int, startMouseYOffset: Int)
 
   window.onload = { _ =>
     Diagrams.example match {
@@ -34,11 +34,13 @@ object Main {
           if(isMouseDown) {
             draggedComponent match {
               case Some(dragged) =>
-                val relativeDrag = (x - dragged.startMouseX, y - dragged.startMouseY)
+                val relativeDrag = (x - dragged.startMouseXOffset, y - dragged.startMouseYOffset)
                 coordDiv.innerHTML = s"${dragged.name.value} $relativeDrag"
-                //TODO redrawing with drag
+                boardDrawing.move(dragged.name, relativeDrag._1, relativeDrag._2, physical, diagram)
               case None =>
-                draggedComponent = closest.map(close => DraggedComponent(close._2, x, y))
+                draggedComponent = closest.map { case (coord, compName) =>
+                  DraggedComponent(compName, x - coord._1, y - coord._2)
+                }
             }
           } else {
             draggedComponent = None
