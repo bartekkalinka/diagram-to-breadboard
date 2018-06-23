@@ -23,8 +23,7 @@ object Main {
         val size = new Size(2d)
         val boardDrawing = new BoardDrawing(size)
         val physical = Breadboard(diagram).physical
-        val componentPositions = boardDrawing.drawPhysical(physical, diagram)
-        val componentPositionsMap = componentPositions.map { case (name, x, y) => ((x, y), ((x, y), name)) }.toMap
+        val componentPositionsMap = boardDrawing.drawPhysical(physical, diagram)
         val coordDiv = document.getElementById("coord").asInstanceOf[html.Div]
         var draggedComponent: Option[DraggedComponent] = None
         var isMouseDown: Boolean = false

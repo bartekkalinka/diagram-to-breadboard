@@ -32,12 +32,13 @@ class BoardDrawing(size: Size) {
     drawPhysical(physical, diagram)
   }
 
-  def drawPhysical(physical: Physical, diagram: Diagram): Seq[(ComponentName, Int, Int)] = {
+  def drawPhysical(physical: Physical, diagram: Diagram): Map[(Int, Int), ((Int, Int), ComponentName)] = {
     physical.tracks.foreach(drawTrack)
-    physical.components.reverse.zipWithIndex.flatMap { case (component, index) =>
+    val componentPositions = physical.components.reverse.zipWithIndex.flatMap { case (component, index) =>
       val positionOverride = movedComponents.get(component.name)
       drawComponent(physical, component, index, positionOverride)
     }
+    componentPositions.map { case (name, x, y) => ((x, y), ((x, y), name)) }.toMap
   }
 
   def drawComponent(physical: Physical, component: Component, compIndex: Int, positionOverride: Option[(Int, Int)]): Option[(ComponentName, Int, Int)] = {
