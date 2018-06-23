@@ -30,7 +30,7 @@ object Main {
           val (x, y) = (e.clientX - offsetX, e.clientY - offsetY)
           val closest = findClosestComponent(componentPositionsMap, size)(x.toInt, y.toInt)
           coordDiv.innerHTML = closest.map { case (coord, ComponentName(name)) =>
-            boardDrawing.drawSelectionMark(coord)
+            boardDrawing.drawSelectionMark(coord, physical, diagram)
             s"$coord, $name"
           }.getOrElse {
             boardDrawing.clearSelectionMark(physical, diagram)

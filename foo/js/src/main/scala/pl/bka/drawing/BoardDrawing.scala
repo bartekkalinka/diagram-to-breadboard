@@ -18,7 +18,8 @@ class BoardDrawing(size: Size) {
     selectionOn = false
   }
 
-  def drawSelectionMark(coord: (Int, Int)): Unit = {
+  def drawSelectionMark(coord: (Int, Int), physical: Physical, diagram: Diagram): Unit = {
+    clearSelectionMark(physical, diagram)
     directDrawing.drawSelectionMark(coord)
     selectionOn = true
   }
