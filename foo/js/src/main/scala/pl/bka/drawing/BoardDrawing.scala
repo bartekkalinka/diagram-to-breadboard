@@ -28,6 +28,7 @@ class BoardDrawing(size: Size) {
 
   def move(componentName: ComponentName, x: Int, y: Int, physical: Physical, diagram: Diagram) = {
     movedComponents.put(componentName, (x, y))
+    directDrawing.clear()
     drawPhysical(physical, diagram)
   }
 
