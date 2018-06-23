@@ -7,6 +7,19 @@ class DirectDrawing(size: Size) {
   val ctx = DomOutput.canvas.getContext("2d")
     .asInstanceOf[dom.CanvasRenderingContext2D]
 
+  def clear(): Unit = {
+    ctx.clearRect(0, 0, DomOutput.canvas.width, DomOutput.canvas.height)
+  }
+
+  def drawSelectionMark(pos: (Int, Int)): Unit = {
+    ctx.fillStyle = "#FFFFFF"
+    ctx.strokeStyle = "#000000"
+    ctx.lineWidth = 1
+    ctx.beginPath()
+    ctx.arc(pos._1, pos._2, size.selectionMarkSize, - 2 * Math.PI, 0)
+    ctx.stroke()
+  }
+
   def drawArcCable(from: (Int, Int), to: (Int, Int), color: String): Unit = {
     ctx.strokeStyle = color
     ctx.lineWidth = 2

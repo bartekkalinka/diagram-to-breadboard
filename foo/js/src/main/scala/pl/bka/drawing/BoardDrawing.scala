@@ -8,8 +8,22 @@ import pl.bka.model.breadboard._
 
 class BoardDrawing(size: Size) {
   val directDrawing = new DirectDrawing(size)
+
+  var selectionOn: Boolean = false
+
+  def clearSelectionMark(physical: Physical, diagram: Diagram) =
+  if(selectionOn) {
+    directDrawing.clear()
+    drawPhysical(physical, diagram)
+    selectionOn = false
+  }
+
+  def drawSelectionMark(coord: (Int, Int)): Unit = {
+    directDrawing.drawSelectionMark(coord)
+    selectionOn = true
+  }
+
   def drawPhysical(physical: Physical, diagram: Diagram): Seq[(ComponentName, Int, Int)] = {
-    dom.console.log("drawing...")
     physical.tracks.foreach(drawTrack)
     physical.components.reverse.zipWithIndex.flatMap { case (component, index) => drawComponent(physical, component, index) }
   }
