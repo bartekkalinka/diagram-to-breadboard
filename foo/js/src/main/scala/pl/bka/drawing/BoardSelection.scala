@@ -10,6 +10,8 @@ class BoardSelection(boardDrawing: BoardDrawing, directDrawing: DirectDrawing, p
 
   private val movedComponents: mutable.Map[ComponentName, (Int, Int)] = mutable.Map.empty
 
+  private var componentPositionsMap: Map[(Int, Int), ((Int, Int), ComponentName)] = Map.empty
+
   def unselect(): Unit =
     if(selectionOn) {
       directDrawing.clear()
@@ -23,13 +25,24 @@ class BoardSelection(boardDrawing: BoardDrawing, directDrawing: DirectDrawing, p
     selectionOn = true
   }
 
-  def move(componentName: ComponentName, x: Int, y: Int): Map[(Int, Int), ((Int, Int), ComponentName)] = {
+  def move(componentName: ComponentName, x: Int, y: Int): Unit = {
     movedComponents.put(componentName, (x, y))
     directDrawing.clear()
     draw()
   }
 
-  def draw(): Map[(Int, Int), ((Int, Int), ComponentName)] = {
-    boardDrawing.drawPhysical(movedComponents.toMap)
+  def draw(): Unit = {
+    componentPositionsMap = boardDrawing.drawPhysical(movedComponents.toMap)
   }
+
+  def findClosestComponent(size: Size)(x: Int, y: Int): Option[((Int, Int), ComponentName)] =
+    if(componentPositionsMap.isEmpty) {
+      None
+    } else {
+      val ((closestX, closestY), closestDistance) = componentPositionsMap.keys.map { case (cx, cy) =>
+        val distance = Math.sqrt((cx - x) * (cx - x) + (cy - y) * (cy - y))
+        ((cx, cy), distance)
+      }.minBy(_._2)
+      componentPositionsMap.get((closestX, closestY)).filter(_ => closestDistance <= size.selectionDistance)
+    }
 }
