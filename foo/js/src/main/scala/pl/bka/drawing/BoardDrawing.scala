@@ -6,33 +6,33 @@ import pl.bka.model.breadboard._
 
 import scala.collection.mutable
 
-class BoardDrawing(size: Size) {
+class BoardDrawing(size: Size, physical: Physical, diagram: Diagram) {
   private val directDrawing = new DirectDrawing(size)
 
   private var selectionOn: Boolean = false
 
   private val movedComponents: mutable.Map[ComponentName, (Int, Int)] = mutable.Map.empty
 
-  def unselect(physical: Physical, diagram: Diagram): Unit =
+  def unselect(): Unit =
     if(selectionOn) {
       directDrawing.clear()
-      drawPhysical(physical, diagram)
+      drawPhysical()
       selectionOn = false
     }
 
-  def select(coord: (Int, Int), physical: Physical, diagram: Diagram): Unit = {
-    unselect(physical, diagram)
+  def select(coord: (Int, Int)): Unit = {
+    unselect()
     directDrawing.drawSelectionMark(coord)
     selectionOn = true
   }
 
-  def move(componentName: ComponentName, x: Int, y: Int, physical: Physical, diagram: Diagram): Map[(Int, Int), ((Int, Int), ComponentName)] = {
+  def move(componentName: ComponentName, x: Int, y: Int): Map[(Int, Int), ((Int, Int), ComponentName)] = {
     movedComponents.put(componentName, (x, y))
     directDrawing.clear()
-    drawPhysical(physical, diagram)
+    drawPhysical()
   }
 
-  def drawPhysical(physical: Physical, diagram: Diagram): Map[(Int, Int), ((Int, Int), ComponentName)] = {
+  def drawPhysical(): Map[(Int, Int), ((Int, Int), ComponentName)] = {
     physical.tracks.foreach(drawTrack)
     val componentPositions = physical.components.reverse.zipWithIndex.flatMap { case (component, index) =>
       val positionOverride = movedComponents.get(component.name)

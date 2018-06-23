@@ -21,9 +21,9 @@ object Main {
         DomOutput.println("diagram")
         Diagram.prettyPrint(Diagrams.example).foreach(DomOutput.println)
         val size = new Size(2d)
-        val boardDrawing = new BoardDrawing(size)
         val physical = Breadboard(diagram).physical
-        var componentPositionsMap = boardDrawing.drawPhysical(physical, diagram)
+        val boardDrawing = new BoardDrawing(size, physical, diagram)
+        var componentPositionsMap = boardDrawing.drawPhysical()
         var draggedComponent: Option[DraggedComponent] = None
         var isMouseDown: Boolean = false
         DomOutput.canvas.onmousemove = { e =>
@@ -33,7 +33,7 @@ object Main {
             draggedComponent match {
               case Some(dragged) =>
                 val relativeDrag = (x - dragged.startMouseXOffset, y - dragged.startMouseYOffset)
-                componentPositionsMap = boardDrawing.move(dragged.name, relativeDrag._1, relativeDrag._2, physical, diagram)
+                componentPositionsMap = boardDrawing.move(dragged.name, relativeDrag._1, relativeDrag._2)
               case None =>
                 draggedComponent = closest.map { case (coord, compName) =>
                   DraggedComponent(compName, x - coord._1, y - coord._2)
@@ -43,9 +43,9 @@ object Main {
             draggedComponent = None
             closest match {
               case Some((coord, ComponentName(name))) =>
-                boardDrawing.select(coord, physical, diagram)
+                boardDrawing.select(coord)
               case None =>
-                boardDrawing.unselect(physical, diagram)
+                boardDrawing.unselect()
             }
           }
         }
