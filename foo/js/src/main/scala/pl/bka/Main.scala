@@ -3,7 +3,7 @@ package pl.bka
 import org.scalajs.dom
 import org.scalajs.dom.window
 import pl.bka.drawing.{BoardDrawing, DirectDrawing, Size}
-import pl.bka.guistate.BoardSelection
+import pl.bka.guistate.{BoardSelection, ComponentDragging}
 import pl.bka.model.ComponentName
 import pl.bka.model.breadboard.Breadboard
 
@@ -25,30 +25,11 @@ object Main {
         val boardDrawing = new BoardDrawing(directDrawing, size, physical, diagram)
         val boardSelection = new BoardSelection(boardDrawing, directDrawing, physical)
         boardSelection.draw()
-        var draggedComponent: Option[DraggedComponent] = None
+        val componentDragging = new ComponentDragging(boardSelection, size)
         var isMouseDown: Boolean = false
         DomOutput.canvas.onmousemove = { e =>
           val (x, y) = ((e.clientX - offsetX).toInt, (e.clientY - offsetY).toInt)
-          val closest = boardSelection.findClosestComponent(size)(x, y)
-          if(isMouseDown) {
-            draggedComponent match {
-              case Some(dragged) =>
-                val relativeDrag = (x - dragged.startMouseXOffset, y - dragged.startMouseYOffset)
-                boardSelection.move(dragged.name, relativeDrag._1, relativeDrag._2)
-              case None =>
-                draggedComponent = closest.map { case (coord, compName) =>
-                  DraggedComponent(compName, x - coord._1, y - coord._2)
-                }
-            }
-          } else {
-            draggedComponent = None
-            closest match {
-              case Some((coord, _)) =>
-                boardSelection.select(coord)
-              case None =>
-                boardSelection.unselect()
-            }
-          }
+          componentDragging.onmousemove(x, y, isMouseDown)
         }
         DomOutput.canvas.onmousedown = { _ => isMouseDown = true }
         DomOutput.canvas.onmouseup = { _ => isMouseDown = false}
