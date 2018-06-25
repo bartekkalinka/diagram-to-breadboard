@@ -2,7 +2,8 @@ package pl.bka
 
 import org.scalajs.dom
 import org.scalajs.dom.window
-import pl.bka.drawing.{BoardDrawing, BoardSelection, DirectDrawing, Size}
+import pl.bka.drawing.{BoardDrawing, DirectDrawing, Size}
+import pl.bka.guistate.BoardSelection
 import pl.bka.model.ComponentName
 import pl.bka.model.breadboard.Breadboard
 

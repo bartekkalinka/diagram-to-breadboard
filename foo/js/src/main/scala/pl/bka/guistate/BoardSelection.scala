@@ -1,5 +1,6 @@
-package pl.bka.drawing
+package pl.bka.guistate
 
+import pl.bka.drawing.{BoardDrawing, DirectDrawing, Size}
 import pl.bka.model.ComponentName
 import pl.bka.model.breadboard.Physical
 
