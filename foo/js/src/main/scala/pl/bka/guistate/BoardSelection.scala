@@ -1,5 +1,6 @@
 package pl.bka.guistate
 
+import pl.bka.Types.CoordWithName
 import pl.bka.drawing.{BoardDrawing, DirectDrawing, Size}
 import pl.bka.model.ComponentName
 import pl.bka.model.breadboard.Physical
@@ -11,7 +12,7 @@ class BoardSelection(boardDrawing: BoardDrawing, directDrawing: DirectDrawing, p
 
   private val movedComponents: mutable.Map[ComponentName, (Int, Int)] = mutable.Map.empty
 
-  private var componentPositionsMap: Map[(Int, Int), ((Int, Int), ComponentName)] = Map.empty
+  private var componentPositionsMap: Map[(Int, Int), CoordWithName] = Map.empty
 
   def unselect(): Unit =
     if(selectionOn) {
@@ -36,7 +37,7 @@ class BoardSelection(boardDrawing: BoardDrawing, directDrawing: DirectDrawing, p
     componentPositionsMap = boardDrawing.drawPhysical(movedComponents.toMap)
   }
 
-  def findClosestComponent(size: Size)(x: Int, y: Int): Option[((Int, Int), ComponentName)] =
+  def findClosestComponent(size: Size)(x: Int, y: Int): Option[CoordWithName] =
     if(componentPositionsMap.isEmpty) {
       None
     } else {

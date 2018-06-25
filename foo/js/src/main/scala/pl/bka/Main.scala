@@ -11,7 +11,6 @@ import scala.scalajs.js.annotation.JSExportTopLevel
 
 @JSExportTopLevel("Main")
 object Main {
-  type CoordWithName = ((Int, Int), ComponentName)
   case class DraggedComponent(name: ComponentName, startMouseXOffset: Int, startMouseYOffset: Int)
 
   window.onload = { _ =>
