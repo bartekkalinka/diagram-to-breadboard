@@ -23,6 +23,8 @@ class Size(zoomFactor: Double) {
   val diodeBodySize = (35, 10)
   val fontSize = 8
   val font = s"${fontSize}px Arial"
+  val trackIndexFontSize = 12
+  val trackIndexFont = s"${trackIndexFontSize}px Arial"
   val icFontSize = 12
   val icFont = s"${icFontSize}px Arial"
   val shortCableArcRadiusFactor = 0.75

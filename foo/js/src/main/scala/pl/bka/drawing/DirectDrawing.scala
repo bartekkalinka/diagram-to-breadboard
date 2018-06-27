@@ -2,6 +2,7 @@ package pl.bka.drawing
 
 import org.scalajs.dom
 import pl.bka.DomOutput
+import pl.bka.model.breadboard.TrackIndex
 
 class DirectDrawing(size: Size) {
   val ctx = DomOutput.canvas.getContext("2d")
@@ -173,6 +174,12 @@ class DirectDrawing(size: Size) {
     ctx.moveTo(from._1, from._2)
     ctx.lineTo(to._1, to._2)
     ctx.stroke()
+  }
+
+  def drawTrackIndex(pos: (Int, Int), trackIndex: TrackIndex): Unit = {
+    ctx.font = size.trackIndexFont
+    ctx.fillStyle = "#000000"
+    ctx.fillText(trackIndex.index.toString, pos._1, pos._2)
   }
 }
 
