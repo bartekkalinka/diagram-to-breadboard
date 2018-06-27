@@ -82,20 +82,21 @@ class DirectDrawing(size: Size) {
     ctx.fillStyle = "#FFFFFF"
     ctx.strokeStyle = "#000000"
     ctx.lineWidth = 1
+    val bodyVerticalSize = Math.max(size.resistorBodySize._1, cname.length * (size.fontSize- 2))
     ctx.beginPath()
-    ctx.moveTo(pos._1 - size.resistorBodySize._1 / 2, pos._2 - size.resistorBodySize._2)
-    ctx.lineTo(pos._1 + size.resistorBodySize._1 / 2, pos._2 - size.resistorBodySize._2)
+    ctx.moveTo(pos._1 - bodyVerticalSize / 2, pos._2 - size.resistorBodySize._2)
+    ctx.lineTo(pos._1 + bodyVerticalSize / 2, pos._2 - size.resistorBodySize._2)
     ctx.stroke()
-    ctx.lineTo(pos._1 + size.resistorBodySize._1 / 2, pos._2)
+    ctx.lineTo(pos._1 + bodyVerticalSize / 2, pos._2)
     ctx.stroke()
-    ctx.lineTo(pos._1 - size.resistorBodySize._1 / 2, pos._2)
+    ctx.lineTo(pos._1 - bodyVerticalSize / 2, pos._2)
     ctx.stroke()
-    ctx.lineTo(pos._1 - size.resistorBodySize._1 / 2, pos._2 - size.resistorBodySize._2)
+    ctx.lineTo(pos._1 - bodyVerticalSize / 2, pos._2 - size.resistorBodySize._2)
     ctx.stroke()
     ctx.fill()
     ctx.font = size.font
     ctx.fillStyle = "#000000"
-    ctx.fillText(cname, pos._1 - 12, pos._2 - 2)
+    ctx.fillText(cname, pos._1 - bodyVerticalSize / 2 + 4, pos._2 - 2)
   }
 
   def drawCapacitorBody(cname: String, pos: (Int, Int), minusOnLeft: Option[Boolean]): Unit = {
