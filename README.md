@@ -13,7 +13,7 @@ First diagram from rollz5 is called 3-Roll.  Here it is with connections marked 
 
 <img src=./static/3roll.png width="300" height="300">
 
-3-Roll diagram can be encoded in Scala in Diagram.scala file as:
+3-Roll diagram can be encoded in Scala in `Diagrams.scala` file as:
 
     val example = Diagram(
       List(
