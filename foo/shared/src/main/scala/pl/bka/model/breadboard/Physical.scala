@@ -1,7 +1,7 @@
 package pl.bka.model.breadboard
 
 import pl.bka.model._
-import pl.bka.model.breadboard.minspace.Logical
+import pl.bka.model.breadboard.onelegpertrack.Logical
 
 case class TrackPosition(position: Int)
 case class Hole(trackIndex: TrackIndex, holeIndex: TrackPosition)
