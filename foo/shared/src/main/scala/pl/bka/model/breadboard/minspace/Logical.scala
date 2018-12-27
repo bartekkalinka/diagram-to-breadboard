@@ -1,8 +1,10 @@
-package pl.bka.model.breadboard
+package pl.bka.model.breadboard.minspace
 
+import pl.bka.PrettyPrint._
 import pl.bka.model.Power.PowerConnection
 import pl.bka.model._
-import pl.bka.PrettyPrint._
+import pl.bka.model.breadboard._
+
 import scala.collection.mutable
 
 case class Logical(components: Seq[Component], tracks: Seq[Track], connections: Map[LegId, TrackIndex]) extends Container {
