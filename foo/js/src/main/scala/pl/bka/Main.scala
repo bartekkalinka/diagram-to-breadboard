@@ -18,7 +18,7 @@ object Main {
       case Right(diagram) =>
         val offsetX = DomOutput.canvas.offsetLeft
         val offsetY = DomOutput.canvas.offsetTop
-        val size = new Size(2d)
+        val size = new Size(1d)
         val physical = Breadboard(diagram).physical
         val directDrawing = new DirectDrawing(size)
         val boardDrawing = new BoardDrawing(directDrawing, size, physical, diagram)
