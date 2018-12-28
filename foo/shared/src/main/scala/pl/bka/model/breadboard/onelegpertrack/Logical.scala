@@ -133,7 +133,8 @@ object Logical {
       val connectedTracks = mutable.ArrayBuffer[Int](0)
       for(i <- 1 until tracksGroup.length) {
         val nextTrack = modifiedTracks(i)
-        connectedTracks.map(j => (j, modifiedTracks(j))).sortBy(tr => (- tr._2.freeSpace, tr._1)).headOption.foreach {
+        val sortedTracks = connectedTracks.map(j => (j, modifiedTracks(j))).sortBy(tr => (- tr._2.freeSpace, tr._1))
+        sortedTracks.headOption.foreach {
           case (j, prevTrack) =>
             if(prevTrack.freeSpace <= 0) {
               throw new TooManyCables
@@ -143,7 +144,7 @@ object Logical {
             newLegsMap ++= legs
             modifiedTracks.update(j, prevTrack.copy(freeSpace = prevTrack.freeSpace - 1))
             modifiedTracks.update(i, nextTrack.copy(freeSpace = nextTrack.freeSpace - 1))
-            connectedTracks += j
+            connectedTracks += i
         }
       }
       (comps ++ newCables, legsMap ++ newLegsMap)
