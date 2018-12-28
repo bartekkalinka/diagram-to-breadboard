@@ -1,9 +1,8 @@
 package pl.bka.model.breadboard.onelegpertrack
-
-import pl.bka.PrettyPrint._
 import pl.bka.model.Power.PowerConnection
 import pl.bka.model._
 import pl.bka.model.breadboard._
+import pl.bka.PrettyPrint._
 
 import scala.collection.mutable
 
@@ -48,7 +47,7 @@ object Logical {
         case ((legId, upper), relativeIndex) =>
           val index = if(upper) relativeIndex + startingIndex else -Breadboard.maxVerticalTracks + relativeIndex
           (
-            Vertical(TrackIndex(horizontal = false, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1),
+            Vertical(TrackIndex(horizontal = false, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1, freeSpaceForLegs = 0),
             (legId, TrackIndex(horizontal = false, index))
           )
       }.unzip
@@ -72,7 +71,7 @@ object Logical {
       case (legId, relativeIndex) =>
         val index = relativeIndex + startingIndex
         (
-          Vertical(TrackIndex(horizontal = false, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1),
+          Vertical(TrackIndex(horizontal = false, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1, freeSpaceForLegs = 0),
           (legId, TrackIndex(horizontal = false, index))
         )
     }.unzip
@@ -91,7 +90,7 @@ object Logical {
     legs.foreach { legId =>
       val conn = diagram.legsConnections(legId)
       val possibleTracks = getTrackIndexByConnection(conn).map(verticalByIndex)
-      val finalTrack = possibleTracks.find(_.freeSpace > 1) match {
+      val finalTrack = possibleTracks.find(_.freeSpaceForLegs > 0) match {
         case Some(possible) =>
           possible
         case None =>
@@ -104,7 +103,7 @@ object Logical {
           trackIndexByConnection += conn -> (getTrackIndexByConnection(conn) :+ newTrackIndex)
           newTrack
       }
-      verticalByIndex.update(finalTrack.index, finalTrack.copy(freeSpace = finalTrack.freeSpace - 1))
+      verticalByIndex.update(finalTrack.index, finalTrack.copy(freeSpace = finalTrack.freeSpace - 1).copy(freeSpaceForLegs = finalTrack.freeSpaceForLegs - 1))
       legsMap += (legId -> finalTrack.index)
     }
     println(s"------------ tracks after other components ------------ ${verticalByIndex.values.toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
@@ -126,6 +125,26 @@ object Logical {
       val (cable, cableLegs) = addCable(connection)(tracksGroup.head, tracksGroup(1))
       (comps :+ cable, legsMap ++ cableLegs.toMap)
     }
+    def connectManyTracksWithCables(comps: Seq[Component], legsMap: Map[LegId, TrackIndex],
+                                    connection: Connection, tracksGroup: Seq[Vertical]): (Seq[Component], Map[LegId, TrackIndex]) = {
+      val modifiedTracks = mutable.ArrayBuffer[Vertical](tracksGroup: _*)
+      val newCables = mutable.ArrayBuffer.empty[Component]
+      val newLegsMap = mutable.Map.empty[LegId, TrackIndex]
+      val connectedTracks = mutable.ArrayBuffer[Int](0)
+      for(i <- 1 until tracksGroup.length) {
+        val nextTrack = modifiedTracks(i)
+        connectedTracks.map(j => (j, modifiedTracks(j))).sortBy(tr => (tr._2.freeSpace, tr._1)).headOption.map {
+          case (j, prevTrack) =>
+            val (cable, legs) = addCable(connection)(prevTrack, nextTrack)
+            newCables += cable
+            newLegsMap ++= legs
+            modifiedTracks.update(j, prevTrack.copy(freeSpace = prevTrack.freeSpace - 1))
+            modifiedTracks.update(i, nextTrack.copy(freeSpace = nextTrack.freeSpace - 1))
+            connectedTracks += j
+        }.getOrElse(throw new TooManyCables)
+      }
+      (comps, legsMap)
+    }
     val connectionTracks = vertical.filter(_.diagramConnection.id.isLeft).groupBy(_.diagramConnection)
     connectionTracks.toSeq.foldLeft((Seq[Component](), Map[LegId, TrackIndex]())) {
       case ((comps, legsMap), (connection, tracksGroup)) =>
@@ -133,7 +152,7 @@ object Logical {
         sortedGroup.length match {
           case 1 => (comps, legsMap)
           case 2 => connect2TracksWithCables(comps, legsMap, connection, sortedGroup)
-          case _ => throw new TrackGroupsOfLengthLargerThanTwoAreNotSupported
+          case _ => connectManyTracksWithCables(comps, legsMap, connection, tracksGroup)
         }
     }
   }
