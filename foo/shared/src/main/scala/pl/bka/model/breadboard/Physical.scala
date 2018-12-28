@@ -2,6 +2,7 @@ package pl.bka.model.breadboard
 
 import pl.bka.model._
 import pl.bka.model.breadboard.onelegpertrack.Logical
+import pl.bka.PrettyPrint._
 
 case class TrackPosition(position: Int)
 case class Hole(trackIndex: TrackIndex, holeIndex: TrackPosition)
@@ -21,21 +22,37 @@ case class Physical(components: Seq[Component], tracks: Seq[Track], connections:
     val cableConnections: Seq[(ComponentName, TrackIndex)] = this.connections.toSeq
       .filter { case (legId, _) => compsByName(legId.cName).cType.isInstanceOf[Cable] }
       .map {case (legId, Hole(trackIndex, _)) => (legId.cName, trackIndex)}
+    println("---- cable connections ----")
+    cableConnections.prettyPrint
     val rawTrackConns: Seq[(TrackIndex, TrackIndex)] =
       cableConnections.groupBy(_._1).values.map { legs => (legs.head._2, legs(1)._2) }.toSeq
-    val rawTrackConnsBothWays = (rawTrackConns ++ rawTrackConns.map { case (a, b) => (b, a) }).filter { case (a, b) => a.order > b.order }
+    println("----- raw track connections -----")
+    rawTrackConns.prettyPrint
+    val rawTrackConnsBothWays = rawTrackConns ++ rawTrackConns.map { case (a, b) => (b, a) }
+    println("----- raw track connections both ways -----")
+    rawTrackConnsBothWays.sortBy(_._1.index).prettyPrint
     val trackConns: Map[TrackIndex, Seq[TrackIndex]] = rawTrackConnsBothWays.groupBy(_._1).mapValues(_.map(_._2))
-    def pullConnection(index: TrackIndex): Seq[TrackIndex] =
-      index +: trackConns.get(index).map(children => children.flatMap(pullConnection)).getOrElse(Seq[TrackIndex]())
-    def connections(toTraverse: Seq[TrackIndex], acc: Seq[Seq[TrackIndex]]): Seq[Seq[TrackIndex]] = //TODO better name?
+    println("----- track connections seqs -----")
+    trackConns.prettyPrint
+    def pullConnectionTrackGroup(index: TrackIndex): Seq[TrackIndex] = {
+      val visited = scala.collection.mutable.Map.empty[TrackIndex, Unit]
+      def pull(index: TrackIndex): Seq[TrackIndex] = {
+        visited.put(index, ())
+        index +: trackConns.get(index).map(children => children.filter(child => visited.get(child).isEmpty).flatMap(pull)).getOrElse(Seq[TrackIndex]())
+      }
+      pull(index)
+    }
+    def groupTracksByConnection(toTraverse: Seq[TrackIndex], acc: Seq[Seq[TrackIndex]]): Seq[Seq[TrackIndex]] =
       if(toTraverse.nonEmpty) {
-        val conn = pullConnection(toTraverse.head)
-        connections(toTraverse.diff(conn), acc :+ conn)
+        val conn = pullConnectionTrackGroup(toTraverse.head)
+        groupTracksByConnection(toTraverse.diff(conn), acc :+ conn)
       }
       else acc
     val connectionByTrack: Map[TrackIndex, Connection] =
-      connections(this.tracks.map(_.index), Seq[Seq[TrackIndex]]())
+      groupTracksByConnection(this.tracks.map(_.index), Seq[Seq[TrackIndex]]())
         .zipWithIndex.flatMap { case (trks, i) => trks.map((_, Connection(Left(i)))) }.toMap
+    println("----- connection by track -----")
+    connectionByTrack.prettyPrint
     val legsConnections: Map[LegId, Connection] = this.connections.toSeq
       .filterNot { case (legId, _) => compsByName(legId.cName).cType.isInstanceOf[Cable] }
       .map { case (legId, Hole(trackIndex, _)) => (legId, connectionByTrack(trackIndex)) }.toMap
