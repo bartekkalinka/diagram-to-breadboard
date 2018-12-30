@@ -21,7 +21,7 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
 
     }
     val color: String = Seq("#FFBB00", "#FF0000", "#0000FF", "#00FF00")(compIndex % 4)
-    component.cType match {
+    component.cType match { //TODO get rid of code blocks in match branches - move them to type class instances for components
       case IC(_, _) =>
         val (xs, ys) = holes.map(holePosition).unzip
         val (centerX, centerY) = positionOverride.getOrElse((xs.sum / xs.length, ys.sum / ys.length))
@@ -40,9 +40,13 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
         directDrawing.drawLine(holePosition(holes(2)), (centerX + size.transistorLegsSpread, centerY), 2)
         directDrawing.drawTransistorBody(component.name.value, (centerX, centerY))
         Some((component.name, centerX, centerY))
-      case Cable(_, _) =>
+      case Cable(_, tpe, _) =>
         val (from, to) = (holePosition(holes.head), holePosition(holes(1)))
-        directDrawing.drawArrowsRepresentingCable(from, to, holes.head.trackIndex.index, holes(1).trackIndex.index, color)
+        if(tpe == CableType.ConnCable) {
+          directDrawing.drawArrowsRepresentingCable(from, to, holes.head.trackIndex.index, holes(1).trackIndex.index, color)
+        } else {
+          directDrawing.drawStraightCable(from, to, color)
+        }
         None
       case Resistor(_, _) =>
         val Seq(holePos1, holePos2) = holes.map(holePosition).sortBy(_._1)

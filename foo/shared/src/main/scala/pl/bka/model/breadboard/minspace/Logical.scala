@@ -114,7 +114,7 @@ object Logical {
   private def calcRegularConnectionCables(vertical: Seq[Vertical]): (Seq[Component], Map[LegId, TrackIndex]) = {
     def addCable(connection: Connection)(prev: Track, next: Track): (Component, Seq[(LegId, TrackIndex)]) = {
       val cName = s"cable-${connection.id.fold(identity, identity)}-${prev.index.index}-${next.index.index}"
-      val cable = Component(cName, Cable(""))
+      val cable = Component(cName, Cable("", CableType.ConnCable))
       val legs = Seq(
         (LegId(ComponentName(cName), cable.legs.head), prev.index),
         (LegId(ComponentName(cName), cable.legs(1)), next.index)
@@ -143,7 +143,7 @@ object Logical {
     val powerConnectionTracks = vertical.filter(v => v.diagramConnection.id.isRight)
     val (cables, legs) = powerConnectionTracks.map { track =>
       val cName = s"cable-${track.diagramConnection.id.fold(identity, identity)}-${track.index.index}"
-      val cable = Component(cName, Cable(""))
+      val cable = Component(cName, Cable("", CableType.PowerCable))
       val Right(power) = track.diagramConnection.id
       val legs = Seq(
         (LegId(ComponentName(cName), cable.legs.head), track.index),
@@ -158,12 +158,12 @@ object Logical {
     val (comps, legs) = Seq(
        {
          val cName = "cable-plus-union"
-         val cable = Component(cName, Cable(""))
+         val cable = Component(cName, Cable("", CableType.UnionCable))
          (cable, Map(LegId(ComponentName(cName), cable.legs.head) -> horizontalMap((true, Power.Plus)).index, LegId(ComponentName(cName), cable.legs(1)) -> horizontalMap((false, Power.Plus)).index))
        },
       {
         val cName = "cable-gnd-union"
-        val cable = Component(cName, Cable(""))
+        val cable = Component(cName, Cable("", CableType.UnionCable))
         (cable, Map(LegId(ComponentName(cName), cable.legs.head) -> horizontalMap((true, Power.GND)).index, LegId(ComponentName(cName), cable.legs(1)) -> horizontalMap((false, Power.GND)).index))
       }
     ).unzip
