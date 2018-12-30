@@ -21,11 +21,9 @@ class DirectDrawing(size: Size) {
     ctx.stroke()
   }
 
-  def drawArcCable(pfrom: (Int, Int), pto: (Int, Int), color: String): Unit = {
+  def drawArcCable(from: (Int, Int), to: (Int, Int), color: String): Unit = {
     ctx.strokeStyle = color
     ctx.lineWidth = 2
-    val from = (Math.min(pfrom._1, pto._1), Math.min(pfrom._2, pto._2))
-    val to = (Math.max(pfrom._1, pto._1), Math.max(pfrom._2, pto._2))
     ctx.beginPath()
     if(from._2 == to._2) {
       val xDelta = (to._1 - from._1) / 2

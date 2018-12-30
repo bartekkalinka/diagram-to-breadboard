@@ -41,9 +41,9 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
         directDrawing.drawTransistorBody(component.name.value, (centerX, centerY))
         Some((component.name, centerX, centerY))
       case Cable(_, tpe, _) =>
-        val (from, to) = (holePosition(holes.head), holePosition(holes(1)))
+        val Seq((from, fromTrackIndex), (to, toTrackIndex)) = Seq((holePosition(holes.head), holes.head.trackIndex.index), (holePosition(holes(1)), holes(1).trackIndex.index)).sortBy(_._2)
         if(tpe == CableType.ConnCable) {
-          directDrawing.drawArrowsRepresentingCable(from, to, holes.head.trackIndex.index, holes(1).trackIndex.index, color)
+          directDrawing.drawArrowsRepresentingCable(from, to, fromTrackIndex, toTrackIndex, color)
         } else {
           directDrawing.drawStraightCable(from, to, color)
         }
@@ -136,7 +136,7 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
     case h: Horizontal => drawHorizontalTrack(h)
   }
 
-  private def drawPowerSign(power: Power.PowerConnection, pos: (Int, Int)) = power match {
+  private def drawPowerSign(power: Power.PowerConnection, pos: (Int, Int)): Unit = power match {
     case Plus =>
       directDrawing.drawLine(from = (pos._1 - 5, pos._2), to = (pos._1 + 5, pos._2), 1)
       directDrawing.drawLine(from = (pos._1, pos._2 - 5), to = (pos._1, pos._2 + 5), 1)
