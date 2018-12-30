@@ -31,5 +31,7 @@ class Size(zoomFactor: Double) {
   val longCableArcRadiusFactor = 3
   val selectionDistance = zoom(20)
   val selectionMarkSize = zoom(20)
+  val arrowLength = zoom(35)
+  val arrowHeadWidth = zoom(5)
 }
 

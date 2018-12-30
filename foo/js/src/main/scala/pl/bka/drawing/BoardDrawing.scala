@@ -42,11 +42,7 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
         Some((component.name, centerX, centerY))
       case Cable(_, _) =>
         val (from, to) = (holePosition(holes.head), holePosition(holes(1)))
-        if(from._2 == to._2) {
-          directDrawing.drawArcCable(from, to, color)
-        } else {
-          directDrawing.drawStraightCable(from, to, color)
-        }
+        directDrawing.drawArrowsRepresentingCable(from, to, holes.head.trackIndex.index, holes(1).trackIndex.index, color)
         None
       case Resistor(_, _) =>
         val Seq(holePos1, holePos2) = holes.map(holePosition).sortBy(_._1)
