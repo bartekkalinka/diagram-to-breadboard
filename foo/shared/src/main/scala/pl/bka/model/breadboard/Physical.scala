@@ -79,12 +79,8 @@ object Physical {
         Seq(minPositions.head, TrackPosition(verticalTrack.verticalLocationIndex))
       case i: IC =>
         val halfLength = component.legs.length / 2
-        (component.legs.take(halfLength).map((_, true)) ++ component.legs.drop(halfLength).map((_, false))).map {
-          case (leg, upper) =>
-            val legId = LegId(cName, leg)
-            val verticalTrack = logical.connections(legId)
-            TrackPosition(Tracks.verticalTrackLength - 1)
-        }
+        (component.legs.take(halfLength).map((_, true)) ++ component.legs.drop(halfLength).map((_, false)))
+          .map(_ => TrackPosition(Tracks.verticalTrackLength - 1))
       case _ =>
         minPositions
     }
