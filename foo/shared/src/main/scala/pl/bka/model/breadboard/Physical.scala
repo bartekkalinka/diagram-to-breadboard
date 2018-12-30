@@ -70,12 +70,11 @@ object Physical {
       val track = logical.connections(legId)
       freePositions(track).minBy(_.position)
     }
-    def isPowerCable: Boolean = logical.connections(compLegs(1)).horizontal
     val targetPositions: Seq[TrackPosition] = compType match {
       case t: Transistor =>
         val targetPosition = minPositions.maxBy(_.position)
         Seq.tabulate(compLegs.length)(_ => targetPosition)
-      case c: Cable if isPowerCable =>
+      case c: Cable if c.tpe == CableType.PowerCable || c.tpe == CableType.UnionCable =>
         val verticalTrack = logical.connections(compLegs.head)
         Seq(minPositions.head, TrackPosition(verticalTrack.verticalLocationIndex))
       case i: IC =>
