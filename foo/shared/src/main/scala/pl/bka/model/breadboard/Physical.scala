@@ -71,18 +71,19 @@ object Physical {
       freePositions(track).minBy(_.position)
     }
     val targetPositions: Seq[TrackPosition] = compType match {
-      case t: Transistor =>
-        val targetPosition = minPositions.maxBy(_.position)
-        Seq.tabulate(compLegs.length)(_ => targetPosition)
+      case _: Transistor =>
+        Seq.tabulate(compLegs.length)(_ => TrackPosition(Tracks.verticalTrackLength - 1))
       case c: Cable if c.tpe == CableType.PowerCable || c.tpe == CableType.UnionCable =>
         val verticalTrack = logical.connections(compLegs.head)
         Seq(minPositions.head, TrackPosition(verticalTrack.verticalLocationIndex))
-      case i: IC =>
+      case _: IC =>
         val halfLength = component.legs.length / 2
         (component.legs.take(halfLength).map((_, true)) ++ component.legs.drop(halfLength).map((_, false)))
           .map(_ => TrackPosition(Tracks.verticalTrackLength - 1))
-      case _ =>
+      case _: Cable =>
         minPositions
+      case _ =>
+        Seq.tabulate(compLegs.length)(_ => TrackPosition(Tracks.verticalTrackLength - 1))
     }
     val compLegsInsertions: Map[LegId, Hole] =
       compLegs.zipWithIndex.map { case (legId, i) =>
