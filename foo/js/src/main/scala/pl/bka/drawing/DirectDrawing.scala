@@ -51,7 +51,7 @@ class DirectDrawing(size: Size) {
     drawLine(from, to, 2, color)
 
   def drawArrowsRepresentingCable(from: (Int, Int), to: (Int, Int), fromTrackIndex: Int, toTrackIndex: Int, color: String): Unit = {
-    ctx.font = size.font
+    ctx.font = size.trackIndexFont
     ctx.fillStyle = "#000000"
     val fromArrowHead = (from._1 + size.arrowLength, from._2 - size.arrowLength)
     drawLine(from, fromArrowHead, 2, color)
