@@ -51,18 +51,18 @@ class DirectDrawing(size: Size) {
     drawLine(from, to, 2, color)
 
   def drawArrowsRepresentingCable(from: (Int, Int), to: (Int, Int), fromTrackIndex: Int, toTrackIndex: Int, color: String): Unit = {
-    ctx.font = size.trackIndexFont
-    ctx.fillStyle = "#000000"
-    val fromArrowHead = (from._1 + size.arrowLength, from._2 - size.arrowLength)
+    ctx.font = size.arrowHeadFont
+    ctx.fillStyle = color
+    val fromArrowHead = (from._1 + size.arrowLength, from._2 + size.arrowLength)
     drawLine(from, fromArrowHead, 2, color)
     drawLine(fromArrowHead, (fromArrowHead._1 - size.arrowHeadWidth, fromArrowHead._2), 2, color)
-    drawLine(fromArrowHead, (fromArrowHead._1, fromArrowHead._2 + size.arrowHeadWidth), 2, color)
-    ctx.fillText(toTrackIndex.toString, fromArrowHead._1, fromArrowHead._2)
+    drawLine(fromArrowHead, (fromArrowHead._1, fromArrowHead._2 - size.arrowHeadWidth), 2, color)
+    ctx.fillText(toTrackIndex.toString, fromArrowHead._1, fromArrowHead._2 + size.arrowHeadWidth)
     val toArrowHead = (to._1 - size.arrowLength, to._2 - size.arrowLength )
     drawLine(to, toArrowHead, 2, color)
     drawLine(toArrowHead, (toArrowHead._1 + size.arrowHeadWidth, toArrowHead._2), 2, color)
     drawLine(toArrowHead, (toArrowHead._1, toArrowHead._2 + size.arrowHeadWidth), 2, color)
-    ctx.fillText(fromTrackIndex.toString, toArrowHead._1, toArrowHead._2)
+    ctx.fillText(fromTrackIndex.toString, toArrowHead._1 - size.arrowHeadWidth, toArrowHead._2)
   }
 
   def drawICBody(name: String, pos: (Int, Int), width: Int, height: Int): Unit = {
