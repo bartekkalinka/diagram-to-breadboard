@@ -13,6 +13,8 @@ case class Logical(components: Seq[Component], tracks: Seq[Track], connections: 
 }
 
 object Logical {
+  val minSpaceBetweenLegs = 3
+
   def apply(diagram: Diagram): Logical = {
     val (extVertical, componentsLegs) =
       Seq(icsToTracks _, transistorsToTracks _, otherToTracks _)

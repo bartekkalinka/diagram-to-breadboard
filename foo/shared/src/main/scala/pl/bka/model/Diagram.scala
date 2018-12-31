@@ -31,6 +31,7 @@ case class Diagram(
     }
   } yield this
 
+  //TODO move to PrettyPrint type class
   def prettyPrint: Seq[String] = Seq(
     "   components: " + components.map(_.prettyPrint).reduce(_ + " | " + _),
     "   connections: " + legsConnections.toSeq.map { case (legId, conn) => s"${legId.prettyPrint} conn${conn.id}" }.reduce(_ + " : " + _)

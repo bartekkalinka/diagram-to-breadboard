@@ -30,12 +30,12 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
     ),
     Map(("Tr549B.1", "0") -> Right(Plus), ("Tr549B.1", "1") -> Left(0), ("Tr549B.1", "2") -> Right(GND),
       ("Tr549B.2", "0") -> Right(Plus), ("Tr549B.2", "1") -> Left(0), ("Tr549B.2", "2") -> Right(GND),
-      ("R220-1", "0") -> Right(GND), ("R220-1", "1") -> Left(0),
-      ("R220-2", "0") -> Right(Plus), ("R220-2", "1") -> Left(0),
-      ("R220-3", "0") -> Left(0), ("R220-3", "1") -> Right(GND),
-      ("R220-4", "0") -> Right(GND), ("R220-4", "1") -> Left(0),
-      ("R220-5", "0") -> Left(0), ("R220-5", "1") -> Right(Plus),
-      ("R220-6", "0") -> Right(GND), ("R220-6", "1") -> Left(0))
+      ("R220-1", Leg.firstLeg) -> Right(GND), ("R220-1", Leg.secondLeg) -> Left(0),
+      ("R220-2", Leg.firstLeg) -> Right(Plus), ("R220-2", Leg.secondLeg) -> Left(0),
+      ("R220-3", Leg.firstLeg) -> Left(0), ("R220-3", Leg.secondLeg) -> Right(GND),
+      ("R220-4", Leg.firstLeg) -> Right(GND), ("R220-4", Leg.secondLeg) -> Left(0),
+      ("R220-5", Leg.firstLeg) -> Left(0), ("R220-5", Leg.secondLeg) -> Right(Plus),
+      ("R220-6", Leg.firstLeg) -> Right(GND), ("R220-6", Leg.secondLeg) -> Left(0))
   )
 
   //resistors with a connection outside of transistors reach
@@ -45,7 +45,7 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
       Component("R220-1", Resistor("220K"))
     ),
     Map(("Tr549B.1", "0") -> Right(Plus), ("Tr549B.1", "1") -> Left(0), ("Tr549B.1", "2") -> Right(GND),
-      ("R220-1", "0") -> Right(GND), ("R220-1", "1") -> Left(1))
+      ("R220-1", Leg.firstLeg) -> Right(GND), ("R220-1", Leg.secondLeg) -> Left(1))
   )
 
   //simple diagram with IC
@@ -59,8 +59,8 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
     ),
     Map(("549B-1", "0") -> Right(Plus), ("549B-1", "1") -> Left(0), ("549B-1", "2") -> Right(GND),
       ("549B-2", "0") -> Right(Plus), ("549B-2", "1") -> Left(0), ("549B-2", "2") -> Right(GND),
-      ("R220-1", "0") -> Right(GND), ("R220-1", "1") -> Left(0),
-      ("R220-2", "0") -> Right(Plus), ("R220-2", "1") -> Left(0),
+      ("R220-1", Leg.firstLeg) -> Right(GND), ("R220-1", Leg.secondLeg) -> Left(0),
+      ("R220-2", Leg.firstLeg) -> Right(Plus), ("R220-2", Leg.secondLeg) -> Left(0),
       ("082-1", "0") -> Right(Plus), ("082-1", "1") -> Left(1),
       ("082-1", "2") -> Left(1), ("082-1", "3") -> Right(GND),
       ("082-1", "4") -> Right(GND), ("082-1", "5") -> Left(2),
@@ -88,12 +88,12 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
     ),
     Map(
       ("diode", Leg.cathode) -> Left(1), ("diode", Leg.anode) -> Right(Plus),
-      ("R470K-1", "0") -> Left(1), ("R470K-1", "1") -> Left(3),
-      ("R22K-1", "0") -> Left(1), ("R22K-1", "1") -> Left(2),
-      ("R470K-2", "0") -> Left(1), ("R470K-2", "1") -> Left(7),
-      ("R22K-2", "0") -> Left(1), ("R22K-2", "1") -> Left(6),
-      ("R470K-3", "0") -> Left(1), ("R470K-3", "1") -> Left(5),
-      ("R22K-3", "0") -> Left(1), ("R22K-3", "1") -> Left(4),
+      ("R470K-1", Leg.firstLeg) -> Left(1), ("R470K-1", Leg.secondLeg) -> Left(3),
+      ("R22K-1", Leg.firstLeg) -> Left(1), ("R22K-1", Leg.secondLeg) -> Left(2),
+      ("R470K-2", Leg.firstLeg) -> Left(1), ("R470K-2", Leg.secondLeg) -> Left(7),
+      ("R22K-2", Leg.firstLeg) -> Left(1), ("R22K-2", Leg.secondLeg) -> Left(6),
+      ("R470K-3", Leg.firstLeg) -> Left(1), ("R470K-3", Leg.secondLeg) -> Left(5),
+      ("R22K-3", Leg.firstLeg) -> Left(1), ("R22K-3", Leg.secondLeg) -> Left(4),
       ("Tr-1", "0") -> Left(2), ("Tr-1", "1") -> Left(3), ("Tr-1", "2") -> Right(GND),
       ("Tr-2", "0") -> Left(6), ("Tr-2", "1") -> Left(7), ("Tr-2", "2") -> Right(GND),
       ("Tr-3", "0") -> Left(4), ("Tr-3", "1") -> Left(5), ("Tr-3", "2") -> Right(GND),
