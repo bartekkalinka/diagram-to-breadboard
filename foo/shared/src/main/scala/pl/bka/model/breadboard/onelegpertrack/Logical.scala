@@ -84,9 +84,9 @@ object Logical {
     val newGroup3Order = mutable.Map.empty[ComponentName, Group3Index]
     groupsBy3.foreach { group =>
       def getLegId(component: Component, legIndex: Int): LegId = LegId(component.name, component.legs(legIndex))
-      val (legIds, group3OrderSeq) = (for(j <- 0 to 1; i <- 0 to 2) yield group.lift(i).map((_, j)))
+      val (legIds, group3OrderSeq) = (for(j <- 0 to 1; i <- 0 to 2) yield group.lift(i).map((_, i, j)))
         .flatten
-        .map { case (comp, legIndex) => (getLegId(comp, legIndex), (comp.name, Group3Index(legIndex)))}
+        .map { case (comp, compIndex, legIndex) => (getLegId(comp, legIndex), (comp.name, Group3Index(compIndex)))}
         .unzip
       legIds.zipWithIndex.foreach { case (legId, i) =>
         val newTrackIndex = TrackIndex(horizontal = false, nextTrackIndex + i)
