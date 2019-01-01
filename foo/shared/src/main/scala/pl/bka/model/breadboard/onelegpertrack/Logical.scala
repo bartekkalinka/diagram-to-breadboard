@@ -6,7 +6,7 @@ import pl.bka.PrettyPrint._
 
 import scala.collection.mutable
 
-case class Logical(components: Seq[Component], tracks: Seq[Track], connections: Map[LegId, TrackIndex]) extends Container {
+case class Logical(components: Seq[Component], tracks: Seq[Track], connections: Map[LegId, TrackIndex], group3Order: Map[ComponentName, Int]) extends Container {
   def prettyPrint: Seq[String] = Seq(
     s"""   logical: tracks cnt: ${tracks.length} conns: ${connections.map { case (l, i) => l.prettyPrint + "-conn" + i.index }}"""
   )
@@ -16,29 +16,25 @@ object Logical {
   val minSpaceBetweenLegs = 3
 
   def apply(diagram: Diagram): Logical = {
-    val (extVertical, componentsLegs) =
+    val (vertical, componentsLegs, group3Order) =
       Seq(icsToTracks _, transistorsToTracks _, otherToTracks _)
-        .foldLeft((Seq.empty[Vertical], Map.empty[LegId, TrackIndex])) { case ((vertical, legs), componentsToTracks) =>
-          val (newVertical, newLegs) = componentsToTracks(diagram, vertical)
-          (newVertical, legs ++ newLegs)
+        .foldLeft((Seq.empty[Vertical], Map.empty[LegId, TrackIndex], Map.empty[ComponentName, Int])) { case ((currVertical, legs, currGroup3Order), componentsToTracks) =>
+          val (newVertical, newLegs, newGroup3Order) = componentsToTracks(diagram, currVertical)
+          (newVertical, legs ++ newLegs, currGroup3Order ++ newGroup3Order)
         }
-    println(s"------------ tracks after components ------------ ${extVertical.toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
+    println(s"------------ tracks after components ------------ ${vertical.toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
     println(s"------------ legs after components -------------")
     componentsLegs.prettyPrint
-    val (regularCables, regularCablesLegs) = calcRegularConnectionCables(extVertical)
+    val (regularCables, regularCablesLegs) = calcRegularConnectionCables(vertical)
     val (horizontal, horizontalMap) = horizontalTracks
-    val (powerCables, powerCablesLegs) = calcPowerCables(extVertical, horizontalMap)
+    val (powerCables, powerCablesLegs) = calcPowerCables(vertical, horizontalMap)
     val (unionCables, unionCablesLegs) = powerUnionCables(horizontalMap)
     val map: Map[LegId, TrackIndex] = componentsLegs ++ regularCablesLegs ++ powerCablesLegs ++ unionCablesLegs
-    val extComponents = diagram.components ++ regularCables ++ powerCables ++ unionCables
-    Logical(extComponents, extVertical ++ horizontal, map)
+    val components = diagram.components ++ regularCables ++ powerCables ++ unionCables
+    Logical(components, vertical ++ horizontal, map, group3Order)
   }
 
-  //debug utility
-  private def tracksLegsQuantities(legs: Map[LegId, TrackIndex]): Map[TrackIndex, Int] =
-    legs.toSeq.map { case (l, t) => (t, l) }.groupBy(_._1).mapValues(_.length)
-
-  private def icsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex]) = {
+  private def icsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex], Map[ComponentName, Int]) = {
     val ics = diagram.components.filter(_.cType.isInstanceOf[IC])
     var startingIndex = vertical.count(_.upper)
     val (allNewVertical, allLegs) = ics.map { ic =>
@@ -60,10 +56,10 @@ object Logical {
     println(s"------------ tracks after ICs ------------ ${(vertical ++ allNewVertical).toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
     println(s"------------ legs after ICs ------------- ")
     allLegs.toMap.prettyPrint
-    (vertical ++ allNewVertical, allLegs.toMap)
+    (vertical ++ allNewVertical, allLegs.toMap, Map.empty[ComponentName, Int])
   }
 
-  private def transistorsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex]) = {
+  private def transistorsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex], Map[ComponentName, Int]) = {
     val transistors = diagram.components.filter(_.cType.isInstanceOf[Transistor])
     val legs: Seq[LegId] = transistors.flatMap { t =>
       t.legs.map { leg => LegId(t.name, leg) }
@@ -78,18 +74,22 @@ object Logical {
         )
     }.unzip
     println(s"------------ tracks after transistors ------------ ${(vertical ++ newVertical).toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
-    (vertical ++ newVertical, transistorsLegs.toMap)
+    (vertical ++ newVertical, transistorsLegs.toMap, Map.empty[ComponentName, Int])
   }
 
-  private def otherToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex]) = {
+  private def otherToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex], Map[ComponentName, Int]) = {
     val other = diagram.components.filterNot(c => c.cType.isInstanceOf[Transistor] || c.cType.isInstanceOf[IC])
     val groupsBy3 = other.zipWithIndex.groupBy { case (_, i) => i / 3 }.values.toSeq.map(_.map(_._1))
     var nextTrackIndex: Int = vertical.count(_.upper)
     val newTracks = mutable.ArrayBuffer.empty[Vertical]
     val newLegsMap = mutable.Map.empty[LegId, TrackIndex]
+    val newGroup3Order = mutable.Map.empty[ComponentName, Int]
     groupsBy3.foreach { group =>
       def getLegId(component: Component, legIndex: Int): LegId = LegId(component.name, component.legs(legIndex))
-      val legIds = (for(j <- 0 to 1; i <- 0 to 2) yield group.lift(i).map((_, j))).flatten.map { case (comp, legIndex) => getLegId(comp, legIndex)}
+      val (legIds, group3OrderSeq) = (for(j <- 0 to 1; i <- 0 to 2) yield group.lift(i).map((_, j)))
+        .flatten
+        .map { case (comp, legIndex) => (getLegId(comp, legIndex), (comp.name, legIndex))}
+        .unzip
       legIds.zipWithIndex.foreach { case (legId, i) =>
         val newTrackIndex = TrackIndex(horizontal = false, nextTrackIndex + i)
         val newTrack =
@@ -98,8 +98,9 @@ object Logical {
         newLegsMap.put(legId, newTrackIndex)
       }
       nextTrackIndex += legIds.length
+      newGroup3Order ++= group3OrderSeq
     }
-    (vertical ++ newTracks.toVector, newLegsMap.toMap)
+    (vertical ++ newTracks.toVector, newLegsMap.toMap, newGroup3Order.toMap)
   }
 
   private def calcRegularConnectionCables(vertical: Seq[Vertical]): (Seq[Component], Map[LegId, TrackIndex]) = {
