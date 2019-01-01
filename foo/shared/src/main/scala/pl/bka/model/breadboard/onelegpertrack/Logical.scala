@@ -6,7 +6,9 @@ import pl.bka.PrettyPrint._
 
 import scala.collection.mutable
 
-case class Logical(components: Seq[Component], tracks: Seq[Track], connections: Map[LegId, TrackIndex], group3Order: Map[ComponentName, Int]) extends Container {
+case class Group3Index(index: Int)
+
+case class Logical(components: Seq[Component], tracks: Seq[Track], connections: Map[LegId, TrackIndex], group3Order: Map[ComponentName, Group3Index]) extends Container {
   def prettyPrint: Seq[String] = Seq(
     s"""   logical: tracks cnt: ${tracks.length} conns: ${connections.map { case (l, i) => l.prettyPrint + "-conn" + i.index }}"""
   )
@@ -18,7 +20,7 @@ object Logical {
   def apply(diagram: Diagram): Logical = {
     val (vertical, componentsLegs, group3Order) =
       Seq(icsToTracks _, transistorsToTracks _, otherToTracks _)
-        .foldLeft((Seq.empty[Vertical], Map.empty[LegId, TrackIndex], Map.empty[ComponentName, Int])) { case ((currVertical, legs, currGroup3Order), componentsToTracks) =>
+        .foldLeft((Seq.empty[Vertical], Map.empty[LegId, TrackIndex], Map.empty[ComponentName, Group3Index])) { case ((currVertical, legs, currGroup3Order), componentsToTracks) =>
           val (newVertical, newLegs, newGroup3Order) = componentsToTracks(diagram, currVertical)
           (newVertical, legs ++ newLegs, currGroup3Order ++ newGroup3Order)
         }
@@ -34,7 +36,7 @@ object Logical {
     Logical(components, vertical ++ horizontal, map, group3Order)
   }
 
-  private def icsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex], Map[ComponentName, Int]) = {
+  private def icsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex], Map[ComponentName, Group3Index]) = {
     val ics = diagram.components.filter(_.cType.isInstanceOf[IC])
     var startingIndex = vertical.count(_.upper)
     val (allNewVertical, allLegs) = ics.map { ic =>
@@ -56,10 +58,10 @@ object Logical {
     println(s"------------ tracks after ICs ------------ ${(vertical ++ allNewVertical).toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
     println(s"------------ legs after ICs ------------- ")
     allLegs.toMap.prettyPrint
-    (vertical ++ allNewVertical, allLegs.toMap, Map.empty[ComponentName, Int])
+    (vertical ++ allNewVertical, allLegs.toMap, Map.empty[ComponentName, Group3Index])
   }
 
-  private def transistorsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex], Map[ComponentName, Int]) = {
+  private def transistorsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex], Map[ComponentName, Group3Index]) = {
     val transistors = diagram.components.filter(_.cType.isInstanceOf[Transistor])
     val legs: Seq[LegId] = transistors.flatMap { t =>
       t.legs.map { leg => LegId(t.name, leg) }
@@ -74,21 +76,21 @@ object Logical {
         )
     }.unzip
     println(s"------------ tracks after transistors ------------ ${(vertical ++ newVertical).toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
-    (vertical ++ newVertical, transistorsLegs.toMap, Map.empty[ComponentName, Int])
+    (vertical ++ newVertical, transistorsLegs.toMap, Map.empty[ComponentName, Group3Index])
   }
 
-  private def otherToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex], Map[ComponentName, Int]) = {
+  private def otherToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex], Map[ComponentName, Group3Index]) = {
     val other = diagram.components.filterNot(c => c.cType.isInstanceOf[Transistor] || c.cType.isInstanceOf[IC])
     val groupsBy3 = other.zipWithIndex.groupBy { case (_, i) => i / 3 }.values.toSeq.map(_.map(_._1))
     var nextTrackIndex: Int = vertical.count(_.upper)
     val newTracks = mutable.ArrayBuffer.empty[Vertical]
     val newLegsMap = mutable.Map.empty[LegId, TrackIndex]
-    val newGroup3Order = mutable.Map.empty[ComponentName, Int]
+    val newGroup3Order = mutable.Map.empty[ComponentName, Group3Index]
     groupsBy3.foreach { group =>
       def getLegId(component: Component, legIndex: Int): LegId = LegId(component.name, component.legs(legIndex))
       val (legIds, group3OrderSeq) = (for(j <- 0 to 1; i <- 0 to 2) yield group.lift(i).map((_, j)))
         .flatten
-        .map { case (comp, legIndex) => (getLegId(comp, legIndex), (comp.name, legIndex))}
+        .map { case (comp, legIndex) => (getLegId(comp, legIndex), (comp.name, Group3Index(legIndex)))}
         .unzip
       legIds.zipWithIndex.foreach { case (legId, i) =>
         val newTrackIndex = TrackIndex(horizontal = false, nextTrackIndex + i)
