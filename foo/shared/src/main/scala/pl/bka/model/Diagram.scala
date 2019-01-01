@@ -14,7 +14,7 @@ case class Connection(id: Either[Int, Power.PowerConnection]) {
 }
 case class Fail(reason: String)
 case class LegId(cName: ComponentName, leg: Leg) {
-  def prettyPrint = s"${cName.value} leg${leg.name}"
+  def prettyPrintStr = s"${cName.value} leg${leg.name}"
 }
 case class Diagram(
                     components: Seq[Component],
@@ -34,7 +34,7 @@ case class Diagram(
   //TODO move to PrettyPrint type class
   def prettyPrint: Seq[String] = Seq(
     "   components: " + components.map(_.prettyPrint).reduce(_ + " | " + _),
-    "   connections: " + legsConnections.toSeq.map { case (legId, conn) => s"${legId.prettyPrint} conn${conn.id}" }.reduce(_ + " : " + _)
+    "   connections: " + legsConnections.toSeq.map { case (legId, conn) => s"${legId.prettyPrintStr} conn${conn.id}" }.reduce(_ + " : " + _)
   )
 
   private def equivalenceSets: (Set[Component], Set[Set[LegId]]) = (

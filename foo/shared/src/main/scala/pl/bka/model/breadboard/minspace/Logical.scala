@@ -9,7 +9,7 @@ import scala.collection.mutable
 
 case class Logical(components: Seq[Component], tracks: Seq[Track], connections: Map[LegId, TrackIndex]) extends Container {
   def prettyPrint: Seq[String] = Seq(
-    s"""   logical: tracks cnt: ${tracks.length} conns: ${connections.map { case (l, i) => l.prettyPrint + "-conn" + i.index }}"""
+    s"""   logical: tracks cnt: ${tracks.length} conns: ${connections.map { case (l, i) => l.prettyPrintStr + "-conn" + i.index }}"""
   )
 }
 

@@ -2,6 +2,7 @@ package pl.bka
 
 import pl.bka.model.Diagram
 import pl.bka.model.breadboard.Breadboard
+import pl.bka.PrettyPrint._
 
 object Main {
   def main(args: Array[String]): Unit = {
@@ -9,7 +10,8 @@ object Main {
     Diagrams.example match {
       case Right(diagram) =>
         val exampleBoard = Breadboard(diagram)
-        println(s"------------ example board ------------ ${exampleBoard.prettyPrint}")
+        println("--------- example board ----------")
+        exampleBoard.prettyPrint
       case _ => ()
     }
   }

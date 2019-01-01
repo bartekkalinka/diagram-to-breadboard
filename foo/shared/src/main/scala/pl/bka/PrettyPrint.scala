@@ -1,7 +1,8 @@
 package pl.bka
 
+import pl.bka.model.breadboard.onelegpertrack.Logical
 import pl.bka.model.{ComponentName, Connection, LegId}
-import pl.bka.model.breadboard.TrackIndex
+import pl.bka.model.breadboard.{Breadboard, Hole, Physical, TrackIndex}
 
 trait PrettyPrint[A] {
   def prettyPrint(a: A): Unit
@@ -42,9 +43,33 @@ object PrettyPrint {
     }
   }
 
+  implicit val logicalPrettyPrint = new PrettyPrint[Logical] {
+    override def prettyPrint(logical: Logical): Unit = {
+      println(s"  tracks cnt: ${logical.tracks.length}")
+      println("  connections:")
+      logical.connections.foreach { case (l, i) =>
+          println(s"  ${l.prettyPrintStr + "-conn" + i.index}")
+      }
+    }
+  }
 
+  implicit val physicalPrettyPrint = new PrettyPrint[Physical] {
+    override def prettyPrint(physical: Physical): Unit = {
+      println(s"""   physical tracks: ${physical.tracks}""")
+      println(s"""   physical conns: ${physical.sortedConnections.map { case (l, Hole(t, h)) => l.prettyPrintStr + "-track" + t.index + "/hole" + h.position }}""")
+    }
+  }
+
+  implicit val breadboardPrettyPrint = new PrettyPrint[Breadboard] {
+    override def prettyPrint(breadboard: Breadboard): Unit = {
+      println("-------- logical ---------")
+      breadboard.logical.prettyPrint
+      println("-------- physical ---------")
+      breadboard.physical.prettyPrint
+    }
+  }
 
   implicit class PrettyPrintOps[A: PrettyPrint](a: A) {
-    def prettyPrint = implicitly[PrettyPrint[A]].prettyPrint(a)
+    def prettyPrint: Unit = implicitly[PrettyPrint[A]].prettyPrint(a)
   }
 }

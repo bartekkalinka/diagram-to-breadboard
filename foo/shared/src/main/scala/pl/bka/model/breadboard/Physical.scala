@@ -10,10 +10,6 @@ case class Physical(components: Seq[Component], tracks: Seq[Track], connections:
   def sortedConnections: Seq[(LegId, Hole)] = connections.toSeq.groupBy(_._1.cName).toSeq.flatMap {
     case (_, legHolePairs) => legHolePairs.sortBy(_._1.leg.name)
   }
-  def prettyPrint: Seq[String] = Seq(
-    s"""   physical tracks: $tracks""",
-    s"""   physical conns: ${sortedConnections.map { case (l, Hole(t, h)) => l.prettyPrint + "-track" + t.index + "/hole" + h.position }}"""
-  )
 
   //this is for testing purposes
   //so it doesn't use Vertical.diagramConnection attribute on purpose
@@ -83,7 +79,8 @@ object Physical {
       case _: Cable =>
         minPositions
       case _ =>
-        Seq.tabulate(compLegs.length)(_ => TrackPosition(Tracks.verticalTrackLength - 1))
+        val group3OrderIndex = logical.group3Order.get(cName).map(_.index).getOrElse(0)
+        Seq.tabulate(compLegs.length)(_ => TrackPosition(Tracks.verticalTrackLength - group3OrderIndex - 1))
     }
     val compLegsInsertions: Map[LegId, Hole] =
       compLegs.zipWithIndex.map { case (legId, i) =>

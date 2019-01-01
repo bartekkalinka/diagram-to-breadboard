@@ -8,11 +8,7 @@ import scala.collection.mutable
 
 case class Group3Index(index: Int)
 
-case class Logical(components: Seq[Component], tracks: Seq[Track], connections: Map[LegId, TrackIndex], group3Order: Map[ComponentName, Group3Index]) extends Container {
-  def prettyPrint: Seq[String] = Seq(
-    s"""   logical: tracks cnt: ${tracks.length} conns: ${connections.map { case (l, i) => l.prettyPrint + "-conn" + i.index }}"""
-  )
-}
+case class Logical(components: Seq[Component], tracks: Seq[Track], connections: Map[LegId, TrackIndex], group3Order: Map[ComponentName, Group3Index]) extends Container
 
 object Logical {
   val minSpaceBetweenLegs = 3
@@ -24,7 +20,7 @@ object Logical {
           val (newVertical, newLegs, newGroup3Order) = componentsToTracks(diagram, currVertical)
           (newVertical, legs ++ newLegs, currGroup3Order ++ newGroup3Order)
         }
-    println(s"------------ tracks after components ------------ ${vertical.toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
+    println(s"------------ tracks after components ------------ ${vertical.toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}") //TODO -> PrettyPrint
     println(s"------------ legs after components -------------")
     componentsLegs.prettyPrint
     val (regularCables, regularCablesLegs) = calcRegularConnectionCables(vertical)
