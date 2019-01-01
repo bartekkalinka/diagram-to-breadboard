@@ -83,15 +83,15 @@ object Logical {
 
   private def otherToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex]) = {
     val other = diagram.components.filterNot(c => c.cType.isInstanceOf[Transistor] || c.cType.isInstanceOf[IC])
-    val groupsBy3 = other.zipWithIndex.groupBy { case (comp, i) => i / 3 }.values.toSeq.map(_.map(_._1))
+    val groupsBy3 = other.zipWithIndex.groupBy { case (_, i) => i / 3 }.values.toSeq.map(_.map(_._1))
     var nextTrackIndex: Int = vertical.count(_.upper)
     val newTracks = mutable.ArrayBuffer.empty[Vertical]
     val newLegsMap = mutable.Map.empty[LegId, TrackIndex]
     groupsBy3.foreach { group =>
       def getLegId(component: Component, legIndex: Int): LegId = LegId(component.name, component.legs(legIndex))
-      val legIds = (for(i <- 0 to 2; j <- 0 to 1) yield group.lift(i).map((_, j))).flatten.map { case (comp, legIndex) => getLegId(comp, legIndex)}
+      val legIds = (for(j <- 0 to 1; i <- 0 to 2) yield group.lift(i).map((_, j))).flatten.map { case (comp, legIndex) => getLegId(comp, legIndex)}
       legIds.zipWithIndex.foreach { case (legId, i) =>
-        val newTrackIndex = TrackIndex(false, nextTrackIndex + i)
+        val newTrackIndex = TrackIndex(horizontal = false, nextTrackIndex + i)
         val newTrack =
           Vertical(newTrackIndex, diagram.legsConnections(legId))
         newTracks += newTrack.copy(freeSpace = newTrack.freeSpace - 1).copy(freeSpaceForLegs = newTrack.freeSpaceForLegs - 1)
