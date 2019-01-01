@@ -50,6 +50,10 @@ object PrettyPrint {
       logical.connections.foreach { case (l, i) =>
           println(s"  ${l.prettyPrintStr + "-conn" + i.index}")
       }
+      println("  group 3 order:")
+      logical.group3Order.toSeq.foreach { case (cname, index) =>
+          println(s"  ${cname.value} -> ${index.index}")
+      }
     }
   }
 
