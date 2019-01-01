@@ -83,34 +83,70 @@ object Logical {
 
   private def otherToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex]) = {
     val other = diagram.components.filterNot(c => c.cType.isInstanceOf[Transistor] || c.cType.isInstanceOf[IC])
-    val legs = other.flatMap(c => c.legs.map(leg => LegId(c.name, leg)))
-    var trackIndexByConnection = mutable.Map(vertical.groupBy(_.diagramConnection).mapValues(_.map(_.index)).toSeq: _*)
-    def getTrackIndexByConnection(conn: Connection): Seq[TrackIndex] =
-      trackIndexByConnection.getOrElse(conn, Seq.empty[TrackIndex])
-    val verticalByIndex = mutable.Map(vertical.groupBy(_.index).mapValues(_.head).toSeq: _*)
-    val legsMap = mutable.Map.empty[LegId, TrackIndex]
-    legs.foreach { legId =>
-      val conn = diagram.legsConnections(legId)
-      val possibleTracks = getTrackIndexByConnection(conn).map(verticalByIndex)
-      val finalTrack = possibleTracks.find(_.freeSpaceForLegs > 0) match {
-        case Some(possible) =>
-          possible
-        case None =>
-          val newTrackIndex = TrackIndex(horizontal = false, index = verticalByIndex.values.toSeq.count(_.upper))
-          val newTrack = Vertical(
-            index = newTrackIndex,
-            diagramConnection = conn
-          )
-          verticalByIndex += newTrackIndex -> newTrack
-          trackIndexByConnection += conn -> (getTrackIndexByConnection(conn) :+ newTrackIndex)
-          newTrack
+    val groupsBy3 = other.zipWithIndex.groupBy { case (comp, i) => i / 3 }.values.toSeq.map(_.map(_._1))
+    var nextTrackIndex: Int = vertical.count(_.upper)
+    var newTracks = mutable.ArrayBuffer.empty[Vertical]
+    var newLegsMap = mutable.Map.empty[LegId, TrackIndex]
+    groupsBy3.foreach { group =>
+      def getLegId(component: Component, legIndex: Int): LegId = LegId(component.name, component.legs(legIndex))
+      val legIds = Seq(
+        getLegId(group.head, 0),
+        getLegId(group(1), 0),
+        getLegId(group(2), 0),
+        getLegId(group.head, 1),
+        getLegId(group(1), 1),
+        getLegId(group(2), 1)
+      )
+      legIds.zipWithIndex.foreach { case (legId, i) =>
+        val newTrackIndex = TrackIndex(false, nextTrackIndex + i)
+        val newTrack =
+          Vertical(newTrackIndex, diagram.legsConnections(legId))
+        newTracks += newTrack.copy(freeSpace = newTrack.freeSpace - 1).copy(freeSpaceForLegs = newTrack.freeSpaceForLegs - 1)
+        newLegsMap.put(legId, newTrackIndex)
       }
-      verticalByIndex.update(finalTrack.index, finalTrack.copy(freeSpace = finalTrack.freeSpace - 1).copy(freeSpaceForLegs = finalTrack.freeSpaceForLegs - 1))
-      legsMap += (legId -> finalTrack.index)
+      nextTrackIndex += 6
     }
-    println(s"------------ tracks after other components ------------ ${verticalByIndex.values.toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
-    (verticalByIndex.values.toSeq, Map(legsMap.toSeq: _*))
+    (vertical ++ newTracks.toVector, newLegsMap.toMap)
   }
+
+//
+//  private def otherToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex]) = {
+//    val other = diagram.components.filterNot(c => c.cType.isInstanceOf[Transistor] || c.cType.isInstanceOf[IC])
+//    val legs = other.flatMap(c => c.legs.map(leg => LegId(c.name, leg))).sortBy(_.leg.name)
+//    var trackIndexByConnection = mutable.Map(vertical.groupBy(_.diagramConnection).mapValues(_.map(_.index)).toSeq: _*)
+//    def getTrackIndexByConnection(conn: Connection): Seq[TrackIndex] =
+//      trackIndexByConnection.getOrElse(conn, Seq.empty[TrackIndex])
+//    val verticalByIndex = mutable.Map(vertical.groupBy(_.index).mapValues(_.head).toSeq: _*)
+//    val legsMap = mutable.Map.empty[LegId, TrackIndex]
+//    legs.foreach { legId =>
+//      val conn = diagram.legsConnections(legId)
+//      val possibleTracks = getTrackIndexByConnection(conn).map(verticalByIndex)
+//      var possibleTrackOpt: Option[Vertical] = None
+//      while(possibleTrackOpt.isEmpty) {
+//        possibleTrackOpt =
+//          if (legId.leg.name == Leg.secondLeg) {
+//            val firstLegTrackIndex = legsMap(LegId(legId.cName, Leg(Leg.firstLeg)))
+//            possibleTracks.find(tr => tr.freeSpaceForLegs > 0 && tr.index.index >= firstLegTrackIndex.index + minSpaceBetweenLegs)
+//          } else {
+//            possibleTracks.find(_.freeSpaceForLegs > 0)
+//          }
+//        if(possibleTrackOpt.isEmpty) {
+//          val newTrackIndex = TrackIndex(horizontal = false, index = verticalByIndex.values.toSeq.count(_.upper))
+//          val newTrack = Vertical(
+//            index = newTrackIndex,
+//            diagramConnection = conn
+//          )
+//          verticalByIndex += newTrackIndex -> newTrack
+//          trackIndexByConnection += conn -> (getTrackIndexByConnection(conn) :+ newTrackIndex)
+//        }
+//      }
+//      val finalTrack = possibleTrackOpt.get
+//      verticalByIndex.update(finalTrack.index, finalTrack.copy(freeSpace = finalTrack.freeSpace - 1).copy(freeSpaceForLegs = finalTrack.freeSpaceForLegs - 1))
+//      legsMap += (legId -> finalTrack.index)
+//    }
+//    println(s"------------ tracks after other components ------------ ${verticalByIndex.values.toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
+//    (verticalByIndex.values.toSeq, Map(legsMap.toSeq: _*))
+//  }
 
   private def calcRegularConnectionCables(vertical: Seq[Vertical]): (Seq[Component], Map[LegId, TrackIndex]) = {
     def addCable(connection: Connection)(prev: Track, next: Track): (Component, Seq[(LegId, TrackIndex)]) = {
