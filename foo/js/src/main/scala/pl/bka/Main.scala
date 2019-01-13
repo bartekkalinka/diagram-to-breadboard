@@ -19,7 +19,8 @@ object Main {
         val offsetX = DomOutput.canvas.offsetLeft
         val offsetY = DomOutput.canvas.offsetTop
         val size = new Size(1d)
-        val physical = Breadboard(diagram).physical
+        val breadboard = Breadboard(diagram)
+        val physical = breadboard.physical
         val directDrawing = new DirectDrawing(size)
         val boardDrawing = new BoardDrawing(directDrawing, size, physical, diagram)
         val boardSelection = new BoardSelection(boardDrawing, directDrawing, physical)
@@ -32,6 +33,7 @@ object Main {
         }
         DomOutput.canvas.onmousedown = { _ => isMouseDown = true }
         DomOutput.canvas.onmouseup = { _ => isMouseDown = false}
+        DomOutput.messages.innerHTML = s"number of cables: ${breadboard.logical.cablesNumber}"
       case _ => dom.console.log("diagram validation error")
     }
   }
