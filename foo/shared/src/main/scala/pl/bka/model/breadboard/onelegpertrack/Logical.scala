@@ -34,7 +34,7 @@ object Logical {
 
   private def icsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex], Map[ComponentName, Group3Index]) = {
     val ics = diagram.components.filter(_.cType.isInstanceOf[IC])
-    var startingIndex = vertical.count(_.upper)
+    var startingIndex = nextVerticalTrackIndex(vertical)
     val (allNewVertical, allLegs) = ics.map { ic =>
       val halfLength = ic.legs.length / 2
       val dividedLegs = ic.legs.take(halfLength).map(l => (LegId(ic.name, l), true)).zipWithIndex ++
@@ -57,28 +57,35 @@ object Logical {
     (vertical ++ allNewVertical, allLegs.toMap, Map.empty[ComponentName, Group3Index])
   }
 
+  private def nextVerticalTrackIndex(vertical: Seq[Vertical]): Int =
+    if(vertical.exists(_.upper)) {
+      vertical.filter(_.upper).map(_.index.index).max + 1
+    } else {
+      0
+    }
+
   private def transistorsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex], Map[ComponentName, Group3Index]) = {
     val transistors = diagram.components.filter(_.cType.isInstanceOf[Transistor])
-    val legs: Seq[LegId] = transistors.flatMap { t =>
-      t.legs.map { leg => LegId(t.name, leg) }
+    var nextTrackIndex: Int = nextVerticalTrackIndex(vertical)
+    val newTracks = mutable.ArrayBuffer.empty[Vertical]
+    val newLegsMap = mutable.Map.empty[LegId, TrackIndex]
+    transistors.foreach { transistor =>
+      val legIds = transistor.legs.map { leg => LegId(transistor.name, leg) }
+      legIds.zipWithIndex.foreach { case (legId, relativeIndex) =>
+        val index = nextTrackIndex + relativeIndex
+        newTracks += Vertical(TrackIndex(horizontal = false, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1, freeSpaceForLegs = 0)
+        newLegsMap.put(legId, TrackIndex(horizontal = false, index))
+      }
+      nextTrackIndex += (legIds.length + 1)
     }
-    val startingIndex = vertical.count(_.upper)
-    val (newVertical, transistorsLegs) = legs.zipWithIndex.map {
-      case (legId, relativeIndex) =>
-        val index = relativeIndex + startingIndex
-        (
-          Vertical(TrackIndex(horizontal = false, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1, freeSpaceForLegs = 0),
-          (legId, TrackIndex(horizontal = false, index))
-        )
-    }.unzip
-    println(s"------------ tracks after transistors ------------ ${(vertical ++ newVertical).toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
-    (vertical ++ newVertical, transistorsLegs.toMap, Map.empty[ComponentName, Group3Index])
+    println(s"------------ tracks after transistors ------------ ${(vertical ++ newTracks.toList).toList.map(v => (v.upper, v.index.index, v.diagramConnection.id))}")
+    (vertical ++ newTracks.toVector, newLegsMap.toMap, Map.empty[ComponentName, Group3Index])
   }
 
   private def otherToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex], Map[ComponentName, Group3Index]) = {
     val other = diagram.components.filterNot(c => c.cType.isInstanceOf[Transistor] || c.cType.isInstanceOf[IC])
     val groupsBy3 = other.zipWithIndex.groupBy { case (_, i) => i / 3 }.values.toSeq.map(_.map(_._1))
-    var nextTrackIndex: Int = vertical.count(_.upper) + 1 //one empty track after transistors/ICs
+    var nextTrackIndex: Int = nextVerticalTrackIndex(vertical) + 1 //one empty track after transistors/ICs
     val newTracks = mutable.ArrayBuffer.empty[Vertical]
     val newLegsMap = mutable.Map.empty[LegId, TrackIndex]
     val newGroup3Order = mutable.Map.empty[ComponentName, Group3Index]
