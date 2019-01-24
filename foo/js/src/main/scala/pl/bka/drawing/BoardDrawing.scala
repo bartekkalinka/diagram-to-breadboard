@@ -7,7 +7,7 @@ import pl.bka.model.breadboard._
 
 class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical, diagram: Diagram) {
   def drawPhysical(movedComponents: Map[ComponentName, (Int, Int)]): Map[(Int, Int), CoordWithName] = {
-    physical.tracks.foreach(drawTrack)
+    physical.tracksWithFillIns.foreach(drawTrack)
     val componentPositions = physical.components.reverse.zipWithIndex.flatMap { case (component, index) =>
       val positionOverride = movedComponents.get(component.name)
       drawComponent(physical, component, index, positionOverride)

@@ -32,6 +32,14 @@ object Logical {
     Logical(components, vertical ++ horizontal, map, group3Order)
   }
 
+  def fillInEmptyUpperVertical(vertical: Seq[Track]): Seq[Track] = {
+    val maxIndex = nextVerticalTrackIndex(vertical) - 1
+    val verticalByIndex = vertical.groupBy(_.index.index).mapValues(_.head)
+    (0 to maxIndex).map { i =>
+      verticalByIndex.getOrElse(i, Vertical(TrackIndex(horizontal = false, i), Connection(Left(-1))))
+    }
+  }
+
   private def icsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex], Map[ComponentName, Group3Index]) = {
     val ics = diagram.components.filter(_.cType.isInstanceOf[IC])
     var startingIndex = nextVerticalTrackIndex(vertical)
@@ -57,7 +65,7 @@ object Logical {
     (vertical ++ allNewVertical, allLegs.toMap, Map.empty[ComponentName, Group3Index])
   }
 
-  private def nextVerticalTrackIndex(vertical: Seq[Vertical]): Int =
+  private def nextVerticalTrackIndex(vertical: Seq[Track]): Int =
     if(vertical.exists(_.upper)) {
       vertical.filter(_.upper).map(_.index.index).max + 1
     } else {

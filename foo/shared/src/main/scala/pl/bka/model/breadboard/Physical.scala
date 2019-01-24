@@ -54,6 +54,12 @@ case class Physical(components: Seq[Component], tracks: Seq[Track], connections:
       .map { case (legId, Hole(trackIndex, _)) => (legId, connectionByTrack(trackIndex)) }.toMap
     Diagram(this.noCables, legsConnections)
   }
+
+  def tracksWithFillIns: Seq[Track] = {
+    val upperVertical = tracks.filter(t => !t.index.horizontal && t.upper)
+    val upperVerticalWithFillIns = Logical.fillInEmptyUpperVertical(upperVertical)
+    tracks.filter(t => t.index.horizontal || !t.upper) ++ upperVerticalWithFillIns
+  }
 }
 
 object Physical {
