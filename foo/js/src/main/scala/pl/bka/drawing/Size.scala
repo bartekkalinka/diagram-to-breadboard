@@ -7,7 +7,7 @@ class Size(zoomFactor: Double) {
   val tracksStep = zoom(40)
   val holeStep = tracksStep
   val verticalTrackLength = tracksStep * (Tracks.verticalTrackLength - 1)
-  val horizontalTrackLength = tracksStep * (Tracks.horizontalTrackLength - 1)
+  def horizontalTrackLength(horizontalTrackHolesLength: Int) = tracksStep * (horizontalTrackHolesLength - 1)
   val upperHorizontalTracksVerticalOffset = tracksStep
   val tracksHorizontalOffset = 2 * tracksStep
   val upperVerticalTracksVerticalOffset = upperHorizontalTracksVerticalOffset + 2 * tracksStep

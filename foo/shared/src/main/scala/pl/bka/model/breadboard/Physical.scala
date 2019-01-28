@@ -60,6 +60,9 @@ case class Physical(components: Seq[Component], tracks: Seq[Track], connections:
     val upperVerticalWithFillIns = Logical.fillInEmptyUpperVertical(upperVertical)
     tracks.filter(t => t.index.horizontal || !t.upper) ++ upperVerticalWithFillIns
   }
+
+  def horizontalTrackLength(upper: Boolean) =
+    Seq(tracksWithFillIns.count(t => t.upper == upper && !t.index.horizontal), Tracks.horizontalTrackLength).max
 }
 
 object Physical {

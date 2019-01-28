@@ -120,12 +120,14 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
     }
 
   private def drawHorizontalTrack(horizontal: Horizontal): Unit = {
+    val horizontalLength = physical.horizontalTrackLength(horizontal.upper)
+    println(s"1111111 $horizontalLength")
     val trackY = horizontalTrackVerticalOffset(horizontal.index)
     val from = (size.tracksHorizontalOffset, trackY)
-    val to = (size.tracksHorizontalOffset + size.horizontalTrackLength, trackY)
+    val to = (size.tracksHorizontalOffset + size.horizontalTrackLength(horizontalLength), trackY)
     directDrawing.drawLine(from, to, 1)
 
-    for(h <- 0 until Tracks.horizontalTrackLength) {
+    for(h <- 0 until horizontalLength) {
       directDrawing.drawHole(holePosition(Hole(horizontal.index, TrackPosition(h))))
     }
     drawPowerSign(horizontal.power, (from._1 - 12, from._2))
