@@ -68,7 +68,7 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
     )
   )
 
-  //3-rolls
+  //3-roll
   val testInput5 = Diagram(
     List(
       Component("diode", Diode("???")),
