@@ -78,9 +78,9 @@ object Physical {
     val targetPositions: Seq[TrackPosition] = compType match {
       case _: Transistor =>
         Seq.tabulate(compLegs.length)(_ => TrackPosition(Tracks.verticalTrackLength - 1))
-      case c: Cable if c.tpe == CableType.PowerCable || c.tpe == CableType.UnionCable =>
-        val verticalTrack = logical.connections(compLegs.head)
-        Seq(minPositions.head, TrackPosition(verticalTrack.verticalLocationIndex))
+      case c: Cable if c.tpe == CableType.PowerCable =>
+        val otherTrack = logical.connections(compLegs.head)
+        Seq(minPositions.head, TrackPosition(otherTrack.verticalLocationIndex))
       case _: IC =>
         val halfLength = component.legs.length / 2
         (component.legs.take(halfLength).map((_, true)) ++ component.legs.drop(halfLength).map((_, false)))
