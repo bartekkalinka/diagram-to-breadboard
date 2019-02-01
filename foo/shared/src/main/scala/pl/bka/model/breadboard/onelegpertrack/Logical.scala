@@ -32,12 +32,16 @@ object Logical {
     Logical(components, vertical ++ horizontal, map, group3Order)
   }
 
-  def fillInEmptyUpperVertical(vertical: Seq[Track]): Seq[Track] = {
-    val maxIndex = nextVerticalTrackIndex(vertical) - 1
-    val verticalByIndex = vertical.groupBy(_.index.index).mapValues(_.head)
-    (0 to maxIndex).map { i =>
-      verticalByIndex.getOrElse(i, Vertical(TrackIndex(horizontal = false, i), Connection(Left(-1))))
+  def fillInEmptyVertical(vertical: Seq[Track]): Seq[Track] = {
+    def fillOneSide(upper: Boolean): Seq[Track] = {
+      val side = vertical.filter(_.upper == upper)
+      val maxIndex = nextVerticalTrackIndex(side, upper) - 1
+      val verticalByIndex = side.groupBy(_.index.index).mapValues(_.head)
+      (Breadboard.sideStartIndex(upper) to maxIndex).map { i =>
+        verticalByIndex.getOrElse(i, Vertical(TrackIndex(horizontal = false, i), Connection(Left(-1))))
+      }
     }
+    fillOneSide(true) ++ fillOneSide(false)
   }
 
   private def icsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex], Map[ComponentName, Group3Index]) = {
@@ -49,6 +53,7 @@ object Logical {
         ic.legs.drop(halfLength).map(l => (LegId(ic.name, l), false)).zipWithIndex
       val (newVertical, icsLegs) = dividedLegs.map {
         case ((legId, upper), relativeIndex) =>
+          //TODO better starting index for !upper
           val index = if(upper) relativeIndex + startingIndex else -Breadboard.maxVerticalTracks + relativeIndex
           (
             Vertical(TrackIndex(horizontal = false, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1, freeSpaceForLegs = 0),
@@ -69,7 +74,7 @@ object Logical {
     if(vertical.exists(_.upper == upper)) {
       vertical.filter(_.upper == upper).map(_.index.index).max + 1
     } else {
-      if(upper) 0 else -Breadboard.maxVerticalTracks
+      Breadboard.sideStartIndex(upper)
     }
 
   private def transistorsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex], Map[ComponentName, Group3Index]) = {

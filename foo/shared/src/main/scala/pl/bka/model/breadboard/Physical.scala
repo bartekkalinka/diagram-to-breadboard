@@ -56,9 +56,9 @@ case class Physical(components: Seq[Component], tracks: Seq[Track], connections:
   }
 
   def tracksWithFillIns: Seq[Track] = {
-    val upperVertical = tracks.filter(t => !t.index.horizontal && t.upper)
-    val upperVerticalWithFillIns = Logical.fillInEmptyUpperVertical(upperVertical)
-    tracks.filter(t => t.index.horizontal || !t.upper) ++ upperVerticalWithFillIns
+    val vertical = tracks.filterNot(_.index.horizontal)
+    val verticalWithFillIns = Logical.fillInEmptyVertical(vertical)
+    tracks.filter(_.index.horizontal) ++ verticalWithFillIns
   }
 
   def horizontalTrackLength(upper: Boolean) =
