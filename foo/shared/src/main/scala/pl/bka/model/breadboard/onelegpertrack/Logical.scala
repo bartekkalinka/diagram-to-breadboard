@@ -65,16 +65,16 @@ object Logical {
     (vertical ++ allNewVertical, allLegs.toMap, Map.empty[ComponentName, Group3Index])
   }
 
-  private def nextVerticalTrackIndex(vertical: Seq[Track]): Int =
-    if(vertical.exists(_.upper)) {
-      vertical.filter(_.upper).map(_.index.index).max + 1
+  private def nextVerticalTrackIndex(vertical: Seq[Track], upper: Boolean = true): Int =
+    if(vertical.exists(_.upper == upper)) {
+      vertical.filter(_.upper == upper).map(_.index.index).max + 1
     } else {
-      0
+      if(upper) 0 else -Breadboard.maxVerticalTracks
     }
 
   private def transistorsToTracks(diagram: Diagram, vertical: Seq[Vertical]): (Seq[Vertical], Map[LegId, TrackIndex], Map[ComponentName, Group3Index]) = {
     val transistors = diagram.components.filter(_.cType.isInstanceOf[Transistor])
-    var nextTrackIndex: Int = nextVerticalTrackIndex(vertical)
+    var nextTrackIndex: Int = nextVerticalTrackIndex(vertical, upper = false)
     val newTracks = mutable.ArrayBuffer.empty[Vertical]
     val newLegsMap = mutable.Map.empty[LegId, TrackIndex]
     transistors.foreach { transistor =>

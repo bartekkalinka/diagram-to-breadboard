@@ -121,7 +121,6 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
 
   private def drawHorizontalTrack(horizontal: Horizontal): Unit = {
     val horizontalLength = physical.horizontalTrackLength(horizontal.upper)
-    println(s"1111111 $horizontalLength")
     val trackY = horizontalTrackVerticalOffset(horizontal.index)
     val from = (size.tracksHorizontalOffset, trackY)
     val to = (size.tracksHorizontalOffset + size.horizontalTrackLength(horizontalLength), trackY)
