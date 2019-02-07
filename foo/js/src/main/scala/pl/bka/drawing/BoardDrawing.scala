@@ -43,7 +43,7 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
       case Cable(_, tpe, _) =>
         val Seq((from, fromTrackIndex), (to, toTrackIndex)) = Seq((holePosition(holes.head), holes.head.trackIndex.index), (holePosition(holes(1)), holes(1).trackIndex.index)).sortBy(_._2)
         if(tpe == CableType.ConnCable) {
-          directDrawing.drawArrowsRepresentingCable(from, to, (1, 1), (-1, -1), fromTrackIndex, toTrackIndex, color)
+          directDrawing.drawArrowsRepresentingCable(from, to, (-1, 1), (1, -1), fromTrackIndex, toTrackIndex, color)
         } else if(tpe == CableType.UnionCable) {
           directDrawing.drawArcCable(from, to, color)
         } else {
