@@ -43,7 +43,8 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
       case Cable(_, tpe, _) =>
         val Seq((from, fromTrackIndex), (to, toTrackIndex)) = Seq((holePosition(holes.head), holes.head.trackIndex.index), (holePosition(holes(1)), holes(1).trackIndex.index)).sortBy(_._2)
         if(tpe == CableType.ConnCable) {
-          directDrawing.drawArrowsRepresentingCable(from, to, (-1, 1), (1, -1), fromTrackIndex, toTrackIndex, color)
+          val (dirFrom, dirTo) = cableArrowDirection(fromTrackIndex, toTrackIndex)
+          directDrawing.drawArrowsRepresentingCable(from, to, dirFrom, dirTo, fromTrackIndex, toTrackIndex, color)
         } else if(tpe == CableType.UnionCable) {
           directDrawing.drawArcCable(from, to, color)
         } else {
@@ -81,6 +82,27 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
         Some((component.name, centerX, centerY))
       case _ => None
     }
+  }
+
+  private def cableArrowDirection(fromTrackIndex: Int, toTrackIndex: Int): ((Int, Int), (Int, Int)) = {
+    def isUpper(index: Int): Boolean = TrackIndex(horizontal = false, index).upper
+    def trackXY(index: Int): (Int, Int) = {
+      val upper = isUpper(index)
+      (index - Breadboard.sideStartIndex(upper), if(upper) 0 else 1)
+    }
+    def sgn(a: Int, b: Int): Int =
+      if(a > b) {
+        1
+      } else if(a < b) {
+        -1
+      } else if(isUpper(fromTrackIndex)) {
+        -1
+      } else {
+        1
+      }
+    val (fromX, fromY) = trackXY(fromTrackIndex)
+    val (toX, toY) = trackXY(toTrackIndex)
+    ((sgn(toX, fromX), sgn(toY, fromY)), (sgn(fromX, toX), sgn(fromY, toY)))
   }
 
   private def holePosition(hole: Hole): (Int, Int) =
