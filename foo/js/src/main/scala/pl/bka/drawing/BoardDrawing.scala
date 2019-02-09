@@ -41,7 +41,7 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
         directDrawing.drawTransistorBody(component.name.value, (centerX, centerY))
         Some((component.name, centerX, centerY))
       case Cable(_, tpe, _) =>
-        val Seq((from, fromTrackIndex), (to, toTrackIndex)) = Seq((holePosition(holes.head), holes.head.trackIndex.index), (holePosition(holes(1)), holes(1).trackIndex.index)).sortBy(_._2)
+        val Seq((from, fromTrackIndex), (to, toTrackIndex)) = Seq((holePosition(holes.head), holes.head.trackIndex), (holePosition(holes(1)), holes(1).trackIndex)).sortBy(_._2.index)
         if(tpe == CableType.ConnCable) {
           val (dirFrom, dirTo) = cableArrowDirection(fromTrackIndex, toTrackIndex)
           directDrawing.drawArrowsRepresentingCable(from, to, dirFrom, dirTo, fromTrackIndex, toTrackIndex, color)
@@ -84,18 +84,17 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
     }
   }
 
-  private def cableArrowDirection(fromTrackIndex: Int, toTrackIndex: Int): ((Int, Int), (Int, Int)) = {
-    def isUpper(index: Int): Boolean = TrackIndex(horizontal = false, index).upper
-    def trackXY(index: Int): (Int, Int) = {
-      val upper = isUpper(index)
-      (index - Breadboard.sideStartIndex(upper), if(upper) 0 else 1)
+  private def cableArrowDirection(fromTrackIndex: TrackIndex, toTrackIndex: TrackIndex): ((Int, Int), (Int, Int)) = {
+    def trackXY(index: TrackIndex): (Int, Int) = {
+      val upper = index.upper
+      (index.index - Breadboard.sideStartIndex(upper), if(upper) 0 else 1)
     }
     def sgn(a: Int, b: Int): Int =
       if(a > b) {
         1
       } else if(a < b) {
         -1
-      } else if(isUpper(fromTrackIndex)) {
+      } else if(fromTrackIndex.upper) {
         -1
       } else {
         1

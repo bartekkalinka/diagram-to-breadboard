@@ -50,19 +50,19 @@ class DirectDrawing(size: Size) {
   def drawStraightCable(from: (Int, Int), to: (Int, Int), color: String): Unit =
     drawLine(from, to, 2, color)
 
-  def drawArrowsRepresentingCable(from: (Int, Int), to: (Int, Int), fromArrowDir: (Int, Int), toArrowDir: (Int, Int), fromTrackIndex: Int, toTrackIndex: Int, color: String): Unit = {
+  def drawArrowsRepresentingCable(from: (Int, Int), to: (Int, Int), fromArrowDir: (Int, Int), toArrowDir: (Int, Int), fromTrackIndex: TrackIndex, toTrackIndex: TrackIndex, color: String): Unit = {
     ctx.font = size.arrowHeadFont
     ctx.fillStyle = color
     val fromArrowHead = (from._1 + fromArrowDir._1 * size.arrowLength, from._2 + fromArrowDir._2 * size.arrowLength)
     drawLine(from, fromArrowHead, 2, color)
     drawLine(fromArrowHead, (fromArrowHead._1 - fromArrowDir._1 * size.arrowHeadWidth, fromArrowHead._2), 2, color)
     drawLine(fromArrowHead, (fromArrowHead._1, fromArrowHead._2 - fromArrowDir._2 * size.arrowHeadWidth), 2, color)
-    ctx.fillText(toTrackIndex.toString, fromArrowHead._1 + (1.5 * fromArrowDir._1 - 1) * size.arrowHeadWidth, fromArrowHead._2 + (0.5 * fromArrowDir._2 + 0.5) * size.arrowHeadWidth)
+    ctx.fillText(toTrackIndex.label, fromArrowHead._1 + (1.5 * fromArrowDir._1 - 1) * size.arrowHeadWidth, fromArrowHead._2 + (0.5 * fromArrowDir._2 + 0.5) * size.arrowHeadWidth)
     val toArrowHead = (to._1 + toArrowDir._1 * size.arrowLength, to._2 + toArrowDir._2 * size.arrowLength)
     drawLine(to, toArrowHead, 2, color)
     drawLine(toArrowHead, (toArrowHead._1 - toArrowDir._1 * size.arrowHeadWidth, toArrowHead._2), 2, color)
     drawLine(toArrowHead, (toArrowHead._1, toArrowHead._2 - toArrowDir._2 * size.arrowHeadWidth), 2, color)
-    ctx.fillText(fromTrackIndex.toString, toArrowHead._1 + (1.5 * toArrowDir._1 - 1) * size.arrowHeadWidth, toArrowHead._2 + (0.5 * toArrowDir._2 + 0.5) * size.arrowHeadWidth)
+    ctx.fillText(fromTrackIndex.label, toArrowHead._1 + (1.5 * toArrowDir._1 - 1) * size.arrowHeadWidth, toArrowHead._2 + (0.5 * toArrowDir._2 + 0.5) * size.arrowHeadWidth)
   }
 
   def drawICBody(name: String, pos: (Int, Int), width: Int, height: Int): Unit = {
@@ -195,7 +195,7 @@ class DirectDrawing(size: Size) {
   def drawTrackIndex(pos: (Int, Int), trackIndex: TrackIndex): Unit = {
     ctx.font = size.trackIndexFont
     ctx.fillStyle = "#000000"
-    ctx.fillText(trackIndex.index.toString, pos._1, pos._2)
+    ctx.fillText(trackIndex.label, pos._1, pos._2)
   }
 }
 
