@@ -1,7 +1,6 @@
 package pl.bka.model.breadboard
 
 import pl.bka.model._
-import pl.bka.model.breadboard.onelegpertrack.Logical
 import pl.bka.PrettyPrint._
 
 case class TrackPosition(position: Int)

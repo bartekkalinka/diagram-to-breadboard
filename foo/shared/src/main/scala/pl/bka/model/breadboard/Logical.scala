@@ -1,4 +1,5 @@
-package pl.bka.model.breadboard.onelegpertrack
+package pl.bka.model.breadboard
+
 import pl.bka.model.Power.PowerConnection
 import pl.bka.model._
 import pl.bka.model.breadboard._

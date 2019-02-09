@@ -1,6 +1,6 @@
 package pl.bka
 
-import pl.bka.model.breadboard.onelegpertrack.Logical
+import pl.bka.model.breadboard.Logical
 import pl.bka.model.{ComponentName, Connection, LegId}
 import pl.bka.model.breadboard.{Breadboard, Hole, Physical, TrackIndex}
 
