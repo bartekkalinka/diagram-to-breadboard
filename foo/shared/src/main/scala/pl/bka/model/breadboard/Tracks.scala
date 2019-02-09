@@ -9,9 +9,9 @@ case class TrackIndex(horizontal: Boolean, index: Int) {
   def order: Int = (if(horizontal) 1000000 else 0) + index
   def label: String =
     if(upper) {
-      s"U$index"
+      "U" + "%02d".format(index)
     } else {
-      s"D${-index}"
+      "D" + "%02d".format(-index)
     }
 }
 
