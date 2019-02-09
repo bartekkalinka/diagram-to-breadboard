@@ -57,12 +57,12 @@ class DirectDrawing(size: Size) {
     drawLine(from, fromArrowHead, 2, color)
     drawLine(fromArrowHead, (fromArrowHead._1 - fromArrowDir._1 * size.arrowHeadWidth, fromArrowHead._2), 2, color)
     drawLine(fromArrowHead, (fromArrowHead._1, fromArrowHead._2 - fromArrowDir._2 * size.arrowHeadWidth), 2, color)
-    ctx.fillText(toTrackIndex.toString, fromArrowHead._1 + (1.5 * fromArrowDir._1 - 1) * size.arrowHeadWidth, fromArrowHead._2 + (1.5 * fromArrowDir._2 + 0.5) * size.arrowHeadWidth)
+    ctx.fillText(toTrackIndex.toString, fromArrowHead._1 + (1.5 * fromArrowDir._1 - 1) * size.arrowHeadWidth, fromArrowHead._2 + (0.5 * fromArrowDir._2 + 0.5) * size.arrowHeadWidth)
     val toArrowHead = (to._1 + toArrowDir._1 * size.arrowLength, to._2 + toArrowDir._2 * size.arrowLength)
     drawLine(to, toArrowHead, 2, color)
     drawLine(toArrowHead, (toArrowHead._1 - toArrowDir._1 * size.arrowHeadWidth, toArrowHead._2), 2, color)
     drawLine(toArrowHead, (toArrowHead._1, toArrowHead._2 - toArrowDir._2 * size.arrowHeadWidth), 2, color)
-    ctx.fillText(fromTrackIndex.toString, toArrowHead._1 + (1.5 * toArrowDir._1 - 1) * size.arrowHeadWidth, toArrowHead._2 + (1.5 * toArrowDir._2 + 0.5) * size.arrowHeadWidth)
+    ctx.fillText(fromTrackIndex.toString, toArrowHead._1 + (1.5 * toArrowDir._1 - 1) * size.arrowHeadWidth, toArrowHead._2 + (0.5 * toArrowDir._2 + 0.5) * size.arrowHeadWidth)
   }
 
   def drawICBody(name: String, pos: (Int, Int), width: Int, height: Int): Unit = {
