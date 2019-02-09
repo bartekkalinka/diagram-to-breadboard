@@ -3,6 +3,7 @@ package pl.bka.drawing
 import org.scalajs.dom
 import pl.bka.DomOutput
 import pl.bka.model.breadboard.TrackIndex
+import DrawingLayer._
 
 class DirectDrawing(size: Size) {
   val ctx = DomOutput.canvas.getContext("2d")

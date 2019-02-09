@@ -7,12 +7,6 @@ case class TrackIndex(horizontal: Boolean, index: Int) {
   def upper: Boolean = index >= 0
   def verticalLocationIndex: Int = if(upper) index else index + Breadboard.maxVerticalTracks
   def order: Int = (if(horizontal) 1000000 else 0) + index
-  def label: String =
-    if(upper) {
-      "U" + "%02d".format(index)
-    } else {
-      "D" + "%02d".format(-index)
-    }
 }
 
 sealed trait Track {
