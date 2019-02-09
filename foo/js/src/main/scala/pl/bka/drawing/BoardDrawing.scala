@@ -129,7 +129,8 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
     for(h <- 0 until Tracks.verticalTrackLength) {
       directDrawing.drawHole(holePosition(Hole(vertical.index, TrackPosition(h))))
     }
-    directDrawing.drawTrackIndex((from._1, from._2 - 2 * size.holeRadius - 1), vertical.index)
+    val verticalShift = if(vertical.upper) -6 * size.holeRadius else 6 * size.holeRadius
+    directDrawing.drawTrackIndex((from._1, from._2 + verticalShift), vertical.index)
   }
 
   private def verticalTrackVerticalOffset(index: TrackIndex) =
