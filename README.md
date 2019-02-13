@@ -55,8 +55,7 @@ An example diagram from rollz5 is 4-Roll.  Here it is with connections marked wi
       ("hairy-3", Leg.capMinus) -> Left(2), ("hairy-3", Leg.capPlus) -> Left(7),
       ("hairy-4", Leg.capMinus) -> Left(4), ("hairy-4", Leg.capPlus) -> Left(5),
       ("cap-5", Leg.capMinus) -> Right(GND), ("cap-5", Leg.capPlus) -> Left(9)
-    )
-  )
+    ))
       
 Compiling to JS:
 
