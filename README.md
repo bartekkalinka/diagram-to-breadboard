@@ -7,7 +7,7 @@ For me, the motivation to start this project came from:
   * my long obsession with ciat-lonbarde designs, for example [rollz5 paper circuit](http://www.ciat-lonbarde.net/rollz5/index.html)
   * my poor soldering skills
 
-## Example
+## Converting example diagram
 
 An example diagram from rollz5 is 4-Roll.  Here it is with connections marked with numbers (and ground as blue "G", +9V marked as red "P"):
 
@@ -57,11 +57,18 @@ An example diagram from rollz5 is 4-Roll.  Here it is with connections marked wi
       ("cap-5", Leg.capMinus) -> Right(GND), ("cap-5", Leg.capPlus) -> Left(9)
     ))
       
+Connecting the diagram in JS Main:  open `dtb/js/src/main/scala/pl/bka/dtb/Main.scala` and make sure that `Diagram.roll4` is used in this section:
+
+      window.onload = { _ =>
+        Diagrams.roll4 match {
+          ...
+        }
+
 Compiling to JS:
 
-    sbt fastOptJS
+    sbt dtbJS/fastOptJS
     
-Then, after opening `index-dev.html` it should show resulting breadboard diagram:
+Then, after opening `index.html` it should show resulting breadboard diagram:
 
 <img src=./static/4roll_breadboard.png width="1100" height="500">
 
