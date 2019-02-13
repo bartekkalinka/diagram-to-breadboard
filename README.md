@@ -82,8 +82,8 @@ Most of connection cables are shown as arrows with labels like "U21" or "D05".  
 
 It's possible to run conversion on JVM with debug output instead of the drawing, with Main in `dtb/jvm/src/main/scala/pl/bka/dtb/Main.scala`:
 
-    dtbJVM/run
+    sbt dtbJVM/run
     
 There is also a suite of property tests in `dtb/jvm/src/test/scala/pl/bka/dtb/model/breadboard/BreadboardSpec.scala` that can be run with:
 
-    dtbJVM/test
+    sbt dtbJVM/test
