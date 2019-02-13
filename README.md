@@ -62,6 +62,8 @@ Compiling to JS:
 
     sbt fastOptJS
     
-Then, after opening `index-dev.html` it should show resulting breadboard diagram.  It's possible to drag components to make whole thing more readable:
+Then, after opening `index-dev.html` it should show resulting breadboard diagram:
 
 <img src=./static/4roll_breadboard.png width="1100" height="500">
+
+Most of connection cables are shown as arrows with labels like "U21" or "D05".  "U" and "D" letters in those labels mean "up"/"down" and refer to upper/lower part of the breadboard.  It's also possible to drag components with mouse.
