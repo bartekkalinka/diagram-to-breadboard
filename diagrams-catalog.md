@@ -38,7 +38,7 @@
       ("cap-4", Leg.capMinus) -> Right(GND), ("cap-4", Leg.capPlus) -> Left(1)
     ))
 
-<img src=./static/4roll_breadboard.png width="840" height="500">
+<img src=./static/3roll_breadboard.png width="840" height="500">
 
 ## 4-roll
 
