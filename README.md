@@ -73,3 +73,13 @@ Then, after opening `index.html` it should show resulting breadboard diagram:
 <img src=./static/4roll_breadboard.png width="1100" height="500">
 
 Most of connection cables are shown as arrows with labels like "U21" or "D05".  "U" and "D" letters in those labels mean "up"/"down" and refer to upper/lower part of the breadboard.  It's also possible to drag components with mouse.
+
+## Development info
+
+It's possible to run conversion on JVM with debug output instead of the drawing:
+
+    dtbJVM/run
+    
+There is also a suite of property tests in `dtb/jvm/src/test/scala/pl/bka/dtb/model/breadboard/BreadboardSpec.scala` that can be run with:
+
+    dtbJVM/test
