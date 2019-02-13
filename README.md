@@ -74,6 +74,10 @@ Then, after opening `index.html` it should show resulting breadboard diagram:
 
 Most of connection cables are shown as arrows with labels like "U21" or "D05".  "U" and "D" letters in those labels mean "up"/"down" and refer to upper/lower part of the breadboard.  It's also possible to drag components with mouse.
 
+## More diagrams converted
+
+[Diagrams catalog](diagrams-catalog.md)
+
 ## Development info
 
 It's possible to run conversion on JVM with debug output instead of the drawing, with Main in `dtb/jvm/src/main/scala/pl/bka/dtb/Main.scala`:
