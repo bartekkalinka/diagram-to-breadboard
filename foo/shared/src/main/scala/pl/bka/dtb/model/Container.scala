@@ -1,4 +1,4 @@
-package pl.bka.model
+package pl.bka.dtb.model
 
 trait Container {
   val components: Seq[Component]

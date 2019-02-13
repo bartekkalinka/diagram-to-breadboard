@@ -1,6 +1,6 @@
-package pl.bka.drawing
+package pl.bka.dtb.drawing
 
-import pl.bka.model.breadboard.Tracks
+import pl.bka.dtb.model.breadboard.Tracks
 
 class Size(zoomFactor: Double) {
   def zoom(pixels: Int): Int = (pixels * zoomFactor).round.toInt

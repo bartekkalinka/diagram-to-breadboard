@@ -1,9 +1,9 @@
-package pl.bka.drawing
+package pl.bka.dtb.drawing
 
 import org.scalajs.dom
-import pl.bka.DomOutput
-import pl.bka.model.breadboard.TrackIndex
+import pl.bka.dtb.model.breadboard.TrackIndex
 import DrawingLayer._
+import pl.bka.dtb.DomOutput
 
 class DirectDrawing(size: Size) {
   val ctx = DomOutput.canvas.getContext("2d")

@@ -1,9 +1,9 @@
-package pl.bka.guistate
+package pl.bka.dtb.guistate
 
-import pl.bka.Types.CoordWithName
-import pl.bka.drawing.{BoardDrawing, DirectDrawing, Size}
-import pl.bka.model.ComponentName
-import pl.bka.model.breadboard.Physical
+import pl.bka.dtb.Types.CoordWithName
+import pl.bka.dtb.drawing.{BoardDrawing, DirectDrawing, Size}
+import pl.bka.dtb.model.ComponentName
+import pl.bka.dtb.model.breadboard.Physical
 
 import scala.collection.mutable
 

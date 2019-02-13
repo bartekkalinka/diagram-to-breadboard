@@ -1,8 +1,7 @@
-package pl.bka
+package pl.bka.dtb
 
-import pl.bka.model.breadboard.Logical
-import pl.bka.model.{ComponentName, Connection, LegId}
-import pl.bka.model.breadboard.{Breadboard, Hole, Physical, TrackIndex}
+import pl.bka.dtb.model.breadboard._
+import pl.bka.dtb.model.{ComponentName, Connection, LegId}
 
 trait PrettyPrint[A] {
   def prettyPrint(a: A): Unit

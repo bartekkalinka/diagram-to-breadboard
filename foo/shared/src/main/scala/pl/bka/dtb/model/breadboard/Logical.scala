@@ -1,9 +1,8 @@
-package pl.bka.model.breadboard
+package pl.bka.dtb.model.breadboard
 
-import pl.bka.model.Power.PowerConnection
-import pl.bka.model._
-import pl.bka.model.breadboard._
-import pl.bka.PrettyPrint._
+import pl.bka.dtb.model.Power.PowerConnection
+import pl.bka.dtb.model._
+import pl.bka.dtb.PrettyPrint._
 
 import scala.collection.mutable
 

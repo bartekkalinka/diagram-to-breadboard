@@ -1,6 +1,6 @@
-package pl.bka.model.breadboard
+package pl.bka.dtb.model.breadboard
 
-import pl.bka.model._
+import pl.bka.dtb.model._
 
 case class Breadboard(logical: Logical, physical: Physical)
 

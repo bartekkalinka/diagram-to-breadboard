@@ -1,4 +1,4 @@
-package pl.bka.model
+package pl.bka.dtb.model
 
 object Power {
   sealed trait PowerConnection

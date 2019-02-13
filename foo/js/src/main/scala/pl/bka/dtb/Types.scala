@@ -1,6 +1,6 @@
-package pl.bka
+package pl.bka.dtb
 
-import pl.bka.model.ComponentName
+import pl.bka.dtb.model.ComponentName
 
 object Types {
   type CoordWithName = ((Int, Int), ComponentName)

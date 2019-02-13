@@ -1,7 +1,7 @@
-package pl.bka.model.breadboard
+package pl.bka.dtb.model.breadboard
 
-import pl.bka.model.Connection
-import pl.bka.model.Power._
+import pl.bka.dtb.model.Connection
+import pl.bka.dtb.model.Power._
 
 case class TrackIndex(horizontal: Boolean, index: Int) {
   def upper: Boolean = index >= 0

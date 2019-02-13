@@ -1,8 +1,8 @@
-package pl.bka
+package pl.bka.dtb
 
-import pl.bka.model.{Diagram, Fail}
-import pl.bka.model.breadboard.Breadboard
-import pl.bka.PrettyPrint._
+import pl.bka.dtb.model.breadboard.Breadboard
+import pl.bka.dtb.model.{Diagram, Fail}
+import pl.bka.dtb.PrettyPrint._
 
 object Main {
   def main(args: Array[String]): Unit = {

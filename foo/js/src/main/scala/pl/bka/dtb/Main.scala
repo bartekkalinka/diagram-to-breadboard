@@ -1,11 +1,11 @@
-package pl.bka
+package pl.bka.dtb
 
 import org.scalajs.dom
 import org.scalajs.dom.window
-import pl.bka.drawing.{BoardDrawing, DirectDrawing, Size}
-import pl.bka.guistate.{BoardSelection, ComponentDragging}
-import pl.bka.model.ComponentName
-import pl.bka.model.breadboard.Breadboard
+import pl.bka.dtb.drawing.{BoardDrawing, DirectDrawing, Size}
+import pl.bka.dtb.guistate.{BoardSelection, ComponentDragging}
+import pl.bka.dtb.model.ComponentName
+import pl.bka.dtb.model.breadboard.Breadboard
 
 import scala.scalajs.js.annotation.JSExportTopLevel
 

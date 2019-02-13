@@ -1,6 +1,6 @@
-package pl.bka.drawing
+package pl.bka.dtb.drawing
 
-import pl.bka.model.breadboard.{Breadboard, TrackIndex}
+import pl.bka.dtb.model.breadboard.{Breadboard, TrackIndex}
 
 object DrawingLayer {
   val isLowerBoardNumberingReversed = false

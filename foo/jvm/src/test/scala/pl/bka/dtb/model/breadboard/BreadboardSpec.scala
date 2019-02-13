@@ -1,9 +1,9 @@
-package pl.bka.model.breadboard
+package pl.bka.dtb.model.breadboard
 
 import org.scalatest.prop.TableDrivenPropertyChecks
-import org.scalatest.{FlatSpec, Matchers, PropSpec}
-import pl.bka.model._
-import pl.bka.model.Power._
+import org.scalatest.{Matchers, PropSpec}
+import pl.bka.dtb.model.Power._
+import pl.bka.dtb.model._
 
 class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matchers {
   //transistors only

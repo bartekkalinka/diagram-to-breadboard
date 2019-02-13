@@ -1,9 +1,9 @@
-package pl.bka.drawing
+package pl.bka.dtb.drawing
 
-import pl.bka.Types.CoordWithName
-import pl.bka.model.Power.{GND, Plus}
-import pl.bka.model._
-import pl.bka.model.breadboard._
+import pl.bka.dtb.Types.CoordWithName
+import pl.bka.dtb.model.Power.{GND, Plus}
+import pl.bka.dtb.model._
+import pl.bka.dtb.model.breadboard._
 
 class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical, diagram: Diagram) {
   def drawPhysical(movedComponents: Map[ComponentName, (Int, Int)]): Map[(Int, Int), CoordWithName] = {

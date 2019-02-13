@@ -1,7 +1,7 @@
-package pl.bka.model.breadboard
+package pl.bka.dtb.model.breadboard
 
-import pl.bka.model._
-import pl.bka.PrettyPrint._
+import pl.bka.dtb.model._
+import pl.bka.dtb.PrettyPrint._
 
 case class TrackPosition(position: Int)
 case class Hole(trackIndex: TrackIndex, holeIndex: TrackPosition)

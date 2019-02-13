@@ -1,7 +1,7 @@
-package pl.bka
+package pl.bka.dtb
 
-import pl.bka.model._
-import pl.bka.model.Power._
+import pl.bka.dtb.model.Power.{GND, Plus}
+import pl.bka.dtb.model._
 
 object Diagrams {
   val roll3 = Diagram(

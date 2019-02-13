@@ -1,7 +1,7 @@
-package pl.bka.guistate
+package pl.bka.dtb.guistate
 
-import pl.bka.Main.DraggedComponent
-import pl.bka.drawing.Size
+import pl.bka.dtb.Main.DraggedComponent
+import pl.bka.dtb.drawing.Size
 
 class ComponentDragging(boardSelection: BoardSelection, size: Size) {
   private var draggedComponent: Option[DraggedComponent] = None

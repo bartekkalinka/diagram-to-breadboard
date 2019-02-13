@@ -1,6 +1,6 @@
-package pl.bka
+package pl.bka.dtb
 
-import org.scalajs.dom.{html, _}
+import org.scalajs.dom.{document, html}
 
 object DomOutput {
   val canvas = document.getElementById("canvas").asInstanceOf[html.Canvas]
@@ -13,4 +13,3 @@ object DomOutput {
     document.body.appendChild(parNode)
   }
 }
-

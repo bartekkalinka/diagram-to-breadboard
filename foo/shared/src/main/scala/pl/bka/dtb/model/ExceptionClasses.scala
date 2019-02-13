@@ -1,4 +1,4 @@
-package pl.bka.model
+package pl.bka.dtb.model
 
 class NoPossibilityOfMappingLegsConnectionsToConsecutiveTracks extends Exception
 class TrackGroupsOfLengthLargerThanTwoAreNotSupported extends Exception
