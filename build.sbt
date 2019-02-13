@@ -1,6 +1,6 @@
 import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
 
-lazy val foo =
+lazy val dtb =
   crossProject(JSPlatform, JVMPlatform)
     .crossType(CrossType.Full) // [Pure, Full, Dummy], default: CrossType.Full
     .settings(
@@ -19,5 +19,5 @@ lazy val foo =
       )
     )
 
-lazy val fooJS = foo.js
-lazy val fooJVM = foo.jvm
+lazy val dtbJS = dtb.js
+lazy val dtbJVM = dtb.jvm
