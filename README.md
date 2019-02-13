@@ -76,7 +76,7 @@ Most of connection cables are shown as arrows with labels like "U21" or "D05".  
 
 ## Development info
 
-It's possible to run conversion on JVM with debug output instead of the drawing:
+It's possible to run conversion on JVM with debug output instead of the drawing, with Main in `dtb/jvm/src/main/scala/pl/bka/dtb/Main.scala`:
 
     dtbJVM/run
     
