@@ -1,10 +1,10 @@
 package pl.bka.dtb
 
 import org.scalatest.{FlatSpec, Matchers}
-import pl.bka.dtb.model.Diode
+import pl.bka.dtb.model.Transistor
 
 class DiagramParserSpec extends FlatSpec with Matchers {
-  "DiagramParser" should "parse component type" in {
-    DiagramLineEncodingParser.parse(DiagramLineEncodingParser.componentType, "d").get shouldBe Diode("")
+  "DiagramParser" should "parse line" in {
+    DiagramLineEncodingParser.parseDiagram("t 3") shouldBe Right(Transistor(""), 3)
   }
 }
