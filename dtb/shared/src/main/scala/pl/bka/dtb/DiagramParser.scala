@@ -10,18 +10,20 @@ case class DiagramLineEncoding(
 )
 
 object DiagramLineEncodingParser extends RegexParsers {
-  type Result = (ComponentType, Int)
+  type Result = (ComponentType, Seq[Int])
 
-  private def componentType: Parser[ComponentType]   = """d|r|t|c""".r       ^^ {
-    case "d" => Diode("") //TODO solve ComponentType params better
-    case "r" => Resistor("")
-    case "t" => Transistor("")
-    case "c" => Capacitor(0d, bipolar = true) //TODO solve bipolar better
-  }
+  private def diode: Parser[Diode] = "d" ^^ { _ => Diode("") }
+  private def transistor: Parser[Transistor] = "t" ^^ { _ => Transistor("") }
 
   private def legId: Parser[Int] = """[1-9]|[1-9]\\d*""".r ^^ { _.toInt }
 
-  private def line: Parser[(ComponentType, Int)] = componentType ~ legId ^^ { case ct ~ lid => (ct, lid)}
+  private def diodeLine: Parser[Result] =
+    diode ~ legId ~ legId ^^ { case d ~ lid1 ~ lid2 => (d, List(lid1, lid2)) }
+
+  private def transistorLine: Parser[Result] =
+    transistor ~ legId ~ legId ~ legId ^^ { case t ~ lid1 ~ lid2 ~ lid3 => (t, List(lid1, lid2, lid3)) }
+
+  private def line: Parser[Result] = diodeLine | transistorLine
 
   def parseDiagram(diagramStr: String): Either[String, Result] =
     parse(line, diagramStr) match {
