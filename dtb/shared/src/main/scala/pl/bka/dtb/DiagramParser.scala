@@ -10,12 +10,13 @@ case class DiagramLineEncoding(
 )
 
 object DiagramLineEncodingParser extends RegexParsers {
-  type Result = (ComponentType, Seq[Int])
+  type Result = (Component, Seq[Int])
 
-  private def diode: Parser[Diode] = "d" ^^ { _ => Diode("") }
-  private def resistor: Parser[Resistor] = "r" ^^ { _ => Resistor("") }
-  private def capacitor: Parser[Capacitor] = "c" ^^ { _ => Capacitor(0d, bipolar = true) } //TODO better params
-  private def transistor: Parser[Transistor] = "t" ^^ { _ => Transistor("") }
+  private def name(str: String) = str.split("\\.")(1)
+  private def diode: Parser[Component] = """d\.[a-zA-Z0-9]+""".r ^^ { str => Component(name(str), Diode("")) }
+  private def resistor: Parser[Component] = """r\.[a-zA-Z0-9]+""".r ^^ { str => Component(name(str), Resistor("")) }
+  private def capacitor: Parser[Component] = """c\.[a-zA-Z0-9]+""".r ^^ { str => Component(name(str), Capacitor(0d, bipolar = true)) } //TODO better params
+  private def transistor: Parser[Component] = """t\.[a-zA-Z0-9]+""".r ^^ { str => Component(name(str), Transistor("")) }
 
   private def legId: Parser[Int] = """[1-9]|[1-9]\\d*""".r ^^ { _.toInt }
 
