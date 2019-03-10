@@ -11,7 +11,8 @@ case class DiagramLineEncoding(
 )
 
 object DiagramLineEncodingParser extends RegexParsers {
-  type Result = (Component, Seq[Either[Int, Power.PowerConnection]])
+  type Line = (Component, Seq[Either[Int, Power.PowerConnection]])
+  type Result = Seq[Line]
 
   private def name(str: String) = str.split("\\.")(1)
   private def cName = "[a-zA-Z0-9]+"
@@ -23,16 +24,18 @@ object DiagramLineEncodingParser extends RegexParsers {
   private def legId: Parser[Either[Int, Power.PowerConnection]] =
     """[1-9]|[1-9]\\d*""".r ^^ { n => Left(n.toInt) } | "plus" ^^ { _ => Right(Plus) } |  "gnd" ^^ { _ => Right(GND) }
 
-  private def twoLegsLine: Parser[Result] =
+  private def twoLegsLine: Parser[Line] =
     (diode | resistor | capacitor) ~ legId ~ legId ^^ { case ct ~ lid1 ~ lid2 => (ct, List(lid1, lid2)) }
 
-  private def transistorLine: Parser[Result] =
+  private def transistorLine: Parser[Line] =
     transistor ~ legId ~ legId ~ legId ^^ { case t ~ lid1 ~ lid2 ~ lid3 => (t, List(lid1, lid2, lid3)) }
 
-  private def line: Parser[Result] = twoLegsLine | transistorLine
+  private def line: Parser[Line] = twoLegsLine | transistorLine
+
+  private def diagram: Parser[Result] = line+
 
   def parseDiagram(diagramStr: String): Either[String, Result] =
-    parse(line, diagramStr) match {
+    parse(diagram, diagramStr) match {
       case Success(result, _) => Right(result)
       case Failure(msg, _) => Left(msg)
       case Error(msg, _) => Left(msg)
