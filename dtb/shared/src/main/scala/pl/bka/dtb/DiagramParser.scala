@@ -1,5 +1,6 @@
 package pl.bka.dtb
 
+import pl.bka.dtb.model.Power.{GND, Plus}
 import pl.bka.dtb.model._
 
 import scala.util.parsing.combinator._
@@ -10,7 +11,7 @@ case class DiagramLineEncoding(
 )
 
 object DiagramLineEncodingParser extends RegexParsers {
-  type Result = (Component, Seq[Int])
+  type Result = (Component, Seq[Either[Int, Power.PowerConnection]])
 
   private def name(str: String) = str.split("\\.")(1)
   private def cName = "[a-zA-Z0-9]+"
@@ -19,7 +20,8 @@ object DiagramLineEncodingParser extends RegexParsers {
   private def capacitor: Parser[Component] = s"""c\\.$cName""".r ^^ { str => Component(name(str), Capacitor(0d, bipolar = true)) } //TODO better params
   private def transistor: Parser[Component] = s"""t\\.$cName""".r ^^ { str => Component(name(str), Transistor("")) }
 
-  private def legId: Parser[Int] = """[1-9]|[1-9]\\d*""".r ^^ { _.toInt }
+  private def legId: Parser[Either[Int, Power.PowerConnection]] =
+    """[1-9]|[1-9]\\d*""".r ^^ { n => Left(n.toInt) } | "plus" ^^ { _ => Right(Plus) } |  "gnd" ^^ { _ => Right(GND) }
 
   private def twoLegsLine: Parser[Result] =
     (diode | resistor | capacitor) ~ legId ~ legId ^^ { case ct ~ lid1 ~ lid2 => (ct, List(lid1, lid2)) }
