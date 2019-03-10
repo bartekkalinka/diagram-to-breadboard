@@ -4,6 +4,7 @@ import pl.bka.dtb.model.Power.{GND, Plus}
 import pl.bka.dtb.model._
 
 import scala.util.parsing.combinator._
+import scala.languageFeature.postfixOps
 
 case class DiagramLineEncoding(
   component: Component,
@@ -12,7 +13,7 @@ case class DiagramLineEncoding(
 
 object DiagramLineEncodingParser extends RegexParsers {
   type Line = (Component, Seq[Either[Int, Power.PowerConnection]])
-  type Result = Seq[Line]
+  type Result = Either[Fail, Diagram]
 
   private def name(str: String) = str.split("\\.")(1)
   private def cName = "[a-zA-Z0-9]+"
@@ -32,7 +33,17 @@ object DiagramLineEncodingParser extends RegexParsers {
 
   private def line: Parser[Line] = twoLegsLine | transistorLine
 
-  private def diagram: Parser[Result] = line+
+  private def diagram: Parser[Result] = (line+) ^^ { lines =>
+    val (components, connections) = lines.map { case (component, legsConnections) =>
+      (
+        component,
+        legsConnections.zipWithIndex.map { case (legId, i) =>
+          (component.name.value, i.toString) -> legId
+        }
+      )
+    }.unzip
+    Diagram(components, connections.flatten.toMap)
+  }
 
   def parseDiagram(diagramStr: String): Either[String, Result] =
     parse(diagram, diagramStr) match {

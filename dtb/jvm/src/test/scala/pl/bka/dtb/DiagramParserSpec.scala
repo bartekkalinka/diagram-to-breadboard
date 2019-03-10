@@ -8,17 +8,28 @@ class DiagramParserSpec extends FlatSpec with Matchers {
   "DiagramParser" should "parse diagram" in {
     val input =
       """
-        |t.1 3 gnd 1
+        |t.tr1 3 gnd 1
         |d.diode1 3 gnd
         |r.22k1 8 5
         |c.hairy1 plus 5
       """.stripMargin
 
-    DiagramLineEncodingParser.parseDiagram(input) shouldBe Right(Seq(
-      (Component("1", Transistor("")), Seq(Left(3), Right(GND), Left(1))),
-      (Component("diode1", Diode("")), Seq(Left(3), Right(GND))),
-      (Component("22k1", Resistor("")), Seq(Left(8), Left(5))),
-      (Component("hairy1", Capacitor(0d, bipolar = true)), Seq(Right(Plus), Left(5)))
-    ))
+    DiagramLineEncodingParser.parseDiagram(input) shouldBe
+      Right(
+        Diagram(
+          Seq(
+            Component("tr1", Transistor("")),
+            Component("diode1", Diode("")),
+            Component("22k1", Resistor("")),
+            Component("hairy1", Capacitor(0d, bipolar = true))
+          ),
+          Map(
+            ("tr1", "0") -> Left(3), ("tr1", "1") -> Right(GND), ("tr1", "2") -> Left(1),
+            ("diode1", "0") -> Left(3), ("diode1", "1") -> Right(GND),
+            ("22k1", "0") -> Left(8), ("22k1", "1") -> Left(5),
+            ("hairy1", "0") -> Right(Plus), ("hairy1", "1") -> Left(5)
+          )
+        )
+      )
   }
 }
