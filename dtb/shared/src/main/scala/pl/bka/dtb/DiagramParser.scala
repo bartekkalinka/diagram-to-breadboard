@@ -11,7 +11,7 @@ case class DiagramLineEncoding(
   simpleLegConnection: ((String, String), Either[Int, Power.PowerConnection])
 )
 
-object DiagramLineEncodingParser extends RegexParsers {
+object DiagramParser extends RegexParsers {
   type Line = (Component, Seq[Either[Int, Power.PowerConnection]])
   type Result = Either[Fail, Diagram]
 

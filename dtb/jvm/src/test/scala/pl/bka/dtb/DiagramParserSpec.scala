@@ -15,7 +15,7 @@ class DiagramParserSpec extends FlatSpec with Matchers {
         |i.082-1 plus 1 1 gnd gnd 2 gnd plus
       """.stripMargin
 
-    DiagramLineEncodingParser.parseDiagram(input) shouldBe
+    DiagramParser.parseDiagram(input) shouldBe
       Right(
         Diagram(
           Seq(
