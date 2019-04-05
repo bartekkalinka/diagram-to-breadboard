@@ -12,6 +12,7 @@ class DiagramParserSpec extends FlatSpec with Matchers {
         |d.diode1 3 gnd
         |r.22k1 8 5
         |c.hairy1 plus 5
+        |i.082-1 plus 1 1 gnd gnd 2 gnd plus
       """.stripMargin
 
     DiagramLineEncodingParser.parseDiagram(input) shouldBe
@@ -21,13 +22,18 @@ class DiagramParserSpec extends FlatSpec with Matchers {
             Component("tr1", Transistor("")),
             Component("diode1", Diode("")),
             Component("22k1", Resistor("")),
-            Component("hairy1", Capacitor(0d, bipolar = true))
+            Component("hairy1", Capacitor(0d, bipolar = true)),
+            Component("082-1", IC("", 8))
           ),
           Map(
             ("tr1", "0") -> Left(3), ("tr1", "1") -> Right(GND), ("tr1", "2") -> Left(1),
             ("diode1", "0") -> Left(3), ("diode1", "1") -> Right(GND),
             ("22k1", "0") -> Left(8), ("22k1", "1") -> Left(5),
-            ("hairy1", "0") -> Right(Plus), ("hairy1", "1") -> Left(5)
+            ("hairy1", "0") -> Right(Plus), ("hairy1", "1") -> Left(5),
+            ("082-1", "0") -> Right(Plus), ("082-1", "1") -> Left(1),
+            ("082-1", "2") -> Left(1), ("082-1", "3") -> Right(GND),
+            ("082-1", "4") -> Right(GND), ("082-1", "5") -> Left(2),
+            ("082-1", "6") -> Right(GND), ("082-1", "7") -> Right(Plus)
           )
         )
       )
