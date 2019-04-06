@@ -6,46 +6,58 @@ import pl.bka.dtb.model._
 import scala.util.parsing.combinator._
 import scala.languageFeature.postfixOps
 
-case class DiagramLineEncoding(
-  component: Component,
-  simpleLegConnection: ((String, String), Either[Int, Power.PowerConnection])
-)
-
 object DiagramParser extends RegexParsers {
-  type Line = (Component, Seq[Either[Int, Power.PowerConnection]])
+  sealed trait CommonConnection { def id: Connection }
+  case class RegularConnection(id: Connection) extends CommonConnection
+  case class BipolarConnection(plus: Boolean, id: Connection) extends CommonConnection
+  type Line = (Component, Seq[CommonConnection])
   type Result = Either[Fail, Diagram]
 
   private def name(str: String) = str.split("\\.")(1)
   private def cName = "[a-zA-Z0-9\\-]+"
   private def diode: Parser[Component] = s"""d\\.$cName""".r ^^ { str => Component(name(str), Diode("")) }
   private def resistor: Parser[Component] = s"""r\\.$cName""".r ^^ { str => Component(name(str), Resistor("")) }
-  private def capacitor: Parser[Component] = s"""c\\.$cName""".r ^^ { str => Component(name(str), Capacitor(0d, bipolar = true)) } //TODO better params
+  private def capacitor: Parser[Component] = s"""c\\.$cName""".r ^^ { str => Component(name(str), Capacitor(0d, bipolar = false)) } //TODO better params
+  private def bipolarCapacitor: Parser[Component] = s"""bc\\.$cName""".r ^^ { str => Component(name(str), Capacitor(0d, bipolar = true)) } //TODO better params
   private def transistor: Parser[Component] = s"""t\\.$cName""".r ^^ { str => Component(name(str), Transistor("")) }
   private def ic: Parser[Component] = s"""i\\.$cName""".r ^^ { str => Component(name(str), IC("", 0)) }
 
-  private def legId: Parser[Either[Int, Power.PowerConnection]] =
-    """[1-9]|[1-9]\\d*""".r ^^ { n => Left(n.toInt) } | "plus" ^^ { _ => Right(Plus) } |  "gnd" ^^ { _ => Right(GND) }
+  private def connection: Parser[Connection] =
+    """[1-9]|[1-9]\\d*""".r ^^ { n => Connection(Left(n.toInt)) } |
+      "plus" ^^ { _ => Connection(Right(Plus)) } |
+      "gnd" ^^ { _ => Connection(Right(GND)) }
+
+  private def regularConnection: Parser[RegularConnection] = connection ^^ RegularConnection
+
+  private def bipolarConnection: Parser[BipolarConnection] =
+    """\+|\-""".r ~ connection ^^ { case pm ~ conn => BipolarConnection(pm == "+", conn) }
 
   private def twoLegsLine: Parser[Line] =
-    (diode | resistor | capacitor) ~ legId ~ legId ^^ { case ct ~ lid1 ~ lid2 => (ct, List(lid1, lid2)) }
+    (diode | resistor | capacitor) ~ regularConnection ~ regularConnection ^^ { case ct ~ conn1 ~ conn2 => (ct, List(conn1, conn2)) }
 
   private def transistorLine: Parser[Line] =
-    transistor ~ legId ~ legId ~ legId ^^ { case t ~ lid1 ~ lid2 ~ lid3 => (t, List(lid1, lid2, lid3)) }
+    transistor ~ regularConnection ~ regularConnection ~ regularConnection ^^ { case t ~ conn1 ~ conn2 ~ conn3 => (t, List(conn1, conn2, conn3)) }
 
-  private def icLine: Parser[Line] = ic ~ (legId+) ^^ {
-    case Component(ComponentName(icName), _, _) ~ legIds => (Component(icName, IC("", legIds.length)), legIds)
+  private def icLine: Parser[Line] = ic ~ (regularConnection+) ^^ {
+    case Component(ComponentName(icName), _, _) ~ connections => (Component(icName, IC("", connections.length)), connections)
   }
 
-  private def line: Parser[Line] = twoLegsLine | transistorLine | icLine
+  private def bipolarCapLine: Parser[Line] =
+    bipolarCapacitor ~ bipolarConnection ~ bipolarConnection ^^ { case ct ~ conn1 ~ conn2 =>
+      (ct, if(conn1.plus) List(conn2, conn1) else List(conn1, conn2))
+    }
+
+  private def line: Parser[Line] = twoLegsLine | transistorLine | icLine | bipolarCapLine
 
   private def diagram: Parser[Result] = (line+) ^^ { lines =>
-    val (components, connections) = lines.map { case (component, legsConnections) =>
-      (
-        component,
-        legsConnections.zipWithIndex.map { case (legId, i) =>
-          (component.name.value, i.toString) -> legId
-        }
-      )
+    val (components, connections) = lines.map {
+      case (component, legsConnections) =>
+        (
+          component,
+          legsConnections.zipWithIndex.map { case (connection, i) =>
+            (component.name.value, i.toString) -> connection.id.id
+          }
+        )
     }.unzip
     Diagram(components, connections.flatten.toMap)
   }
