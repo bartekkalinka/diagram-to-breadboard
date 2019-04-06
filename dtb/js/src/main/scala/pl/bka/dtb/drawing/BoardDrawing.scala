@@ -67,7 +67,7 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
         )
         directDrawing.drawLine(holePos1, (centerX - size.capacitorSize._1 / 2, centerY), 2)
         directDrawing.drawLine(holePos2, (centerX + size.capacitorSize._1 / 2, centerY), 2)
-        val minusOnLeft = Some(holes.head.trackIndex.index < holes(1).trackIndex.index).filter(_ => bipolar)
+        val minusOnLeft = Some(holes(Leg.capMinus.toInt).trackIndex.index < holes(Leg.capPlus.toInt).trackIndex.index).filter(_ => bipolar)
         directDrawing.drawCapacitorBody(component.name.value, (centerX, centerY), minusOnLeft)
         Some((component.name, centerX, centerY))
       case Diode(_, _) =>
