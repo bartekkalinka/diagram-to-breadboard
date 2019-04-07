@@ -10,6 +10,7 @@ object DiagramParser extends RegexParsers {
   sealed trait CommonConnection { def id: Connection }
   case class RegularConnection(id: Connection) extends CommonConnection
   case class BipolarConnection(plus: Boolean, id: Connection) extends CommonConnection
+  case class BandConnection(id: Connection) extends CommonConnection
   type Line = (Component, Seq[CommonConnection])
   type Result = Either[Fail, Diagram]
 
@@ -32,8 +33,12 @@ object DiagramParser extends RegexParsers {
   private def bipolarConnection: Parser[BipolarConnection] =
     """\+|\-""".r ~ connection ^^ { case pm ~ conn => BipolarConnection(pm == "+", conn) }
 
+  private def bandConnection: Parser[BandConnection] =
+    "band\\.".r ~ connection ^^ { case _ ~ conn => BandConnection(conn) }
+
   private def twoLegsLine: Parser[Line] =
-    (diode | resistor | capacitor) ~ regularConnection ~ regularConnection ^^ { case ct ~ conn1 ~ conn2 => (ct, List(conn1, conn2)) }
+    (resistor | capacitor) ~ regularConnection ~ regularConnection ^^
+      { case ct ~ conn1 ~ conn2 => (ct, List(conn1, conn2)) }
 
   private def transistorLine: Parser[Line] =
     transistor ~ regularConnection ~ regularConnection ~ regularConnection ^^ { case t ~ conn1 ~ conn2 ~ conn3 => (t, List(conn1, conn2, conn3)) }
@@ -47,7 +52,11 @@ object DiagramParser extends RegexParsers {
       (ct, if(conn1.plus) List(conn2, conn1) else List(conn1, conn2))
     }
 
-  private def line: Parser[Line] = twoLegsLine | transistorLine | icLine | bipolarCapLine
+  private def diodeLine: Parser[Line] =
+    (diode ~ bandConnection ~ regularConnection) ^^ { case ct ~ bconn ~ rconn => (ct, List(bconn, rconn)) } |
+      (diode ~ regularConnection ~ bandConnection) ^^ { case ct ~ rconn ~ bconn => (ct, List(bconn, rconn)) }
+
+  private def line: Parser[Line] = twoLegsLine | diodeLine | transistorLine | icLine | bipolarCapLine
 
   private def diagram: Parser[Result] = (line+) ^^ { lines =>
     val (components, connections) = lines.map {

@@ -9,7 +9,8 @@ class DiagramParserSpec extends FlatSpec with Matchers {
     val input =
       """
         |t.tr1 3 gnd 1
-        |d.diode1 3 gnd
+        |d.diode1 band.3 gnd
+        |d.diode2 3 band.gnd
         |r.22k1 8 5
         |c.hairy1 plus 5
         |bc.hairy2 -3 +gnd
@@ -23,6 +24,7 @@ class DiagramParserSpec extends FlatSpec with Matchers {
           Seq(
             Component("tr1", Transistor("")),
             Component("diode1", Diode("")),
+            Component("diode2", Diode("")),
             Component("22k1", Resistor("")),
             Component("hairy1", Capacitor(0d, bipolar = false)),
             Component("hairy2", Capacitor(0d, bipolar = true)),
@@ -32,6 +34,7 @@ class DiagramParserSpec extends FlatSpec with Matchers {
           Map(
             ("tr1", "0") -> Left(3), ("tr1", "1") -> Right(GND), ("tr1", "2") -> Left(1),
             ("diode1", "0") -> Left(3), ("diode1", "1") -> Right(GND),
+            ("diode2", "1") -> Left(3), ("diode2", "0") -> Right(GND),
             ("22k1", "0") -> Left(8), ("22k1", "1") -> Left(5),
             ("hairy1", "0") -> Right(Plus), ("hairy1", "1") -> Left(5),
             ("hairy2", Leg.capMinus) -> Left(3), ("hairy2", Leg.capPlus) -> Right(GND),
