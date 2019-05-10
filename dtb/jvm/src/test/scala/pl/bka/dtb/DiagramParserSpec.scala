@@ -22,10 +22,10 @@ class DiagramParserSpec extends FlatSpec with Matchers {
       Right(
         Diagram(
           Seq(
-            Component("tr1", Transistor("")),
-            Component("diode1", Diode("")),
-            Component("diode2", Diode("")),
-            Component("22k1", Resistor("")),
+            Component("tr1", Transistor()),
+            Component("diode1", Diode()),
+            Component("diode2", Diode()),
+            Component("22k1", Resistor()),
             Component("hairy1", Capacitor(bipolar = false)),
             Component("hairy2", Capacitor(bipolar = true)),
             Component("hairy3", Capacitor(bipolar = true)),

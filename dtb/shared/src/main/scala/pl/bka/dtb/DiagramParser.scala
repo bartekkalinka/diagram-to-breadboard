@@ -16,11 +16,11 @@ object DiagramParser extends RegexParsers {
 
   private def name(str: String) = str.split("\\.")(1)
   private def cName = "[a-zA-Z0-9\\-]+"
-  private def diode: Parser[Component] = s"""d\\.$cName""".r ^^ { str => Component(name(str), Diode("")) }
-  private def resistor: Parser[Component] = s"""r\\.$cName""".r ^^ { str => Component(name(str), Resistor("")) }
+  private def diode: Parser[Component] = s"""d\\.$cName""".r ^^ { str => Component(name(str), Diode()) }
+  private def resistor: Parser[Component] = s"""r\\.$cName""".r ^^ { str => Component(name(str), Resistor()) }
   private def capacitor: Parser[Component] = s"""c\\.$cName""".r ^^ { str => Component(name(str), Capacitor(bipolar = false)) }
   private def bipolarCapacitor: Parser[Component] = s"""bc\\.$cName""".r ^^ { str => Component(name(str), Capacitor(bipolar = true)) }
-  private def transistor: Parser[Component] = s"""t\\.$cName""".r ^^ { str => Component(name(str), Transistor("")) }
+  private def transistor: Parser[Component] = s"""t\\.$cName""".r ^^ { str => Component(name(str), Transistor()) }
   private def ic: Parser[Component] = s"""i\\.$cName""".r ^^ { str => Component(name(str), IC("", 0)) }
 
   private def connection: Parser[Connection] =

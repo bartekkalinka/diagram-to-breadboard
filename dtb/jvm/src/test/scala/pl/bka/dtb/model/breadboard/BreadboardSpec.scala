@@ -9,8 +9,8 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
   //transistors only
   val testInput1 = Diagram(
     List(
-      Component("Tr549B.1", Transistor("549B")),
-      Component("Tr549B.2", Transistor("549B"))
+      Component("Tr549B.1", Transistor()),
+      Component("Tr549B.2", Transistor())
     ),
     Map(("Tr549B.1", "0") -> Right(Plus), ("Tr549B.1", "1") -> Left(1), ("Tr549B.1", "2") -> Right(GND),
       ("Tr549B.2", "0") -> Right(Plus), ("Tr549B.2", "1") -> Left(1), ("Tr549B.2", "2") -> Right(GND))
@@ -19,14 +19,14 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
   //transistors + resistors
   val testInput2 = Diagram(
     List(
-      Component("Tr549B.1", Transistor("549B")),
-      Component("Tr549B.2", Transistor("549B")),
-      Component("R220-1", Resistor("220K")),
-      Component("R220-2", Resistor("220K")),
-      Component("R220-3", Resistor("220K")),
-      Component("R220-4", Resistor("220K")),
-      Component("R220-5", Resistor("220K")),
-      Component("R220-6", Resistor("220K"))
+      Component("Tr549B.1", Transistor()),
+      Component("Tr549B.2", Transistor()),
+      Component("R220-1", Resistor()),
+      Component("R220-2", Resistor()),
+      Component("R220-3", Resistor()),
+      Component("R220-4", Resistor()),
+      Component("R220-5", Resistor()),
+      Component("R220-6", Resistor())
     ),
     Map(("Tr549B.1", "0") -> Right(Plus), ("Tr549B.1", "1") -> Left(0), ("Tr549B.1", "2") -> Right(GND),
       ("Tr549B.2", "0") -> Right(Plus), ("Tr549B.2", "1") -> Left(0), ("Tr549B.2", "2") -> Right(GND),
@@ -41,8 +41,8 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
   //resistors with a connection outside of transistors reach
   val testInput3 = Diagram(
     List(
-      Component("Tr549B.1", Transistor("549B")),
-      Component("R220-1", Resistor("220K"))
+      Component("Tr549B.1", Transistor()),
+      Component("R220-1", Resistor())
     ),
     Map(("Tr549B.1", "0") -> Right(Plus), ("Tr549B.1", "1") -> Left(0), ("Tr549B.1", "2") -> Right(GND),
       ("R220-1", Leg.firstLeg) -> Right(GND), ("R220-1", Leg.secondLeg) -> Left(1))
@@ -51,10 +51,10 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
   //simple diagram with IC
   val testInput4 = Diagram(
     List(
-      Component("549B-1", Transistor("549B")),
-      Component("549B-2", Transistor("549B")),
-      Component("R220-1", Resistor("220K")),
-      Component("R220-2", Resistor("220K")),
+      Component("549B-1", Transistor()),
+      Component("549B-2", Transistor()),
+      Component("R220-1", Resistor()),
+      Component("R220-2", Resistor()),
       Component("082-1", IC("082", 8))
     ),
     Map(("549B-1", "0") -> Right(Plus), ("549B-1", "1") -> Left(0), ("549B-1", "2") -> Right(GND),
@@ -71,16 +71,16 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
   //3-roll
   val testInput5 = Diagram(
     List(
-      Component("diode", Diode("???")),
-      Component("R470K-1", Resistor("470K")),
-      Component("R22K-1", Resistor("22K")),
-      Component("R470K-2", Resistor("470K")),
-      Component("R22K-2", Resistor("22K")),
-      Component("R470K-3", Resistor("470K")),
-      Component("R22K-3", Resistor("22K")),
-      Component("Tr-1", Transistor("minus")),
-      Component("Tr-2", Transistor("minus")),
-      Component("Tr-3", Transistor("minus")),
+      Component("diode", Diode()),
+      Component("R470K-1", Resistor()),
+      Component("R22K-1", Resistor()),
+      Component("R470K-2", Resistor()),
+      Component("R22K-2", Resistor()),
+      Component("R470K-3", Resistor()),
+      Component("R22K-3", Resistor()),
+      Component("Tr-1", Transistor()),
+      Component("Tr-2", Transistor()),
+      Component("Tr-3", Transistor()),
       Component("hairy-1", Capacitor(bipolar = true)),
       Component("hairy-2", Capacitor(bipolar = true)),
       Component("hairy-3", Capacitor(bipolar = true)),
