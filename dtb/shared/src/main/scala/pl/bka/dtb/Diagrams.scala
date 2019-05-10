@@ -16,10 +16,10 @@ object Diagrams {
       Component("Tr-1", Transistor("minus")),
       Component("Tr-2", Transistor("minus")),
       Component("Tr-3", Transistor("minus")),
-      Component("hairy-1", Capacitor(0d, bipolar = true)),
-      Component("hairy-2", Capacitor(0d, bipolar = true)),
-      Component("hairy-3", Capacitor(0d, bipolar = true)),
-      Component("cap-4", Capacitor(0d, bipolar = true))
+      Component("hairy-1", Capacitor(bipolar = true)),
+      Component("hairy-2", Capacitor(bipolar = true)),
+      Component("hairy-3", Capacitor(bipolar = true)),
+      Component("cap-4", Capacitor(bipolar = true))
     ),
     Map(
       ("diode", Leg.cathode) -> Left(1), ("diode", Leg.anode) -> Right(Plus),
@@ -54,11 +54,11 @@ object Diagrams {
       Component("Tr-2", Transistor("minus")),
       Component("Tr-3", Transistor("minus")),
       Component("Tr-4", Transistor("minus")),
-      Component("hairy-1", Capacitor(0d, bipolar = true)),
-      Component("hairy-2", Capacitor(0d, bipolar = true)),
-      Component("hairy-3", Capacitor(0d, bipolar = true)),
-      Component("hairy-4", Capacitor(0d, bipolar = true)),
-      Component("cap-5", Capacitor(0d, bipolar = true))
+      Component("hairy-1", Capacitor(bipolar = true)),
+      Component("hairy-2", Capacitor(bipolar = true)),
+      Component("hairy-3", Capacitor(bipolar = true)),
+      Component("hairy-4", Capacitor(bipolar = true)),
+      Component("cap-5", Capacitor(bipolar = true))
     ),
     Map(
       ("diode", Leg.cathode) -> Left(9), ("diode", Leg.anode) -> Right(Plus),

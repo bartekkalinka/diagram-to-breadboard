@@ -26,9 +26,9 @@ class DiagramParserSpec extends FlatSpec with Matchers {
             Component("diode1", Diode("")),
             Component("diode2", Diode("")),
             Component("22k1", Resistor("")),
-            Component("hairy1", Capacitor(0d, bipolar = false)),
-            Component("hairy2", Capacitor(0d, bipolar = true)),
-            Component("hairy3", Capacitor(0d, bipolar = true)),
+            Component("hairy1", Capacitor(bipolar = false)),
+            Component("hairy2", Capacitor(bipolar = true)),
+            Component("hairy3", Capacitor(bipolar = true)),
             Component("082-1", IC("", 8))
           ),
           Map(

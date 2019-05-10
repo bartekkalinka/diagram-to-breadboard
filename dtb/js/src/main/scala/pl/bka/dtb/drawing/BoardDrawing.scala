@@ -60,7 +60,7 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
         directDrawing.drawLine(holePos2, (centerX + size.resistorBodySize._1 / 2, centerY - size.resistorBodySize._2 / 2), 2)
         directDrawing.drawResistorBody(component.name.value, (centerX, centerY))
         Some((component.name, centerX, centerY))
-      case Capacitor(_, bipolar, _) =>
+      case Capacitor(bipolar, _) =>
         val Seq(holePos1, holePos2) = holes.map(holePosition).sortBy(_._1)
         val (centerX, centerY) = positionOverride.getOrElse(
           ((holePos1._1 + holePos2._1) / 2, Seq(holePos1._2, holePos2._2).min - (0.3 * size.holeStep).toInt)
