@@ -61,4 +61,39 @@ class DiagramParserSpec extends FlatSpec with Matchers {
         ("Tr549B-2", "0") -> Right(Plus), ("Tr549B-2", "1") -> Left(1), ("Tr549B-2", "2") -> Right(GND))
     ))
   }
+
+  it should "parse diagram testInput2" in {
+    DiagramParser.parse(
+      """
+        |t.Tr549B-1 plus 0 gnd
+        |t.Tr549B-2 plus 0 gnd
+        |r.R220-1 gnd 0
+        |r.R220-2 plus 0
+        |r.R220-3 0 gnd
+        |r.R220-4 gnd 0
+        |r.R220-5 0 plus
+        |r.R220-6 gnd 0
+      """.stripMargin
+    ) shouldBe
+    Right((
+      List(
+        Component("Tr549B-1", Transistor()),
+        Component("Tr549B-2", Transistor()),
+        Component("R220-1", Resistor()),
+        Component("R220-2", Resistor()),
+        Component("R220-3", Resistor()),
+        Component("R220-4", Resistor()),
+        Component("R220-5", Resistor()),
+        Component("R220-6", Resistor())
+      ),
+      Map(("Tr549B-1", "0") -> Right(Plus), ("Tr549B-1", "1") -> Left(0), ("Tr549B-1", "2") -> Right(GND),
+        ("Tr549B-2", "0") -> Right(Plus), ("Tr549B-2", "1") -> Left(0), ("Tr549B-2", "2") -> Right(GND),
+        ("R220-1", Leg.firstLeg) -> Right(GND), ("R220-1", Leg.secondLeg) -> Left(0),
+        ("R220-2", Leg.firstLeg) -> Right(Plus), ("R220-2", Leg.secondLeg) -> Left(0),
+        ("R220-3", Leg.firstLeg) -> Left(0), ("R220-3", Leg.secondLeg) -> Right(GND),
+        ("R220-4", Leg.firstLeg) -> Right(GND), ("R220-4", Leg.secondLeg) -> Left(0),
+        ("R220-5", Leg.firstLeg) -> Left(0), ("R220-5", Leg.secondLeg) -> Right(Plus),
+        ("R220-6", Leg.firstLeg) -> Right(GND), ("R220-6", Leg.secondLeg) -> Left(0))
+    ))
+  }
 }

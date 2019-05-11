@@ -24,7 +24,7 @@ object DiagramParser extends RegexParsers {
   private def ic: Parser[Component] = s"""i\\.$cName""".r ^^ { str => Component(name(str), IC("", 0)) }
 
   private def connection: Parser[Connection] =
-    """[1-9]|[1-9]\\d*""".r ^^ { n => Connection(Left(n.toInt)) } |
+    """\d+""".r ^^ { n => Connection(Left(n.toInt)) } |
       "plus" ^^ { _ => Connection(Right(Plus)) } |
       "gnd" ^^ { _ => Connection(Right(GND)) }
 
