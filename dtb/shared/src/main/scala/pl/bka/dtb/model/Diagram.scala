@@ -1,5 +1,7 @@
 package pl.bka.dtb.model
 
+import pl.bka.dtb.DiagramParser
+
 object Power {
   sealed trait PowerConnection
   case object Plus extends PowerConnection
@@ -54,6 +56,12 @@ object Diagram {
     }.toMap)
     diagram.validate
   }
+
+  def apply(diagramStr: String): Either[Fail, Diagram] =
+    DiagramParser.parseDiagram(diagramStr) match {
+      case Right(parseResult) => parseResult
+      case Left(parseFailureReason) => Left(Fail(parseFailureReason))
+    }
 
   def prettyPrint(applyResult: Either[Fail, Diagram]): Seq[String] = applyResult match {
     case Right(diagram) => diagram.prettyPrint
