@@ -113,4 +113,34 @@ class DiagramParserSpec extends FlatSpec with Matchers {
         ("R220-1", Leg.firstLeg) -> Right(GND), ("R220-1", Leg.secondLeg) -> Left(1))
     ))
   }
+
+  it should "parse diagram testInput4" in {
+    DiagramParser.parse(
+      """
+        |t.549B-1 plus 0 gnd
+        |t.549B-2 plus 0 gnd
+        |r.R220-1 gnd 0
+        |r.R220-2 gnd 0
+        |i.082-1 plus 1 1 gnd gnd 2 gnd plus
+      """.stripMargin
+    )
+    Right((
+      List(
+        Component("549B-1", Transistor()),
+        Component("549B-2", Transistor()),
+        Component("R220-1", Resistor()),
+        Component("R220-2", Resistor()),
+        Component("082-1", IC("082", 8))
+      ),
+      Map(("549B-1", "0") -> Right(Plus), ("549B-1", "1") -> Left(0), ("549B-1", "2") -> Right(GND),
+        ("549B-2", "0") -> Right(Plus), ("549B-2", "1") -> Left(0), ("549B-2", "2") -> Right(GND),
+        ("R220-1", Leg.firstLeg) -> Right(GND), ("R220-1", Leg.secondLeg) -> Left(0),
+        ("R220-2", Leg.firstLeg) -> Right(Plus), ("R220-2", Leg.secondLeg) -> Left(0),
+        ("082-1", "0") -> Right(Plus), ("082-1", "1") -> Left(1),
+        ("082-1", "2") -> Left(1), ("082-1", "3") -> Right(GND),
+        ("082-1", "4") -> Right(GND), ("082-1", "5") -> Left(2),
+        ("082-1", "6") -> Right(GND), ("082-1", "7") -> Right(Plus)
+      )
+    ))
+  }
 }
