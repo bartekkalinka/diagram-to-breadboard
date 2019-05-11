@@ -22,7 +22,7 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
     }
     val color: String = Seq("#FFBB00", "#FF0000", "#0000FF", "#00FF00")(compIndex % 4)
     component.cType match { //TODO get rid of code blocks in match branches - move them to type class instances for components
-      case IC(_, _) =>
+      case IC(_) =>
         val (xs, ys) = holes.map(holePosition).unzip
         val (centerX, centerY) = positionOverride.getOrElse((xs.sum / xs.length, ys.sum / ys.length))
         holes.zipWithIndex.foreach { case (hole, i) =>

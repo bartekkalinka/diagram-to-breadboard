@@ -27,7 +27,7 @@ class DiagramParserSpec extends FlatSpec with Matchers {
           Component("hairy1", Capacitor(bipolar = false)),
           Component("hairy2", Capacitor(bipolar = true)),
           Component("hairy3", Capacitor(bipolar = true)),
-          Component("082-1", IC("", 8))
+          Component("082-1", IC(8))
         ),
         Map(
           ("tr1", "0") -> Left(3), ("tr1", "1") -> Right(GND), ("tr1", "2") -> Left(1),
@@ -120,17 +120,17 @@ class DiagramParserSpec extends FlatSpec with Matchers {
         |t.549B-1 plus 0 gnd
         |t.549B-2 plus 0 gnd
         |r.R220-1 gnd 0
-        |r.R220-2 gnd 0
+        |r.R220-2 plus 0
         |i.082-1 plus 1 1 gnd gnd 2 gnd plus
       """.stripMargin
-    )
+    ) shouldBe
     Right((
       List(
         Component("549B-1", Transistor()),
         Component("549B-2", Transistor()),
         Component("R220-1", Resistor()),
         Component("R220-2", Resistor()),
-        Component("082-1", IC("082", 8))
+        Component("082-1", IC(8))
       ),
       Map(("549B-1", "0") -> Right(Plus), ("549B-1", "1") -> Left(0), ("549B-1", "2") -> Right(GND),
         ("549B-2", "0") -> Right(Plus), ("549B-2", "1") -> Left(0), ("549B-2", "2") -> Right(GND),
@@ -149,11 +149,11 @@ class DiagramParserSpec extends FlatSpec with Matchers {
       """
         |d.diode band.1 plus
         |r.R470K-1 1 3
-        |r.22K-1 1 2
+        |r.R22K-1 1 2
         |r.R470K-2 1 7
-        |r.22K-2 1 6
+        |r.R22K-2 1 6
         |r.R470K-3 1 5
-        |r.22K-3 1 4
+        |r.R22K-3 1 4
         |t.Tr-1 2 3 gnd
         |t.Tr-2 6 7 gnd
         |t.Tr-3 4 5 gnd
@@ -162,7 +162,7 @@ class DiagramParserSpec extends FlatSpec with Matchers {
         |bc.hairy-3 -5 +6
         |bc.cap-4 -gnd +1
       """.stripMargin
-    )
+    ) shouldBe
     Right((
       List(
         Component("diode", Diode()),
@@ -195,6 +195,73 @@ class DiagramParserSpec extends FlatSpec with Matchers {
         ("hairy-2", Leg.capMinus) -> Left(3), ("hairy-2", Leg.capPlus) -> Left(4),
         ("hairy-3", Leg.capMinus) -> Left(5), ("hairy-3", Leg.capPlus) -> Left(6),
         ("cap-4", Leg.capMinus) -> Right(GND), ("cap-4", Leg.capPlus) -> Left(1)
+      )
+    ))
+  }
+
+  it should "parser 4-roll diagram" in {
+    DiagramParser.parse(
+      """
+        |d.diode band.9 plus
+        |r.R470K-1 9 4
+        |r.R22K-1 9 7
+        |r.R470K-2 9 2
+        |r.R22K-2 9 6
+        |r.R470K-3 9 3
+        |r.R22K-3 9 8
+        |r.R470K-4 9 1
+        |r.R22K-4 9 5
+        |t.Tr-1 5 1 gnd
+        |t.Tr-2 8 3 gnd
+        |t.Tr-3 6 2 gnd
+        |t.Tr-4 7 4 gnd
+        |bc.hairy-1 -1 +8
+        |bc.hairy-2 -3 +6
+        |bc.hairy-3 -2 +7
+        |bc.hairy-4 -4 +5
+        |bc.cap-5 -gnd +9
+      """.stripMargin
+    ) shouldBe
+    Right((
+      List(
+        Component("diode", Diode()),
+        Component("R470K-1", Resistor()),
+        Component("R22K-1", Resistor()),
+        Component("R470K-2", Resistor()),
+        Component("R22K-2", Resistor()),
+        Component("R470K-3", Resistor()),
+        Component("R22K-3", Resistor()),
+        Component("R470K-4", Resistor()),
+        Component("R22K-4", Resistor()),
+        Component("Tr-1", Transistor()),
+        Component("Tr-2", Transistor()),
+        Component("Tr-3", Transistor()),
+        Component("Tr-4", Transistor()),
+        Component("hairy-1", Capacitor(bipolar = true)),
+        Component("hairy-2", Capacitor(bipolar = true)),
+        Component("hairy-3", Capacitor(bipolar = true)),
+        Component("hairy-4", Capacitor(bipolar = true)),
+        Component("cap-5", Capacitor(bipolar = true))
+      ),
+      Map(
+        ("diode", Leg.cathode) -> Left(9), ("diode", Leg.anode) -> Right(Plus),
+        ("R470K-1", Leg.firstLeg) -> Left(9), ("R470K-1", Leg.secondLeg) -> Left(4),
+        ("R22K-1", Leg.firstLeg) -> Left(9), ("R22K-1", Leg.secondLeg) -> Left(7),
+        ("R470K-2", Leg.firstLeg) -> Left(9), ("R470K-2", Leg.secondLeg) -> Left(2),
+        ("R22K-2", Leg.firstLeg) -> Left(9), ("R22K-2", Leg.secondLeg) -> Left(6),
+        ("R470K-3", Leg.firstLeg) -> Left(9), ("R470K-3", Leg.secondLeg) -> Left(3),
+        ("R22K-3", Leg.firstLeg) -> Left(9), ("R22K-3", Leg.secondLeg) -> Left(8),
+        ("R470K-4", Leg.firstLeg) -> Left(9), ("R470K-4", Leg.secondLeg) -> Left(1),
+        ("R22K-4", Leg.firstLeg) -> Left(9), ("R22K-4", Leg.secondLeg) -> Left(5),
+        ("Tr-1", "0") -> Left(5), ("Tr-1", "1") -> Left(1), ("Tr-1", "2") -> Right(GND),
+        ("Tr-2", "0") -> Left(8), ("Tr-2", "1") -> Left(3), ("Tr-2", "2") -> Right(GND),
+        ("Tr-3", "0") -> Left(6), ("Tr-3", "1") -> Left(2), ("Tr-3", "2") -> Right(GND),
+        ("Tr-4", "0") -> Left(7), ("Tr-4", "1") -> Left(4), ("Tr-4", "2") -> Right(GND),
+        ("hairy-1", Leg.capMinus) -> Left(1), ("hairy-1", Leg.capPlus) -> Left(8),
+        ("hairy-2", Leg.capMinus) -> Left(3), ("hairy-2", Leg.capPlus) -> Left(6),
+        ("hairy-3", Leg.capMinus) -> Left(2), ("hairy-3", Leg.capPlus) -> Left(7),
+        ("hairy-4", Leg.capMinus) -> Left(4), ("hairy-4", Leg.capPlus) -> Left(5),
+        ("cap-5", Leg.capMinus) -> Right(GND), ("cap-5", Leg.capPlus) -> Left(9)
       )
     ))
   }

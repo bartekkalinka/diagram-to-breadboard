@@ -21,7 +21,7 @@ object DiagramParser extends RegexParsers {
   private def capacitor: Parser[Component] = s"""c\\.$cName""".r ^^ { str => Component(name(str), Capacitor(bipolar = false)) }
   private def bipolarCapacitor: Parser[Component] = s"""bc\\.$cName""".r ^^ { str => Component(name(str), Capacitor(bipolar = true)) }
   private def transistor: Parser[Component] = s"""t\\.$cName""".r ^^ { str => Component(name(str), Transistor()) }
-  private def ic: Parser[Component] = s"""i\\.$cName""".r ^^ { str => Component(name(str), IC("", 0)) }
+  private def ic: Parser[Component] = s"""i\\.$cName""".r ^^ { str => Component(name(str), IC(0)) }
 
   private def connection: Parser[Connection] =
     """\d+""".r ^^ { n => Connection(Left(n.toInt)) } |
@@ -44,7 +44,7 @@ object DiagramParser extends RegexParsers {
     transistor ~ regularConnection ~ regularConnection ~ regularConnection ^^ { case t ~ conn1 ~ conn2 ~ conn3 => (t, List(conn1, conn2, conn3)) }
 
   private def icLine: Parser[Line] = ic ~ (regularConnection+) ^^ {
-    case Component(ComponentName(icName), _, _) ~ connections => (Component(icName, IC("", connections.length)), connections)
+    case Component(ComponentName(icName), _, _) ~ connections => (Component(icName, IC(connections.length)), connections)
   }
 
   private def bipolarCapLine: Parser[Line] =

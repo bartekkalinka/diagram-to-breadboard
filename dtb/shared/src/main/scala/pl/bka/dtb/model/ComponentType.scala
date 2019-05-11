@@ -5,7 +5,7 @@ sealed trait ComponentType {
   def physicalInsertOrder: Int = 0
   def initLegs: Seq[Leg] = List.tabulate(legsCount)(_.toString).map(Leg(_))
 }
-case class IC(symbol: String, legsCount: Int) extends ComponentType {
+case class IC(legsCount: Int) extends ComponentType {
   override def physicalInsertOrder: Int = -1
 }
 case class Resistor(legsCount: Int = 2) extends ComponentType

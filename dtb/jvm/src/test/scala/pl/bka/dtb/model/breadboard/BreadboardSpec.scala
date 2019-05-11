@@ -42,7 +42,7 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
       |t.549B-1 plus 0 gnd
       |t.549B-2 plus 0 gnd
       |r.R220-1 gnd 0
-      |r.R220-2 gnd 0
+      |r.R220-2 plus 0
       |i.082-1 plus 1 1 gnd gnd 2 gnd plus
     """.stripMargin
   )
@@ -52,11 +52,11 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
     """
       |d.diode band.1 plus
       |r.R470K-1 1 3
-      |r.22K-1 1 2
+      |r.R22K-1 1 2
       |r.R470K-2 1 7
-      |r.22K-2 1 6
+      |r.R22K-2 1 6
       |r.R470K-3 1 5
-      |r.22K-3 1 4
+      |r.R22K-3 1 4
       |t.Tr-1 2 3 gnd
       |t.Tr-2 6 7 gnd
       |t.Tr-3 4 5 gnd
