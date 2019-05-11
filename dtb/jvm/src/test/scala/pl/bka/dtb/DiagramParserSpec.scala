@@ -44,4 +44,21 @@ class DiagramParserSpec extends FlatSpec with Matchers {
         )
       ))
   }
+
+  it should "parse diagram testInput1" in {
+    DiagramParser.parse(
+      """
+        |t.Tr549B-1 plus 1 gnd
+        |t.Tr549B-2 plus 1 gnd
+      """.stripMargin
+    ) shouldBe
+    Right((
+      List(
+        Component("Tr549B-1", Transistor()),
+        Component("Tr549B-2", Transistor())
+      ),
+      Map(("Tr549B-1", "0") -> Right(Plus), ("Tr549B-1", "1") -> Left(1), ("Tr549B-1", "2") -> Right(GND),
+        ("Tr549B-2", "0") -> Right(Plus), ("Tr549B-2", "1") -> Left(1), ("Tr549B-2", "2") -> Right(GND))
+    ))
+  }
 }

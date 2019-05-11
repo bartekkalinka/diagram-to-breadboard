@@ -8,12 +8,10 @@ import pl.bka.dtb.model._
 class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matchers {
   //transistors only
   val testInput1 = Diagram(
-    List(
-      Component("Tr549B.1", Transistor()),
-      Component("Tr549B.2", Transistor())
-    ),
-    Map(("Tr549B.1", "0") -> Right(Plus), ("Tr549B.1", "1") -> Left(1), ("Tr549B.1", "2") -> Right(GND),
-      ("Tr549B.2", "0") -> Right(Plus), ("Tr549B.2", "1") -> Left(1), ("Tr549B.2", "2") -> Right(GND))
+   """
+     |t.Tr549B-1 plus 1 gnd
+     |t.Tr549B-2 plus 1 gnd
+   """.stripMargin
   )
 
   //transistors + resistors
