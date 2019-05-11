@@ -12,7 +12,7 @@ object DiagramParser extends RegexParsers {
   case class BipolarConnection(plus: Boolean, id: Connection) extends CommonConnection
   case class BandConnection(id: Connection) extends CommonConnection
   type Line = (Component, Seq[CommonConnection])
-  type Result = Either[Fail, Diagram]
+  type Result = (Seq[Component], Map[(String, String), Either[Int, Power.PowerConnection]])
 
   private def name(str: String) = str.split("\\.")(1)
   private def cName = "[a-zA-Z0-9\\-]+"
@@ -58,7 +58,7 @@ object DiagramParser extends RegexParsers {
 
   private def line: Parser[Line] = twoLegsLine | diodeLine | transistorLine | icLine | bipolarCapLine
 
-  private def diagram: Parser[Result] = (line+) ^^ { lines =>
+  private def diagramInput: Parser[Result] = (line+) ^^ { lines =>
     val (components, connections) = lines.map {
       case (component, legsConnections) =>
         (
@@ -68,11 +68,11 @@ object DiagramParser extends RegexParsers {
           }
         )
     }.unzip
-    Diagram(components, connections.flatten.toMap)
+    (components, connections.flatten.toMap)
   }
 
-  def parseDiagram(diagramStr: String): Either[String, Result] =
-    parse(diagram, diagramStr) match {
+  def parse(diagramStr: String): Either[String, Result] =
+    parse(diagramInput, diagramStr) match {
       case Success(result, _) => Right(result)
       case Failure(msg, _) => Left(msg)
       case Error(msg, _) => Left(msg)

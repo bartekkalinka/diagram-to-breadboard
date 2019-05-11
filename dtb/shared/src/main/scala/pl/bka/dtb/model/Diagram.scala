@@ -58,8 +58,8 @@ object Diagram {
   }
 
   def apply(diagramStr: String): Either[Fail, Diagram] =
-    DiagramParser.parseDiagram(diagramStr) match {
-      case Right(parseResult) => parseResult
+    DiagramParser.parse(diagramStr) match {
+      case Right((components, legConnectionsSimple)) => Diagram.apply(components, legConnectionsSimple)
       case Left(parseFailureReason) => Left(Fail(parseFailureReason))
     }
 

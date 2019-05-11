@@ -18,9 +18,8 @@ class DiagramParserSpec extends FlatSpec with Matchers {
         |i.082-1 plus 1 1 gnd gnd 2 gnd plus
       """.stripMargin
 
-    Diagram(input) shouldBe
-      Diagram(
-        Seq(
+    DiagramParser.parse(input) shouldBe
+      Right((Seq(
           Component("tr1", Transistor()),
           Component("diode1", Diode()),
           Component("diode2", Diode()),
@@ -43,6 +42,6 @@ class DiagramParserSpec extends FlatSpec with Matchers {
           ("082-1", "4") -> Right(GND), ("082-1", "5") -> Left(2),
           ("082-1", "6") -> Right(GND), ("082-1", "7") -> Right(Plus)
         )
-      )
+      ))
   }
 }
