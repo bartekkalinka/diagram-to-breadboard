@@ -30,12 +30,10 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
 
   //resistors with a connection outside of transistors reach
   val testInput3 = Diagram(
-    List(
-      Component("Tr549B.1", Transistor()),
-      Component("R220-1", Resistor())
-    ),
-    Map(("Tr549B.1", "0") -> Right(Plus), ("Tr549B.1", "1") -> Left(0), ("Tr549B.1", "2") -> Right(GND),
-      ("R220-1", Leg.firstLeg) -> Right(GND), ("R220-1", Leg.secondLeg) -> Left(1))
+    """
+      |t.Tr549B-1 plus 0 gnd
+      |r.R220-1 gnd 1
+    """.stripMargin
   )
 
   //simple diagram with IC
