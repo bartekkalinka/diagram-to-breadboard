@@ -21,5 +21,5 @@ object CableType {
   case object PowerCable extends CableType
   case object UnionCable extends CableType
 }
-
+case class Node(legsCount: Int = 1) extends ComponentType
 

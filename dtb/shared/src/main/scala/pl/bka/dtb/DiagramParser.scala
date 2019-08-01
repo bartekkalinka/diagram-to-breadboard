@@ -14,7 +14,7 @@ object DiagramParser extends RegexParsers {
   type Line = (Component, Seq[CommonConnection])
   type Result = (Seq[Component], Map[(String, String), Either[Int, Power.PowerConnection]])
 
-  private def name(str: String) = str.split("\\.")(1)
+  private def name(str: String): String = str.split("\\.")(1)
   private def cName = "[a-zA-Z0-9\\-]+"
   private def diode: Parser[Component] = s"""d\\.$cName""".r ^^ { str => Component(name(str), Diode()) }
   private def resistor: Parser[Component] = s"""r\\.$cName""".r ^^ { str => Component(name(str), Resistor()) }
@@ -22,6 +22,7 @@ object DiagramParser extends RegexParsers {
   private def bipolarCapacitor: Parser[Component] = s"""bc\\.$cName""".r ^^ { str => Component(name(str), Capacitor(bipolar = true)) }
   private def transistor: Parser[Component] = s"""t\\.$cName""".r ^^ { str => Component(name(str), Transistor()) }
   private def ic: Parser[Component] = s"""i\\.$cName""".r ^^ { str => Component(name(str), IC(0)) }
+  private def node: Parser[Component] = s"""n\\.$cName""".r ^^ { str => Component(name(str), Node()) }
 
   private def connection: Parser[Connection] =
     """\d+""".r ^^ { n => Connection(Left(n.toInt)) } |
@@ -37,8 +38,11 @@ object DiagramParser extends RegexParsers {
     "band\\.".r ~ connection ^^ { case _ ~ conn => BandConnection(conn) }
 
   private def twoLegsLine: Parser[Line] =
-    (resistor | capacitor) ~ regularConnection ~ regularConnection ^^
-      { case ct ~ conn1 ~ conn2 => (ct, List(conn1, conn2)) }
+    (capacitor | resistor) ~ regularConnection ~ regularConnection ^^
+      { case comp ~ conn1 ~ conn2 => (comp, List(conn1, conn2)) }
+
+  private def oneLegLine: Parser[Line] =
+    node ~ regularConnection ^^ { case n ~ conn => (n, List(conn)) }
 
   private def transistorLine: Parser[Line] =
     transistor ~ regularConnection ~ regularConnection ~ regularConnection ^^ { case t ~ conn1 ~ conn2 ~ conn3 => (t, List(conn1, conn2, conn3)) }
@@ -56,7 +60,7 @@ object DiagramParser extends RegexParsers {
     (diode ~ bandConnection ~ regularConnection) ^^ { case ct ~ bconn ~ rconn => (ct, List(bconn, rconn)) } |
       (diode ~ regularConnection ~ bandConnection) ^^ { case ct ~ rconn ~ bconn => (ct, List(bconn, rconn)) }
 
-  private def line: Parser[Line] = twoLegsLine | diodeLine | transistorLine | icLine | bipolarCapLine
+  private def line: Parser[Line] = twoLegsLine | diodeLine | transistorLine | icLine | bipolarCapLine | oneLegLine
 
   private def diagramInput: Parser[Result] = (line+) ^^ { lines =>
     val (components, connections) = lines.map {
