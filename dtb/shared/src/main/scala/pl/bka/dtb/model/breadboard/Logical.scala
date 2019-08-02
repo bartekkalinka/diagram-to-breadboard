@@ -38,7 +38,7 @@ object Logical {
       val maxIndex = nextVerticalTrackIndex(side, upper) - 1
       val verticalByIndex = side.groupBy(_.index.index).mapValues(_.head)
       (Breadboard.sideStartIndex(upper) to maxIndex).map { i =>
-        verticalByIndex.getOrElse(i, Vertical(TrackIndex(horizontal = false, i), Connection(Left(-1))))
+        verticalByIndex.getOrElse(i, Vertical(TrackIndex(Vertical, i), Connection(Left(-1))))
       }
     }
     fillOneSide(true) ++ fillOneSide(false)
@@ -56,8 +56,8 @@ object Logical {
           //TODO better starting index for !upper
           val index = if(upper) relativeIndex + startingIndex else -Breadboard.maxVerticalTracks + relativeIndex
           (
-            Vertical(TrackIndex(horizontal = false, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1, freeSpaceForLegs = 0),
-            (legId, TrackIndex(horizontal = false, index))
+            Vertical(TrackIndex(Vertical, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1, freeSpaceForLegs = 0),
+            (legId, TrackIndex(Vertical, index))
           )
       }.unzip
       startingIndex += halfLength
@@ -87,8 +87,8 @@ object Logical {
       val legIds = transistor.legs.map { leg => LegId(transistor.name, leg) }
       legIds.zipWithIndex.foreach { case (legId, relativeIndex) =>
         val index = nextTrackIndices(currSide) + relativeIndex
-        newTracks += Vertical(TrackIndex(horizontal = false, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1, freeSpaceForLegs = 0)
-        newLegsMap.put(legId, TrackIndex(horizontal = false, index))
+        newTracks += Vertical(TrackIndex(Vertical, index), diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1, freeSpaceForLegs = 0)
+        newLegsMap.put(legId, TrackIndex(Vertical, index))
       }
       nextTrackIndices.put(currSide, nextTrackIndices(currSide) + (legIds.length + 1))
       currSide = !currSide
@@ -114,7 +114,7 @@ object Logical {
         .map { case (comp, compIndex, legIndex) => (getLegId(comp, legIndex), (comp.name, Group3Index(compIndex)))}
         .unzip
       legIds.zipWithIndex.foreach { case (legId, i) =>
-        val newTrackIndex = TrackIndex(horizontal = false, nextTrackIndices(currSide) + i * 2)
+        val newTrackIndex = TrackIndex(Vertical, nextTrackIndices(currSide) + i * 2)
         val newTrack =
           Vertical(newTrackIndex, diagram.legsConnections(legId))
         newTracks += newTrack.copy(freeSpace = newTrack.freeSpace - 1).copy(freeSpaceForLegs = newTrack.freeSpaceForLegs - 1)
@@ -212,10 +212,10 @@ object Logical {
 
   private def horizontalTracks: (Seq[Horizontal], Map[(Boolean, PowerConnection), Horizontal]) = {
     val horizontal = Seq(
-      Horizontal(left = true, index = TrackIndex(horizontal = true, 0), power = Power.Plus),
-      Horizontal(left = true, index = TrackIndex(horizontal = true, 1), power = Power.GND),
-      Horizontal(left = true, index = TrackIndex(horizontal = true, -2), power = Power.Plus),
-      Horizontal(left = true, index = TrackIndex(horizontal = true, -1), power = Power.GND)
+      Horizontal(left = true, index = TrackIndex(Horizontal, 0), power = Power.Plus),
+      Horizontal(left = true, index = TrackIndex(Horizontal, 1), power = Power.GND),
+      Horizontal(left = true, index = TrackIndex(Horizontal, -2), power = Power.Plus),
+      Horizontal(left = true, index = TrackIndex(Horizontal, -1), power = Power.GND)
     )
     val horizontalMap: Map[(Boolean, PowerConnection), Horizontal] = Map(
       (true ,Power.Plus) -> horizontal.head,

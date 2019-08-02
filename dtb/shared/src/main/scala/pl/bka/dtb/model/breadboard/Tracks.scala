@@ -3,10 +3,22 @@ package pl.bka.dtb.model.breadboard
 import pl.bka.dtb.model.Connection
 import pl.bka.dtb.model.Power._
 
-case class TrackIndex(horizontal: Boolean, index: Int) {
+sealed trait TrackType
+case object Horizontal extends TrackType
+case object Vertical extends TrackType
+case object OutOfBoard extends TrackType
+
+object TrackType {
+  implicit val trackTypeOrdering: Ordering[TrackType] = implicitly[Ordering[Int]].on {
+    case Horizontal => 0
+    case Vertical => 1
+    case OutOfBoard => 2
+  }
+}
+
+case class TrackIndex(tpe: TrackType, /*horizontal: Boolean, */ index: Int) {
   def upper: Boolean = index >= 0
   def verticalLocationIndex: Int = if(upper) index else index + Breadboard.maxVerticalTracks
-  def order: Int = (if(horizontal) 1000000 else 0) + index
 }
 
 sealed trait Track {
