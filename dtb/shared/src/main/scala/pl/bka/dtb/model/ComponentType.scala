@@ -15,11 +15,12 @@ case class Transistor(legsCount: Int = 3) extends ComponentType
 case class Cable(tpe: CableType.CableType, legsCount: Int = 2) extends ComponentType {
   override def physicalInsertOrder: Int = -1
 }
+case class Node(legsCount: Int = 1) extends ComponentType
+
 object CableType {
   sealed trait CableType
   case object ConnCable extends CableType
   case object PowerCable extends CableType
   case object UnionCable extends CableType
 }
-case class Node(legsCount: Int = 1) extends ComponentType
 

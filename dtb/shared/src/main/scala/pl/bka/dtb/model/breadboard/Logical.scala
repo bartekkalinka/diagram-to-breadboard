@@ -212,10 +212,10 @@ object Logical {
 
   private def horizontalTracks: (Seq[Horizontal], Map[(Boolean, PowerConnection), Horizontal]) = {
     val horizontal = Seq(
-      Horizontal(left = true, index = TrackIndex(Horizontal, 0), power = Power.Plus),
-      Horizontal(left = true, index = TrackIndex(Horizontal, 1), power = Power.GND),
-      Horizontal(left = true, index = TrackIndex(Horizontal, -2), power = Power.Plus),
-      Horizontal(left = true, index = TrackIndex(Horizontal, -1), power = Power.GND)
+      Horizontal(index = TrackIndex(Horizontal, 0), power = Power.Plus),
+      Horizontal(index = TrackIndex(Horizontal, 1), power = Power.GND),
+      Horizontal(index = TrackIndex(Horizontal, -2), power = Power.Plus),
+      Horizontal(index = TrackIndex(Horizontal, -1), power = Power.GND)
     )
     val horizontalMap: Map[(Boolean, PowerConnection), Horizontal] = Map(
       (true ,Power.Plus) -> horizontal.head,

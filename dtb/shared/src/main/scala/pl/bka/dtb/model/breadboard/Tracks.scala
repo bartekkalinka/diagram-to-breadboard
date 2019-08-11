@@ -16,7 +16,7 @@ object TrackType {
   }
 }
 
-case class TrackIndex(tpe: TrackType, /*horizontal: Boolean, */ index: Int) {
+case class TrackIndex(tpe: TrackType, index: Int) {
   def upper: Boolean = index >= 0
   def verticalLocationIndex: Int = if(upper) index else index + Breadboard.maxVerticalTracks
 }
@@ -30,7 +30,7 @@ sealed trait Track {
 case class Vertical(index: TrackIndex, diagramConnection: Connection,
                     length: Int = Tracks.verticalTrackLength, freeSpace: Int = Tracks.verticalTrackLength, freeSpaceForLegs: Int = Tracks.verticalTrackLegsNumber) extends Track
 
-case class Horizontal(left: Boolean, index: TrackIndex,
+case class Horizontal(index: TrackIndex,
                       power: PowerConnection, length: Int = Tracks.horizontalTrackLength) extends Track
 
 object Tracks {
