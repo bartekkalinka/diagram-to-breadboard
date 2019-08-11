@@ -105,7 +105,7 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
   }
 
   private def holePosition(hole: Hole): (Int, Int) =
-    if(hole.trackIndex.tpe == Horizontal) {
+    if(hole.trackIndex.tpe == HorizontalType) {
       (size.tracksHorizontalOffset + hole.holeIndex.position * size.holeStep, horizontalTrackVerticalOffset(hole.trackIndex))
     } else {
       val verticalOffset = verticalTrackVerticalOffset(hole.trackIndex)

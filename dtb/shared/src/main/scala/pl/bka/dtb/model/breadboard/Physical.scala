@@ -55,13 +55,13 @@ case class Physical(components: Seq[Component], tracks: Seq[Track], connections:
   }
 
   def tracksWithFillIns: Seq[Track] = {
-    val vertical = tracks.filter(_.index.tpe == Vertical)
+    val vertical = tracks.filter(_.index.tpe == VerticalType)
     val verticalWithFillIns = Logical.fillInEmptyVertical(vertical)
-    tracks.filter(_.index.tpe == Horizontal) ++ verticalWithFillIns
+    tracks.filter(_.index.tpe == HorizontalType) ++ verticalWithFillIns
   }
 
   def horizontalTrackLength(upper: Boolean) =
-    Seq(tracksWithFillIns.count(t => t.upper == upper && t.index.tpe == Vertical), Tracks.horizontalTrackLength).max
+    Seq(tracksWithFillIns.count(t => t.upper == upper && t.index.tpe == VerticalType), Tracks.horizontalTrackLength).max
 }
 
 object Physical {

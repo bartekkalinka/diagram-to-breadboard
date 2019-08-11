@@ -4,15 +4,15 @@ import pl.bka.dtb.model.Connection
 import pl.bka.dtb.model.Power._
 
 sealed trait TrackType
-case object Horizontal extends TrackType
-case object Vertical extends TrackType
-case object OutOfBoard extends TrackType
+case object HorizontalType extends TrackType
+case object VerticalType extends TrackType
+case object OutOfBoardType extends TrackType
 
 object TrackType {
   implicit val trackTypeOrdering: Ordering[TrackType] = implicitly[Ordering[Int]].on {
-    case Horizontal => 0
-    case Vertical => 1
-    case OutOfBoard => 2
+    case HorizontalType => 0
+    case VerticalType => 1
+    case OutOfBoardType => 2
   }
 }
 
