@@ -56,7 +56,7 @@ object Logical {
           //TODO better starting index for !upper
           val index = if(upper) relativeIndex + startingIndex else -Breadboard.maxVerticalTracks + relativeIndex
           (
-            Vertical(index, diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1, freeSpaceForLegs = 0),
+            Vertical(index, diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1),
             (legId, TrackIndex(VerticalType, index))
           )
       }.unzip
@@ -87,7 +87,7 @@ object Logical {
       val legIds = transistor.legs.map { leg => LegId(transistor.name, leg) }
       legIds.zipWithIndex.foreach { case (legId, relativeIndex) =>
         val index = nextTrackIndices(currSide) + relativeIndex
-        val newTrack = Vertical(index, diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1, freeSpaceForLegs = 0)
+        val newTrack = Vertical(index, diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1)
         newTracks += newTrack
         newLegsMap.put(legId, newTrack.trackIndex)
       }
@@ -118,7 +118,7 @@ object Logical {
         val newTrackIndex = nextTrackIndices(currSide) + i * 2
         val newTrack =
           Vertical(newTrackIndex, diagram.legsConnections(legId))
-        newTracks += newTrack.copy(freeSpace = newTrack.freeSpace - 1).copy(freeSpaceForLegs = newTrack.freeSpaceForLegs - 1)
+        newTracks += newTrack.copy(freeSpace = newTrack.freeSpace - 1)
         newLegsMap.put(legId, newTrack.trackIndex)
       }
       nextTrackIndices.put(currSide, nextTrackIndices(currSide) + legIds.length * 2)

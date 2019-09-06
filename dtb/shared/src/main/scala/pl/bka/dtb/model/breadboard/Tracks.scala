@@ -29,7 +29,7 @@ sealed trait Track {
 }
 
 case class Vertical(index: Int, diagramConnection: Connection,
-                    length: Int = Tracks.verticalTrackLength, freeSpace: Int = Tracks.verticalTrackLength, freeSpaceForLegs: Int = Tracks.verticalTrackLegsNumber) extends Track {
+                    length: Int = Tracks.verticalTrackLength, freeSpace: Int = Tracks.verticalTrackLength) extends Track {
   def trackIndex: TrackIndex = TrackIndex(VerticalType, index)
 }
 
