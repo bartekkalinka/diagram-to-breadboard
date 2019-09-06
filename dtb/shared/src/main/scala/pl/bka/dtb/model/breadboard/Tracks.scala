@@ -22,16 +22,21 @@ case class TrackIndex(tpe: TrackType, index: Int) {
 }
 
 sealed trait Track {
-  val index: TrackIndex
+  val index: Int
   val length: Int
-  def upper: Boolean = index.upper
+  def trackIndex: TrackIndex
+  def upper: Boolean = trackIndex.upper
 }
 
-case class Vertical(index: TrackIndex, diagramConnection: Connection,
-                    length: Int = Tracks.verticalTrackLength, freeSpace: Int = Tracks.verticalTrackLength, freeSpaceForLegs: Int = Tracks.verticalTrackLegsNumber) extends Track
+case class Vertical(index: Int, diagramConnection: Connection,
+                    length: Int = Tracks.verticalTrackLength, freeSpace: Int = Tracks.verticalTrackLength, freeSpaceForLegs: Int = Tracks.verticalTrackLegsNumber) extends Track {
+  def trackIndex: TrackIndex = TrackIndex(VerticalType, index)
+}
 
-case class Horizontal(index: TrackIndex,
-                      power: PowerConnection, length: Int = Tracks.horizontalTrackLength) extends Track
+case class Horizontal(index: Int,
+                      power: PowerConnection, length: Int = Tracks.horizontalTrackLength) extends Track {
+  def trackIndex: TrackIndex = TrackIndex(HorizontalType, index)
+}
 
 object Tracks {
   val verticalTrackLength = 5

@@ -118,8 +118,8 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
     }
 
   private def drawVerticalTrack(vertical: Vertical): Unit = {
-    val verticalOffset = verticalTrackVerticalOffset(vertical.index)
-    val locationIndex = vertical.index.verticalLocationIndex
+    val verticalOffset = verticalTrackVerticalOffset(vertical.trackIndex)
+    val locationIndex = vertical.trackIndex.verticalLocationIndex
     val from = (locationIndex * size.tracksStep + size.tracksHorizontalOffset, verticalOffset)
     val to = (
       locationIndex * size.tracksStep + size.tracksHorizontalOffset,
@@ -127,31 +127,31 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
     )
     directDrawing.drawLine(from, to, 1)
     for(h <- 0 until Tracks.verticalTrackLength) {
-      directDrawing.drawHole(holePosition(Hole(vertical.index, TrackPosition(h))))
+      directDrawing.drawHole(holePosition(Hole(vertical.trackIndex, TrackPosition(h))))
     }
     val verticalShift = if(vertical.upper) -6 * size.holeRadius else 6 * size.holeRadius
-    directDrawing.drawTrackIndex((from._1, from._2 + verticalShift), vertical.index)
+    directDrawing.drawTrackIndex((from._1, from._2 + verticalShift), vertical.trackIndex)
   }
 
   private def verticalTrackVerticalOffset(index: TrackIndex) =
     if(index.upper) size.upperVerticalTracksVerticalOffset else size.bottomVerticalTracksVerticalOffset
 
-  private def horizontalTrackVerticalOffset(index: TrackIndex) =
-    if(index.upper) {
-      index.index * size.tracksStep + size.upperHorizontalTracksVerticalOffset
+  private def horizontalTrackVerticalOffset(trackIndex: TrackIndex) =
+    if(trackIndex.upper) {
+      trackIndex.index * size.tracksStep + size.upperHorizontalTracksVerticalOffset
     }  else {
-      (index.index + 1) * size.tracksStep + size.bottomHorizontalTracksVerticalOffset
+      (trackIndex.index + 1) * size.tracksStep + size.bottomHorizontalTracksVerticalOffset
     }
 
   private def drawHorizontalTrack(horizontal: Horizontal): Unit = {
     val horizontalLength = physical.horizontalTrackLength(horizontal.upper)
-    val trackY = horizontalTrackVerticalOffset(horizontal.index)
+    val trackY = horizontalTrackVerticalOffset(horizontal.trackIndex)
     val from = (size.tracksHorizontalOffset, trackY)
     val to = (size.tracksHorizontalOffset + size.horizontalTrackLength(horizontalLength), trackY)
     directDrawing.drawLine(from, to, 1)
 
     for(h <- 0 until horizontalLength) {
-      directDrawing.drawHole(holePosition(Hole(horizontal.index, TrackPosition(h))))
+      directDrawing.drawHole(holePosition(Hole(horizontal.trackIndex, TrackPosition(h))))
     }
     drawPowerSign(horizontal.power, (from._1 - 12, from._2))
   }

@@ -44,7 +44,7 @@ case class Physical(components: Seq[Component], tracks: Seq[Track], connections:
       }
       else acc
     val connectionByTrack: Map[TrackIndex, Connection] =
-      groupTracksByConnection(this.tracks.map(_.index), Seq[Seq[TrackIndex]]())
+      groupTracksByConnection(this.tracks.map(_.trackIndex), Seq[Seq[TrackIndex]]())
         .zipWithIndex.flatMap { case (trks, i) => trks.map((_, Connection(Left(i)))) }.toMap
     println("----- connection by track -----")
     connectionByTrack.prettyPrint
@@ -55,13 +55,13 @@ case class Physical(components: Seq[Component], tracks: Seq[Track], connections:
   }
 
   def tracksWithFillIns: Seq[Track] = {
-    val vertical = tracks.filter(_.index.tpe == VerticalType)
+    val vertical = tracks.filter(_.trackIndex.tpe == VerticalType)
     val verticalWithFillIns = Logical.fillInEmptyVertical(vertical)
-    tracks.filter(_.index.tpe == HorizontalType) ++ verticalWithFillIns
+    tracks.filter(_.trackIndex.tpe == HorizontalType) ++ verticalWithFillIns
   }
 
   def horizontalTrackLength(upper: Boolean) =
-    Seq(tracksWithFillIns.count(t => t.upper == upper && t.index.tpe == VerticalType), Tracks.horizontalTrackLength).max
+    Seq(tracksWithFillIns.count(t => t.upper == upper && t.trackIndex.tpe == VerticalType), Tracks.horizontalTrackLength).max
 }
 
 object Physical {
@@ -106,7 +106,7 @@ object Physical {
   def apply(logical: Logical): Physical = {
     val tracks: Seq[Track] = logical.tracks
     val initialFreePositions: Map[TrackIndex, Seq[TrackPosition]] = tracks.map { track =>
-      (track.index, List.tabulate(track.length)(TrackPosition))
+      (track.trackIndex, List.tabulate(track.length)(TrackPosition))
     }.toMap
     val sortedComponents = logical.components.sortBy(_.cType.physicalInsertOrder)
     val (legsInsertions, _) = sortedComponents.map(_.name).foldLeft((Map[LegId, Hole](), initialFreePositions)) {
