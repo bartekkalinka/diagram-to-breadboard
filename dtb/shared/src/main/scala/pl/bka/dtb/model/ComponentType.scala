@@ -4,6 +4,7 @@ sealed trait ComponentType {
   val legsCount: Int
   def physicalInsertOrder: Int = 0
   def initLegs: Seq[Leg] = List.tabulate(legsCount)(_.toString).map(Leg(_))
+  def isOutOfBoard: Boolean = false
 }
 case class IC(legsCount: Int) extends ComponentType {
   override def physicalInsertOrder: Int = -1
@@ -15,7 +16,9 @@ case class Transistor(legsCount: Int = 3) extends ComponentType
 case class Cable(tpe: CableType.CableType, legsCount: Int = 2) extends ComponentType {
   override def physicalInsertOrder: Int = -1
 }
-case class Node(legsCount: Int = 1) extends ComponentType
+case class Node(legsCount: Int = 1) extends ComponentType {
+  override def isOutOfBoard: Boolean = true
+}
 
 object CableType {
   sealed trait CableType

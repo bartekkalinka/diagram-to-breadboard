@@ -15,7 +15,7 @@ object Logical {
 
   def apply(diagram: Diagram): Logical = {
     val (vertical, componentsLegs, group3Order) =
-      Seq(icsToTracks _, transistorsToTracks _, otherToTracks _)
+      Seq(icsToTracks _, transistorsToTracks _, otherOnBoardToTracks _)
         .foldLeft((Seq.empty[DiagramConnectionTrack], Map.empty[LegId, TrackIndex], Map.empty[ComponentName, Group3Index])) { case ((currVertical, legs, currGroup3Order), componentsToTracks) =>
           val (newVertical, newLegs, newGroup3Order) = componentsToTracks(diagram, currVertical)
           (newVertical, legs ++ newLegs, currGroup3Order ++ newGroup3Order)
@@ -98,12 +98,12 @@ object Logical {
     (vertical ++ newTracks.toVector, newLegsMap.toMap, Map.empty[ComponentName, Group3Index])
   }
 
-  private def otherToTracks(diagram: Diagram, vertical: Seq[DiagramConnectionTrack]): (Seq[DiagramConnectionTrack], Map[LegId, TrackIndex], Map[ComponentName, Group3Index]) = {
-    val other = diagram.components.filterNot(c => c.cType.isInstanceOf[Transistor] || c.cType.isInstanceOf[IC])
+  private def otherOnBoardToTracks(diagram: Diagram, vertical: Seq[DiagramConnectionTrack]): (Seq[DiagramConnectionTrack], Map[LegId, TrackIndex], Map[ComponentName, Group3Index]) = {
+    val other = diagram.components.filterNot(c => c.cType.isInstanceOf[Transistor] || c.cType.isInstanceOf[IC] || c.cType.isOutOfBoard)
     val groupsBy3 = other.zipWithIndex.groupBy { case (_, i) => i / 3 }.values.toSeq.map(_.map(_._1))
     val nextTrackIndices = mutable.Map(
       false -> (nextVerticalTrackIndex(vertical, upper = false) + 1),
-      true -> (nextVerticalTrackIndex(vertical, true) + 1))
+      true -> (nextVerticalTrackIndex(vertical) + 1))
     var currSide = true
     val newTracks = mutable.ArrayBuffer.empty[DiagramConnectionTrack]
     val newLegsMap = mutable.Map.empty[LegId, TrackIndex]
