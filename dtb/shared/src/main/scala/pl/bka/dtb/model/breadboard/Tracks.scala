@@ -28,10 +28,10 @@ sealed trait Track {
   def upper: Boolean = trackIndex.upper
 }
 
-case class Vertical(index: Int, diagramConnection: Connection, isOutOfBoard: Boolean = false,
-                    length: Int = Tracks.verticalTrackLength, freeSpace: Int = Tracks.verticalTrackLength) extends Track {
+case class DiagramConnectionTrack(index: Int, diagramConnection: Connection, isOutOfBoard: Boolean = false,
+                                  length: Int = Tracks.verticalTrackLength, freeSpace: Int = Tracks.verticalTrackLength) extends Track {
   def trackIndex: TrackIndex = TrackIndex(if(isOutOfBoard) OutOfBoardType else VerticalType, index)
-  def setFreeSpace(newFreeSpace: Int): Vertical = copy(freeSpace = newFreeSpace)
+  def setFreeSpace(newFreeSpace: Int): DiagramConnectionTrack = copy(freeSpace = newFreeSpace)
 }
 
 case class Horizontal(index: Int,

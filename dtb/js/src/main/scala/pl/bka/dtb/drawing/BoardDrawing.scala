@@ -117,7 +117,7 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
       }
     }
 
-  private def drawVerticalTrack(vertical: Vertical): Unit = {
+  private def drawVerticalTrack(vertical: DiagramConnectionTrack): Unit = {
     val verticalOffset = verticalTrackVerticalOffset(vertical.trackIndex)
     val locationIndex = vertical.trackIndex.verticalLocationIndex
     val from = (locationIndex * size.tracksStep + size.tracksHorizontalOffset, verticalOffset)
@@ -157,7 +157,7 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
   }
 
   private def drawTrack(track: Track): Unit = track match {
-    case v: Vertical => drawVerticalTrack(v)
+    case v: DiagramConnectionTrack => drawVerticalTrack(v)
     case h: Horizontal => drawHorizontalTrack(h)
   }
 
