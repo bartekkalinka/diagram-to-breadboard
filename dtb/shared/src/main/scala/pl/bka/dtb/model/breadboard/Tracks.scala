@@ -28,21 +28,10 @@ sealed trait Track {
   def upper: Boolean = trackIndex.upper
 }
 
-sealed trait DiagramConnectionTrack extends Track {
-  val diagramConnection: Connection
-  val freeSpace: Int
-  def setFreeSpace(newFreeSpace: Int): DiagramConnectionTrack
-}
-
-case class Vertical(index: Int, diagramConnection: Connection,
-                    length: Int = Tracks.verticalTrackLength, freeSpace: Int = Tracks.verticalTrackLength) extends DiagramConnectionTrack {
-  def trackIndex: TrackIndex = TrackIndex(VerticalType, index)
-  def setFreeSpace(newFreeSpace: Int): DiagramConnectionTrack = copy(freeSpace = newFreeSpace)
-}
-
-case class OutOfBoard(index: Int, diagramConnection: Connection, length: Int = 2, freeSpace: Int = 2) extends DiagramConnectionTrack {
-  def trackIndex: TrackIndex = TrackIndex(OutOfBoardType, index)
-  def setFreeSpace(newFreeSpace: Int): DiagramConnectionTrack = copy(freeSpace = newFreeSpace)
+case class Vertical(index: Int, diagramConnection: Connection, isOutOfBoard: Boolean = false,
+                    length: Int = Tracks.verticalTrackLength, freeSpace: Int = Tracks.verticalTrackLength) extends Track {
+  def trackIndex: TrackIndex = TrackIndex(if(isOutOfBoard) OutOfBoardType else VerticalType, index)
+  def setFreeSpace(newFreeSpace: Int): Vertical = copy(freeSpace = newFreeSpace)
 }
 
 case class Horizontal(index: Int,

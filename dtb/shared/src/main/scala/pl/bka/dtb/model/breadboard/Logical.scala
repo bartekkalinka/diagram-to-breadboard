@@ -128,7 +128,7 @@ object Logical {
     (vertical ++ newTracks.toVector, newLegsMap.toMap, newGroup3Order.toMap)
   }
 
-  private def calcRegularConnectionCables(tracks: Seq[DiagramConnectionTrack]): (Seq[Component], Map[LegId, TrackIndex]) = {
+  private def calcRegularConnectionCables(tracks: Seq[Vertical]): (Seq[Component], Map[LegId, TrackIndex]) = {
     def addCable(connection: Connection)(prev: Track, next: Track): (Component, Seq[(LegId, TrackIndex)]) = {
       val cName = s"cable-${connection.id.fold(identity, identity)}-${prev.trackIndex.index}-${next.trackIndex.index}"
       val cable = Component(cName, Cable(CableType.ConnCable))
@@ -139,13 +139,13 @@ object Logical {
       (cable, legs)
     }
     def connect2TracksWithCables(comps: Seq[Component], legsMap: Map[LegId, TrackIndex],
-                                 connection: Connection, tracksGroup: Seq[DiagramConnectionTrack]): (Seq[Component], Map[LegId, TrackIndex]) = {
+                                 connection: Connection, tracksGroup: Seq[Vertical]): (Seq[Component], Map[LegId, TrackIndex]) = {
       val (cable, cableLegs) = addCable(connection)(tracksGroup.head, tracksGroup(1))
       (comps :+ cable, legsMap ++ cableLegs.toMap)
     }
     def connectManyTracksWithCables(comps: Seq[Component], legsMap: Map[LegId, TrackIndex],
-                                    connection: Connection, tracksGroup: Seq[DiagramConnectionTrack]): (Seq[Component], Map[LegId, TrackIndex]) = {
-      val modifiedTracks = mutable.ArrayBuffer[DiagramConnectionTrack](tracksGroup: _*)
+                                    connection: Connection, tracksGroup: Seq[Vertical]): (Seq[Component], Map[LegId, TrackIndex]) = {
+      val modifiedTracks = mutable.ArrayBuffer[Vertical](tracksGroup: _*)
       val newCables = mutable.ArrayBuffer.empty[Component]
       val newLegsMap = mutable.Map.empty[LegId, TrackIndex]
       val connectedTracks = mutable.ArrayBuffer[Int](0)
