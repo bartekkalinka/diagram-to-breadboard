@@ -15,7 +15,7 @@ object Logical {
 
   def apply(diagram: Diagram): Logical = {
     val (vertical, componentsLegs, group3Order) =
-      Seq(icsToTracks _, transistorsToTracks _, otherOnBoardToTracks _)
+      Seq(icsToTracks _, transistorsToTracks _, otherOnBoardToTracks _, outOfBoardToTracks _)
         .foldLeft((Seq.empty[DiagramConnectionTrack], Map.empty[LegId, TrackIndex], Map.empty[ComponentName, Group3Index])) { case ((currVertical, legs, currGroup3Order), componentsToTracks) =>
           val (newVertical, newLegs, newGroup3Order) = componentsToTracks(diagram, currVertical)
           (newVertical, legs ++ newLegs, currGroup3Order ++ newGroup3Order)
@@ -99,8 +99,8 @@ object Logical {
   }
 
   private def otherOnBoardToTracks(diagram: Diagram, vertical: Seq[DiagramConnectionTrack]): (Seq[DiagramConnectionTrack], Map[LegId, TrackIndex], Map[ComponentName, Group3Index]) = {
-    val other = diagram.components.filterNot(c => c.cType.isInstanceOf[Transistor] || c.cType.isInstanceOf[IC] || c.cType.isOutOfBoard)
-    val groupsBy3 = other.zipWithIndex.groupBy { case (_, i) => i / 3 }.values.toSeq.map(_.map(_._1))
+    val componentsToProcess = diagram.components.filterNot(c => c.cType.isInstanceOf[Transistor] || c.cType.isInstanceOf[IC] || c.cType.isOutOfBoard)
+    val groupsBy3 = componentsToProcess.zipWithIndex.groupBy { case (_, i) => i / 3 }.values.toSeq.map(_.map(_._1))
     val nextTrackIndices = mutable.Map(
       false -> (nextVerticalTrackIndex(vertical, upper = false) + 1),
       true -> (nextVerticalTrackIndex(vertical) + 1))
@@ -126,6 +126,20 @@ object Logical {
       currSide = !currSide
     }
     (vertical ++ newTracks.toVector, newLegsMap.toMap, newGroup3Order.toMap)
+  }
+
+  private def outOfBoardToTracks(diagram: Diagram, vertical: Seq[DiagramConnectionTrack]): (Seq[DiagramConnectionTrack], Map[LegId, TrackIndex], Map[ComponentName, Group3Index]) = {
+    val componentsToProcess = diagram.components.filter(_.cType.isOutOfBoard)
+    val legIds = componentsToProcess.flatMap(c => c.legs.map(l => LegId(c.name, l)))
+    val newTracks = mutable.ArrayBuffer.empty[DiagramConnectionTrack]
+    val newLegsMap = mutable.Map.empty[LegId, TrackIndex]
+    legIds.foreach { legId =>
+      val newTrackIndex = newTracks.length
+      val newTrack = DiagramConnectionTrack(newTrackIndex, diagram.legsConnections(legId), isOutOfBoard = true, length = 2, freeSpace = 1)
+      newTracks += newTrack
+      newLegsMap.put(legId, newTrack.trackIndex)
+    }
+    (vertical ++ newTracks.toVector, newLegsMap.toMap, Map.empty[ComponentName, Group3Index])
   }
 
   private def calcRegularConnectionCables(tracks: Seq[DiagramConnectionTrack]): (Seq[Component], Map[LegId, TrackIndex]) = {
