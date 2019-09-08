@@ -198,5 +198,11 @@ class DirectDrawing(size: Size) {
     ctx.fillStyle = "#000000"
     ctx.fillText(trackIndex.label, pos._1, pos._2)
   }
+
+  def drawText(pos: (Int, Int), text: String, color: String = "#000000"): Unit = {
+    ctx.font = size.font
+    ctx.fillStyle = color
+    ctx.fillText(text, pos._1, pos._2)
+  }
 }
 

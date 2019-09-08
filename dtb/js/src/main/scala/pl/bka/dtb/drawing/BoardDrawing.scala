@@ -82,8 +82,10 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
         Some((component.name, centerX, centerY))
       case Node(_) =>
         val holePos = outOfBoardHolePosition(holes.head)
-        directDrawing.drawLine((holePos._1, holePos._2 - size.tracksStep / 2), (holePos._1, holePos._2 + size.tracksStep / 2), 2)
-        directDrawing.drawLine((holePos._1- size.tracksStep / 2, holePos._2), (holePos._1 + size.tracksStep / 2, holePos._2), 2)
+        directDrawing.drawLine((holePos._1, holePos._2 - size.tracksStep / 3), (holePos._1, holePos._2 + size.tracksStep / 3), 2)
+        directDrawing.drawLine((holePos._1 - size.tracksStep / 3, holePos._2), (holePos._1 + size.tracksStep / 3, holePos._2), 2)
+        directDrawing.drawText((holePos._1 - size.tracksStep / 3, holePos._2 - size.tracksStep / 3 - 1), component.name.value)
+        directDrawing.drawTrackIndex((holePos._1 - size.tracksStep / 4, holePos._2 + size.tracksStep / 3 + size.trackIndexFontSize), holes.head.trackIndex)
         None
       case _ => None
     }
