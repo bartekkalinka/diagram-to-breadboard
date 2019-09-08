@@ -9,7 +9,7 @@ object DrawingLayer {
   implicit class TrackIndexLabeling(index: TrackIndex) {
     def label: String =
       if(index.tpe == OutOfBoardType) {
-        "O" + "%02d".format(index.index)
+        "OB" + "%02d".format(index.index)
       } else if(index.upper) {
         "U" + "%02d".format(index.index + startIndex)
       } else {
