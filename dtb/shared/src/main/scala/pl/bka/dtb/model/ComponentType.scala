@@ -19,6 +19,9 @@ case class Cable(tpe: CableType.CableType, legsCount: Int = 2) extends Component
 case class Node(legsCount: Int = 1) extends ComponentType {
   override def isOutOfBoard: Boolean = true
 }
+case class Pot(legsCount: Int = 3) extends ComponentType {
+  override def isOutOfBoard: Boolean = true
+}
 
 object CableType {
   sealed trait CableType

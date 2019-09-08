@@ -23,6 +23,7 @@ object DiagramParser extends RegexParsers {
   private def transistor: Parser[Component] = s"""t\\.$cName""".r ^^ { str => Component(name(str), Transistor()) }
   private def ic: Parser[Component] = s"""i\\.$cName""".r ^^ { str => Component(name(str), IC(0)) }
   private def node: Parser[Component] = s"""n\\.$cName""".r ^^ { str => Component(name(str), Node()) }
+  private def pot: Parser[Component] =  s"""p\\.$cName""".r ^^ { str => Component(name(str), Pot()) }
 
   private def connection: Parser[Connection] =
     """\d+""".r ^^ { n => Connection(Left(n.toInt)) } |
@@ -44,8 +45,9 @@ object DiagramParser extends RegexParsers {
   private def oneLegLine: Parser[Line] =
     node ~ regularConnection ^^ { case n ~ conn => (n, List(conn)) }
 
-  private def transistorLine: Parser[Line] =
-    transistor ~ regularConnection ~ regularConnection ~ regularConnection ^^ { case t ~ conn1 ~ conn2 ~ conn3 => (t, List(conn1, conn2, conn3)) }
+  private def threeLegsLine: Parser[Line] =
+    (transistor | pot) ~ regularConnection ~ regularConnection ~ regularConnection ^^
+      { case comp ~ conn1 ~ conn2 ~ conn3 => (comp, List(conn1, conn2, conn3)) }
 
   private def icLine: Parser[Line] = ic ~ (regularConnection+) ^^ {
     case Component(ComponentName(icName), _, _) ~ connections => (Component(icName, IC(connections.length)), connections)
@@ -60,7 +62,7 @@ object DiagramParser extends RegexParsers {
     (diode ~ bandConnection ~ regularConnection) ^^ { case ct ~ bconn ~ rconn => (ct, List(bconn, rconn)) } |
       (diode ~ regularConnection ~ bandConnection) ^^ { case ct ~ rconn ~ bconn => (ct, List(bconn, rconn)) }
 
-  private def line: Parser[Line] = twoLegsLine | diodeLine | transistorLine | icLine | bipolarCapLine | oneLegLine
+  private def line: Parser[Line] = twoLegsLine | diodeLine | threeLegsLine | icLine | bipolarCapLine | oneLegLine
 
   private def diagramInput: Parser[Result] = (line+) ^^ { lines =>
     val (components, connections) = lines.map {

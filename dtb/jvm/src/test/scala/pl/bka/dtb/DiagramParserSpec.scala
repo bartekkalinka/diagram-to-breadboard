@@ -17,6 +17,7 @@ class DiagramParserSpec extends FlatSpec with Matchers {
         |bc.hairy3 +plus -5
         |i.082-1 plus 1 1 gnd gnd 2 gnd plus
         |n.node1 4
+        |p.pot-100K 5 gnd 3
       """.stripMargin
 
     DiagramParser.parse(input) shouldBe
@@ -29,7 +30,8 @@ class DiagramParserSpec extends FlatSpec with Matchers {
           Component("hairy2", Capacitor(bipolar = true)),
           Component("hairy3", Capacitor(bipolar = true)),
           Component("082-1", IC(8)),
-          Component("node1", Node())
+          Component("node1", Node()),
+          Component("pot-100K", Pot())
         ),
         Map(
           ("tr1", "0") -> Left(3), ("tr1", "1") -> Right(GND), ("tr1", "2") -> Left(1),
@@ -43,7 +45,8 @@ class DiagramParserSpec extends FlatSpec with Matchers {
           ("082-1", "2") -> Left(1), ("082-1", "3") -> Right(GND),
           ("082-1", "4") -> Right(GND), ("082-1", "5") -> Left(2),
           ("082-1", "6") -> Right(GND), ("082-1", "7") -> Right(Plus),
-          ("node1", "0") -> Left(4)
+          ("node1", "0") -> Left(4),
+          ("pot-100K", "0") -> Left(5), ("pot-100K", "1") -> Right(GND), ("pot-100K", "2") -> Left(3)
         )
       ))
   }

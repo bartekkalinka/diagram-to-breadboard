@@ -85,7 +85,28 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
         directDrawing.drawLine((holePos._1, holePos._2 - size.tracksStep / 3), (holePos._1, holePos._2 + size.tracksStep / 3), 2)
         directDrawing.drawLine((holePos._1 - size.tracksStep / 3, holePos._2), (holePos._1 + size.tracksStep / 3, holePos._2), 2)
         directDrawing.drawText((holePos._1 - size.tracksStep / 3, holePos._2 - size.tracksStep / 3 - 1), component.name.value)
-        directDrawing.drawTrackIndex((holePos._1 - size.tracksStep / 4, holePos._2 + size.tracksStep / 3 + size.trackIndexFontSize), holes.head.trackIndex)
+        directDrawing.drawTrackIndex((holePos._1 - size.tracksStep / 3, holePos._2 + size.tracksStep / 3 + size.trackIndexFontSize), holes.head.trackIndex)
+        None
+      case Pot(_) =>
+        val holePositions = holes.map(outOfBoardHolePosition).sortBy(_._1)
+        holePositions.foreach(directDrawing.drawHole)
+        val margin = size.tracksStep / 2
+        val floorY = holePositions.head._2 + size.holeRadius + 4
+        val lowerRoofY = holePositions.head._2 - size.holeRadius - 4
+        val higherRoofY = holePositions.head._2 - size.holeRadius - margin
+        directDrawing.drawLine((holePositions.head._1 - margin, lowerRoofY), (holePositions.head._1 - margin, floorY), 2)
+        directDrawing.drawLine((holePositions.head._1 - margin, floorY), (holePositions(2)._1 + margin, floorY), 2)
+        directDrawing.drawLine((holePositions(2)._1 + margin, floorY), (holePositions(2)._1 + margin, lowerRoofY), 2)
+        directDrawing.drawLine((holePositions(2)._1 + margin, lowerRoofY), (holePositions(2)._1, higherRoofY), 2)
+        directDrawing.drawLine((holePositions(2)._1, higherRoofY), ((holePositions(2)._1 + holePositions(1)._1) / 2, lowerRoofY), 2)
+        directDrawing.drawLine(((holePositions(2)._1 + holePositions(1)._1) / 2, lowerRoofY), (holePositions(1)._1, higherRoofY), 2)
+        directDrawing.drawLine((holePositions(1)._1, higherRoofY), ((holePositions(1)._1 + holePositions.head._1) / 2, lowerRoofY), 2)
+        directDrawing.drawLine(((holePositions(1)._1 + holePositions.head._1) / 2, lowerRoofY), (holePositions.head._1, higherRoofY), 2)
+        directDrawing.drawLine((holePositions.head._1, higherRoofY), (holePositions.head._1 - margin, lowerRoofY), 2)
+        directDrawing.drawText((holePositions(1)._1 - margin, higherRoofY - size.tracksStep / 8), component.name.value)
+        holePositions.zip(holes).foreach { case (holePos, hole) =>
+          directDrawing.drawTrackIndex((holePos._1 - size.tracksStep / 3, holePos._2 + size.tracksStep / 3 + size.trackIndexFontSize), hole.trackIndex)
+        }
         None
       case _ => None
     }
