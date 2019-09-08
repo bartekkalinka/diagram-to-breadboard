@@ -65,14 +65,14 @@ case class Physical(components: Seq[Component], tracks: Seq[Track], connections:
 }
 
 object Physical {
-  private def insertComponent(logical: Logical)(cName: ComponentName, allLegsInsertions: Map[LegId, Hole],
-                                        freePositions: Map[TrackIndex, Seq[TrackPosition]]): (Map[LegId, Hole], Map[TrackIndex, Seq[TrackPosition]]) = {
+  private def insertComponent(logical: Logical)(cName: ComponentName, legsInsertions: Map[LegId, Hole],
+                                                freePositions: Map[TrackIndex, Seq[TrackPosition]]): (Map[LegId, Hole], Map[TrackIndex, Seq[TrackPosition]]) = {
     val compLegs: Seq[LegId] = logical.componentsLegs(cName)
     val component = logical.componentsByName(cName)
     val compType = component.cType
     val minPositions: Seq[TrackPosition] = compLegs.map { legId =>
-      val track = logical.connections(legId)
-      freePositions(track).minBy(_.position)
+      val trackIndex = logical.connections(legId)
+      freePositions(trackIndex).minBy(_.position)
     }
     val targetPositions: Seq[TrackPosition] = compType match {
       case _: Transistor =>
@@ -90,17 +90,17 @@ object Physical {
         val group3OrderIndex = logical.group3Order.get(cName).map(_.index).getOrElse(0)
         Seq.tabulate(compLegs.length)(_ => TrackPosition(Tracks.verticalTrackLength - group3OrderIndex - 1))
     }
-    val compLegsInsertions: Map[LegId, Hole] =
+    val newLegsInsertions: Map[LegId, Hole] =
       compLegs.zipWithIndex.map { case (legId, i) =>
         (legId, Hole(logical.connections(legId), targetPositions(i)))
       }.toMap
-    val newAllLegsInsertions: Map[LegId, Hole] = allLegsInsertions ++ compLegsInsertions
-    val newFreePositions: Map[TrackIndex, Seq[TrackPosition]] = compLegsInsertions.toSeq.foldLeft(freePositions) { case (fps, (legId, hole)) =>
+    val updatedLegsInsertions: Map[LegId, Hole] = legsInsertions ++ newLegsInsertions
+    val updatedFreePositions: Map[TrackIndex, Seq[TrackPosition]] = newLegsInsertions.toSeq.foldLeft(freePositions) { case (fps, (legId, hole)) =>
       val track = logical.connections(legId)
       val newFps = fps(track).filterNot(_ == hole.holeIndex)
       fps.updated(track, newFps)
     }
-    (newAllLegsInsertions, newFreePositions)
+    (updatedLegsInsertions, updatedFreePositions)
   }
 
   def apply(logical: Logical): Physical = {
