@@ -164,6 +164,9 @@ class DiagramParserSpec extends FlatSpec with Matchers {
         |bc.hairy-2 -3 +4
         |bc.hairy-3 -5 +6
         |bc.cap-4 -gnd +1
+        |n.node-1 3
+        |n.node-2 5
+        |n.node-3 7
       """.stripMargin
     ) shouldBe
     Right((
@@ -181,7 +184,10 @@ class DiagramParserSpec extends FlatSpec with Matchers {
         Component("hairy-1", Capacitor(bipolar = true)),
         Component("hairy-2", Capacitor(bipolar = true)),
         Component("hairy-3", Capacitor(bipolar = true)),
-        Component("cap-4", Capacitor(bipolar = true))
+        Component("cap-4", Capacitor(bipolar = true)),
+        Component("node-1", Node()),
+        Component("node-2", Node()),
+        Component("node-3", Node())
       ),
       Map(
         ("diode", Leg.cathode) -> Left(1), ("diode", Leg.anode) -> Right(Plus),
@@ -197,7 +203,8 @@ class DiagramParserSpec extends FlatSpec with Matchers {
         ("hairy-1", Leg.capMinus) -> Left(7), ("hairy-1", Leg.capPlus) -> Left(2),
         ("hairy-2", Leg.capMinus) -> Left(3), ("hairy-2", Leg.capPlus) -> Left(4),
         ("hairy-3", Leg.capMinus) -> Left(5), ("hairy-3", Leg.capPlus) -> Left(6),
-        ("cap-4", Leg.capMinus) -> Right(GND), ("cap-4", Leg.capPlus) -> Left(1)
+        ("cap-4", Leg.capMinus) -> Right(GND), ("cap-4", Leg.capPlus) -> Left(1),
+        ("node-1", "0") -> Left(3), ("node-2", "0") -> Left(5), ("node-3", "0") -> Left(7)
       )
     ))
   }

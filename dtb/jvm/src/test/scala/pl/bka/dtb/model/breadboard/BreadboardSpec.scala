@@ -64,6 +64,9 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
       |bc.hairy-2 -3 +4
       |bc.hairy-3 -5 +6
       |bc.cap-4 -gnd +1
+      |n.node-1 3
+      |n.node-2 5
+      |n.node-3 7
     """.stripMargin
   )
 
