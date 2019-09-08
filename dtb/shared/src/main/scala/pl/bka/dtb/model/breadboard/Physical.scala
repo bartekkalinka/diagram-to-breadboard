@@ -86,6 +86,8 @@ object Physical {
           .map(_ => TrackPosition(Tracks.verticalTrackLength - 1))
       case _: Cable =>
         minPositions
+      case cType if cType.isOutOfBoard =>
+        minPositions
       case _ =>
         val group3OrderIndex = logical.group3Order.get(cName).map(_.index).getOrElse(0)
         Seq.tabulate(compLegs.length)(_ => TrackPosition(Tracks.verticalTrackLength - group3OrderIndex - 1))
