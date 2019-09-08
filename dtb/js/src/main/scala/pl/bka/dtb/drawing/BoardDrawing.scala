@@ -80,6 +80,11 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
         val cathodeOnLeft = holes.head.trackIndex.index < holes(1).trackIndex.index
         directDrawing.drawDiodeBody(component.name.value, (centerX, centerY), cathodeOnLeft)
         Some((component.name, centerX, centerY))
+      case Node(_) =>
+        val holePos = outOfBoardHolePosition(holes.head)
+        directDrawing.drawLine((holePos._1, holePos._2 - size.tracksStep / 2), (holePos._1, holePos._2 + size.tracksStep / 2), 2)
+        directDrawing.drawLine((holePos._1- size.tracksStep / 2, holePos._2), (holePos._1 + size.tracksStep / 2, holePos._2), 2)
+        None
       case _ => None
     }
   }
@@ -117,6 +122,9 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
       }
     }
 
+  private def outOfBoardHolePosition(hole: Hole): (Int, Int) =
+    (hole.trackIndex.index * size.tracksStep + size.tracksHorizontalOffset, size.bottomHorizontalTracksVerticalOffset + size.tracksStep)
+
   private def drawVerticalTrack(vertical: DiagramConnectionTrack): Unit = {
     val verticalOffset = verticalTrackVerticalOffset(vertical.trackIndex)
     val locationIndex = vertical.trackIndex.verticalLocationIndex
@@ -133,10 +141,10 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
     directDrawing.drawTrackIndex((from._1, from._2 + verticalShift), vertical.trackIndex)
   }
 
-  private def verticalTrackVerticalOffset(index: TrackIndex) =
+  private def verticalTrackVerticalOffset(index: TrackIndex): Int =
     if(index.upper) size.upperVerticalTracksVerticalOffset else size.bottomVerticalTracksVerticalOffset
 
-  private def horizontalTrackVerticalOffset(trackIndex: TrackIndex) =
+  private def horizontalTrackVerticalOffset(trackIndex: TrackIndex): Int =
     if(trackIndex.upper) {
       trackIndex.index * size.tracksStep + size.upperHorizontalTracksVerticalOffset
     }  else {
