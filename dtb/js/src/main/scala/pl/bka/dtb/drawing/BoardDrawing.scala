@@ -42,6 +42,7 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
         Some((component.name, centerX, centerY))
       case Cable(tpe, _) =>
         val Seq((from, fromTrackIndex), (to, toTrackIndex)) = Seq((holePosition(holes.head), holes.head.trackIndex), (holePosition(holes(1)), holes(1).trackIndex)).sortBy(_._2.index)
+        println(s"3333333 fromTrackIndex $fromTrackIndex toTrackIndex $toTrackIndex")
         if(tpe == CableType.ConnCable) {
           val (dirFrom, dirTo) = cableArrowDirection(fromTrackIndex, toTrackIndex)
           directDrawing.drawArrowsRepresentingCable(from, to, dirFrom, dirTo, fromTrackIndex, toTrackIndex, color)
@@ -188,7 +189,7 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
   }
 
   private def drawTrack(track: Track): Unit = track match {
-    case v: DiagramConnectionTrack => drawVerticalTrack(v)
+    case v: DiagramConnectionTrack if !v.isOutOfBoard => drawVerticalTrack(v)
     case h: Horizontal => drawHorizontalTrack(h)
   }
 
