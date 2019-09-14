@@ -51,19 +51,21 @@ class DirectDrawing(size: Size) {
   def drawStraightCable(from: (Int, Int), to: (Int, Int), color: String): Unit =
     drawLine(from, to, 2, color)
 
-  def drawArrowsRepresentingCable(from: (Int, Int), to: (Int, Int), fromArrowDir: (Int, Int), toArrowDir: (Int, Int), fromTrackIndex: TrackIndex, toTrackIndex: TrackIndex, color: String): Unit = {
+  def drawOneCableArrow(pos: (Int, Int), arrowDir: (Int, Int), thisTrackIndex: TrackIndex, otherTrackIndex: TrackIndex, color: String): Unit = {
     ctx.font = size.arrowHeadFont
     ctx.fillStyle = color
-    def drawOneArrow(pos: (Int, Int), arrowDir: (Int, Int), thisTrackIndex: TrackIndex, otherTrackIndex: TrackIndex): Unit =
-      if(thisTrackIndex.tpe != OutOfBoardType) {
-        val arrowHead = (pos._1 + arrowDir._1 * size.arrowLength, pos._2 + arrowDir._2 * size.arrowLength)
-        drawLine(pos, arrowHead, 2, color)
-        drawLine(arrowHead, (arrowHead._1 - arrowDir._1 * size.arrowHeadWidth, arrowHead._2), 2, color)
-        drawLine(arrowHead, (arrowHead._1, arrowHead._2 - arrowDir._2 * size.arrowHeadWidth), 2, color)
-        ctx.fillText(otherTrackIndex.label, arrowHead._1 + (1.5 * arrowDir._1 - 1) * size.arrowHeadWidth, arrowHead._2 + (0.5 * arrowDir._2 + 0.5) * size.arrowHeadWidth)
-      }
-    drawOneArrow(from, fromArrowDir, fromTrackIndex, toTrackIndex)
-    drawOneArrow(to, toArrowDir, toTrackIndex, fromTrackIndex)
+    if (thisTrackIndex.tpe != OutOfBoardType) {
+      val arrowHead = (pos._1 + arrowDir._1 * size.arrowLength, pos._2 + arrowDir._2 * size.arrowLength)
+      drawLine(pos, arrowHead, 2, color)
+      drawLine(arrowHead, (arrowHead._1 - arrowDir._1 * size.arrowHeadWidth, arrowHead._2), 2, color)
+      drawLine(arrowHead, (arrowHead._1, arrowHead._2 - arrowDir._2 * size.arrowHeadWidth), 2, color)
+      ctx.fillText(otherTrackIndex.label, arrowHead._1 + (1.5 * arrowDir._1 - 1) * size.arrowHeadWidth, arrowHead._2 + (0.5 * arrowDir._2 + 0.5) * size.arrowHeadWidth)
+    }
+  }
+
+  def drawTwoCableArrows(from: (Int, Int), to: (Int, Int), fromArrowDir: (Int, Int), toArrowDir: (Int, Int), fromTrackIndex: TrackIndex, toTrackIndex: TrackIndex, color: String): Unit = {
+    drawOneCableArrow(from, fromArrowDir, fromTrackIndex, toTrackIndex, color)
+    drawOneCableArrow(to, toArrowDir, toTrackIndex, fromTrackIndex, color)
   }
 
   def drawICBody(name: String, pos: (Int, Int), width: Int, height: Int): Unit = {

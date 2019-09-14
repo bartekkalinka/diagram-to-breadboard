@@ -196,13 +196,13 @@ object Logical {
   private def calcPowerCables(vertical: Seq[DiagramConnectionTrack],
                               horizontalMap: Map[(Boolean, PowerConnection), Horizontal]): (Seq[Component], Map[LegId, TrackIndex]) = {
     val powerConnectionTracks = vertical.filter(v => v.diagramConnection.id.isRight)
-    val (cables, legs) = powerConnectionTracks.map { track =>
-      val cName = s"cable-${track.diagramConnection.id.fold(identity, identity)}-${track.trackIndex.index}"
+    val (cables, legs) = powerConnectionTracks.map { nonHorizontal =>
+      val cName = s"cable-${nonHorizontal.diagramConnection.id.fold(identity, identity)}-${nonHorizontal.trackIndex.index}"
       val cable = Component(cName, Cable(CableType.PowerCable))
-      val Right(power) = track.diagramConnection.id
+      val Right(power) = nonHorizontal.diagramConnection.id
       val legs = Seq(
-        (LegId(ComponentName(cName), cable.legs.head), track.trackIndex),
-        (LegId(ComponentName(cName), cable.legs(1)), horizontalMap((track.upper, power)).trackIndex)
+        (LegId(ComponentName(cName), cable.legs.head), nonHorizontal.trackIndex),
+        (LegId(ComponentName(cName), cable.legs(1)), horizontalMap((nonHorizontal.upper, power)).trackIndex)
       )
       (cable, legs)
     }.unzip

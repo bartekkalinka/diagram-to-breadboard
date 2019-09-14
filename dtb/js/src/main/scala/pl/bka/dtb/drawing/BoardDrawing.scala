@@ -18,10 +18,9 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
   def drawComponent(physical: Physical, component: Component, compIndex: Int, positionOverride: Option[(Int, Int)]): Option[(ComponentName, Int, Int)] = {
     val holes: Seq[Hole] = component.legs.map { leg =>
       physical.connections(LegId(component.name, leg))
-
     }
     val color: String = Seq("#FFBB00", "#FF0000", "#0000FF", "#00FF00")(compIndex % 4)
-    component.cType match { //TODO get rid of code blocks in match branches - move them to type class instances for components
+    component.cType match { //TODO get rid of code blocks in match branches
       case IC(_) =>
         val (xs, ys) = holes.map(holePosition).unzip
         val (centerX, centerY) = positionOverride.getOrElse((xs.sum / xs.length, ys.sum / ys.length))
@@ -41,15 +40,21 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
         directDrawing.drawTransistorBody(component.name.value, (centerX, centerY))
         Some((component.name, centerX, centerY))
       case Cable(tpe, _) =>
-        val Seq((from, fromTrackIndex), (to, toTrackIndex)) = Seq((holePosition(holes.head), holes.head.trackIndex), (holePosition(holes(1)), holes(1).trackIndex)).sortBy(_._2.index)
-        println(s"3333333 fromTrackIndex $fromTrackIndex toTrackIndex $toTrackIndex")
         if(tpe == CableType.ConnCable) {
+          val List((from, fromTrackIndex), (to, toTrackIndex)) = List((holePosition(holes.head), holes.head.trackIndex), (holePosition(holes(1)), holes(1).trackIndex)).sortBy(_._2.index)
           val (dirFrom, dirTo) = cableArrowDirection(fromTrackIndex, toTrackIndex)
-          directDrawing.drawArrowsRepresentingCable(from, to, dirFrom, dirTo, fromTrackIndex, toTrackIndex, color)
+          directDrawing.drawTwoCableArrows(from, to, dirFrom, dirTo, fromTrackIndex, toTrackIndex, color)
         } else if(tpe == CableType.UnionCable) {
+          val List((from, fromTrackIndex), (to, toTrackIndex)) = List((holePosition(holes.head), holes.head.trackIndex), (holePosition(holes(1)), holes(1).trackIndex)).sortBy(_._2.index)
           directDrawing.drawArcCable(from, to, color)
-        } else {
-          directDrawing.drawStraightCable(from, to, color)
+        } else { //CableType.PowerCable
+          val List((from, fromTrackIndex), (to, toTrackIndex)) = List((holePosition(holes.head), holes.head.trackIndex), (holePosition(holes(1)), holes(1).trackIndex))
+          if(fromTrackIndex.tpe == OutOfBoardType) {
+            val (_, dirTo) = cableArrowDirection(fromTrackIndex, toTrackIndex)
+            directDrawing.drawOneCableArrow(to, dirTo, toTrackIndex, fromTrackIndex, color)
+          } else {
+            directDrawing.drawStraightCable(from, to, color)
+          }
         }
         None
       case Resistor(_) =>

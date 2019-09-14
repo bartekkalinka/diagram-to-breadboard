@@ -54,12 +54,8 @@ object Diagrams {
       |d.diode band.1 plus
       |r.R470K 2 1
       |n.node-1 1
+      |n.node-2 2
+      |p.pot-100K 1 plus 2
     """.stripMargin
   )
-
-  /*
-  n.node-1 1
-n.node-2 2
-p.pot-100K 1 2 2
-   */
 }
