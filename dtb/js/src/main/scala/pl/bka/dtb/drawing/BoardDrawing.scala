@@ -1,6 +1,7 @@
 package pl.bka.dtb.drawing
 
 import pl.bka.dtb.Types.CoordWithName
+import pl.bka.dtb.model.CableType.CableType
 import pl.bka.dtb.model.Power.{GND, Plus}
 import pl.bka.dtb.model._
 import pl.bka.dtb.model.breadboard._
@@ -20,102 +21,130 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
       physical.connections(LegId(component.name, leg))
     }
     val color: String = Seq("#FFBB00", "#FF0000", "#0000FF", "#00FF00")(compIndex % 4)
-    component.cType match { //TODO get rid of code blocks in match branches
-      case IC(_) =>
-        val (xs, ys) = holes.map(holePosition).unzip
-        val (centerX, centerY) = positionOverride.getOrElse((xs.sum / xs.length, ys.sum / ys.length))
-        holes.zipWithIndex.foreach { case (hole, i) =>
-          val (x, y) = holePosition(hole)
-          val bodyOffset = if(i < holes.length / 2) size.tracksStep / 2 else -size.tracksStep / 2
-          directDrawing.drawLine((x, y), (x, y + bodyOffset), 4)
-        }
-        directDrawing.drawICBody(component.name.value, (centerX, centerY), xs(holes.length / 2 - 1) - xs.head, size.tracksStep)
-        Some((component.name, centerX, centerY))
-      case Transistor(_) =>
-        val centerHole = holePosition(holes(1))
-        val (centerX, centerY) = positionOverride.getOrElse((centerHole._1, centerHole._2 - (0.3 * size.holeStep).toInt))
-        directDrawing.drawLine(holePosition(holes.head), (centerX - size.transistorLegsSpread, centerY), 2)
-        directDrawing.drawLine(holePosition(holes(1)), (centerX, centerY), 2)
-        directDrawing.drawLine(holePosition(holes(2)), (centerX + size.transistorLegsSpread, centerY), 2)
-        directDrawing.drawTransistorBody(component.name.value, (centerX, centerY))
-        Some((component.name, centerX, centerY))
+    component.cType match {
+      case IC(_) => drawIC(component, holes, positionOverride)
+      case Transistor(_) => drawTransistor(component, holes, positionOverride)
       case Cable(tpe, _) =>
-        if(tpe == CableType.ConnCable) {
-          val List((from, fromTrackIndex), (to, toTrackIndex)) = List((holePosition(holes.head), holes.head.trackIndex), (holePosition(holes(1)), holes(1).trackIndex)).sortBy(_._2.index)
-          val (dirFrom, dirTo) = cableArrowDirection(fromTrackIndex, toTrackIndex)
-          directDrawing.drawTwoCableArrows(from, to, dirFrom, dirTo, fromTrackIndex, toTrackIndex, color)
-        } else if(tpe == CableType.UnionCable) {
-          val List((from, fromTrackIndex), (to, toTrackIndex)) = List((holePosition(holes.head), holes.head.trackIndex), (holePosition(holes(1)), holes(1).trackIndex)).sortBy(_._2.index)
-          directDrawing.drawArcCable(from, to, color)
-        } else { //CableType.PowerCable
-          val List((from, fromTrackIndex), (to, toTrackIndex)) = List((holePosition(holes.head), holes.head.trackIndex), (holePosition(holes(1)), holes(1).trackIndex))
-          if(fromTrackIndex.tpe == OutOfBoardType) {
-            val (_, dirTo) = cableArrowDirection(fromTrackIndex, toTrackIndex)
-            directDrawing.drawOneCableArrow(to, dirTo, toTrackIndex, fromTrackIndex, color)
-          } else {
-            directDrawing.drawStraightCable(from, to, color)
-          }
-        }
+        drawCable(holes, tpe, color)
         None
-      case Resistor(_) =>
-        val Seq(holePos1, holePos2) = holes.map(holePosition).sortBy(_._1)
-        val (centerX, centerY) = positionOverride.getOrElse(
-          ((holePos1._1 + holePos2._1) / 2, Seq(holePos1._2, holePos2._2).min - (0.3 * size.holeStep).toInt)
-        )
-        directDrawing.drawLine(holePos1, (centerX - size.resistorBodySize._1 / 2, centerY - size.resistorBodySize._2 / 2), 2)
-        directDrawing.drawLine(holePos2, (centerX + size.resistorBodySize._1 / 2, centerY - size.resistorBodySize._2 / 2), 2)
-        directDrawing.drawResistorBody(component.name.value, (centerX, centerY))
-        Some((component.name, centerX, centerY))
-      case Capacitor(bipolar, _) =>
-        val Seq(holePos1, holePos2) = holes.map(holePosition).sortBy(_._1)
-        val (centerX, centerY) = positionOverride.getOrElse(
-          ((holePos1._1 + holePos2._1) / 2, Seq(holePos1._2, holePos2._2).min - (0.3 * size.holeStep).toInt)
-        )
-        directDrawing.drawLine(holePos1, (centerX - size.capacitorSize._1 / 2, centerY), 2)
-        directDrawing.drawLine(holePos2, (centerX + size.capacitorSize._1 / 2, centerY), 2)
-        val minusOnLeft = Some(holes(Leg.capMinus.toInt).trackIndex.index < holes(Leg.capPlus.toInt).trackIndex.index).filter(_ => bipolar)
-        directDrawing.drawCapacitorBody(component.name.value, (centerX, centerY), minusOnLeft)
-        Some((component.name, centerX, centerY))
-      case Diode(_) =>
-        val Seq(holePos1, holePos2) = holes.map(holePosition).sortBy(_._1)
-        val (centerX, centerY) = positionOverride.getOrElse(
-          ((holePos1._1 + holePos2._1) / 2, Seq(holePos1._2, holePos2._2).min - (0.3 * size.holeStep).toInt)
-        )
-        directDrawing.drawLine(holePos1, (centerX - size.diodeBodySize._1 / 2, centerY), 2)
-        directDrawing.drawLine(holePos2, (centerX + size.diodeBodySize._1 / 2, centerY), 2)
-        val cathodeOnLeft = holes.head.trackIndex.index < holes(1).trackIndex.index
-        directDrawing.drawDiodeBody(component.name.value, (centerX, centerY), cathodeOnLeft)
-        Some((component.name, centerX, centerY))
+      case Resistor(_) => drawResistor(component, holes, positionOverride)
+      case Capacitor(bipolar, _) => drawCapacitor(component, holes, bipolar, positionOverride)
+      case Diode(_) => drawDiode(component, holes, positionOverride)
       case Node(_) =>
-        val holePos = outOfBoardHolePosition(holes.head)
-        directDrawing.drawLine((holePos._1, holePos._2 - size.tracksStep / 3), (holePos._1, holePos._2 + size.tracksStep / 3), 2)
-        directDrawing.drawLine((holePos._1 - size.tracksStep / 3, holePos._2), (holePos._1 + size.tracksStep / 3, holePos._2), 2)
-        directDrawing.drawText((holePos._1 - size.tracksStep / 3, holePos._2 - size.tracksStep / 3 - 1), component.name.value)
-        directDrawing.drawTrackIndex((holePos._1 - size.tracksStep / 3, holePos._2 + size.tracksStep / 3 + size.trackIndexFontSize), holes.head.trackIndex)
+        drawNode(component, holes)
         None
       case Pot(_) =>
-        val holePositions = holes.map(outOfBoardHolePosition).sortBy(_._1)
-        holePositions.foreach(directDrawing.drawHole)
-        val margin = size.tracksStep / 2
-        val floorY = holePositions.head._2 + size.holeRadius + 4
-        val lowerRoofY = holePositions.head._2 - size.holeRadius - 4
-        val higherRoofY = holePositions.head._2 - size.holeRadius - margin
-        directDrawing.drawLine((holePositions.head._1 - margin, lowerRoofY), (holePositions.head._1 - margin, floorY), 2)
-        directDrawing.drawLine((holePositions.head._1 - margin, floorY), (holePositions(2)._1 + margin, floorY), 2)
-        directDrawing.drawLine((holePositions(2)._1 + margin, floorY), (holePositions(2)._1 + margin, lowerRoofY), 2)
-        directDrawing.drawLine((holePositions(2)._1 + margin, lowerRoofY), (holePositions(2)._1, higherRoofY), 2)
-        directDrawing.drawLine((holePositions(2)._1, higherRoofY), ((holePositions(2)._1 + holePositions(1)._1) / 2, lowerRoofY), 2)
-        directDrawing.drawLine(((holePositions(2)._1 + holePositions(1)._1) / 2, lowerRoofY), (holePositions(1)._1, higherRoofY), 2)
-        directDrawing.drawLine((holePositions(1)._1, higherRoofY), ((holePositions(1)._1 + holePositions.head._1) / 2, lowerRoofY), 2)
-        directDrawing.drawLine(((holePositions(1)._1 + holePositions.head._1) / 2, lowerRoofY), (holePositions.head._1, higherRoofY), 2)
-        directDrawing.drawLine((holePositions.head._1, higherRoofY), (holePositions.head._1 - margin, lowerRoofY), 2)
-        directDrawing.drawText((holePositions(1)._1 - margin, higherRoofY - size.tracksStep / 8), component.name.value)
-        holePositions.zip(holes).foreach { case (holePos, hole) =>
-          directDrawing.drawTrackIndex((holePos._1 - size.tracksStep / 3, holePos._2 + size.tracksStep / 3 + size.trackIndexFontSize), hole.trackIndex)
-        }
+        drawPot(component, holes)
         None
       case _ => None
     }
+  }
+
+  private def drawIC(component: Component, holes: Seq[Hole], positionOverride: Option[(Int, Int)]): Option[(ComponentName, Int, Int)] = {
+    val (xs, ys) = holes.map(holePosition).unzip
+    val (centerX, centerY) = positionOverride.getOrElse((xs.sum / xs.length, ys.sum / ys.length))
+    holes.zipWithIndex.foreach { case (hole, i) =>
+      val (x, y) = holePosition(hole)
+      val bodyOffset = if(i < holes.length / 2) size.tracksStep / 2 else -size.tracksStep / 2
+      directDrawing.drawLine((x, y), (x, y + bodyOffset), 4)
+    }
+    directDrawing.drawICBody(component.name.value, (centerX, centerY), xs(holes.length / 2 - 1) - xs.head, size.tracksStep)
+    Some((component.name, centerX, centerY))
+  }
+
+  private def drawTransistor(component: Component, holes: Seq[Hole], positionOverride: Option[(Int, Int)]): Option[(ComponentName, Int, Int)] = {
+    val centerHole = holePosition(holes(1))
+    val (centerX, centerY) = positionOverride.getOrElse((centerHole._1, centerHole._2 - (0.3 * size.holeStep).toInt))
+    directDrawing.drawLine(holePosition(holes.head), (centerX - size.transistorLegsSpread, centerY), 2)
+    directDrawing.drawLine(holePosition(holes(1)), (centerX, centerY), 2)
+    directDrawing.drawLine(holePosition(holes(2)), (centerX + size.transistorLegsSpread, centerY), 2)
+    directDrawing.drawTransistorBody(component.name.value, (centerX, centerY))
+    Some((component.name, centerX, centerY))
+  }
+
+  private def drawCable(holes: Seq[Hole], tpe: CableType, color: String): Unit = {
+    if(tpe == CableType.ConnCable) {
+      val List((from, fromTrackIndex), (to, toTrackIndex)) = List((holePosition(holes.head), holes.head.trackIndex), (holePosition(holes(1)), holes(1).trackIndex)).sortBy(_._2.index)
+      val (dirFrom, dirTo) = cableArrowDirection(fromTrackIndex, toTrackIndex)
+      directDrawing.drawTwoCableArrows(from, to, dirFrom, dirTo, fromTrackIndex, toTrackIndex, color)
+    } else if(tpe == CableType.UnionCable) {
+      val List((from, fromTrackIndex), (to, toTrackIndex)) = List((holePosition(holes.head), holes.head.trackIndex), (holePosition(holes(1)), holes(1).trackIndex)).sortBy(_._2.index)
+      directDrawing.drawArcCable(from, to, color)
+    } else { //CableType.PowerCable
+      val List((from, fromTrackIndex), (to, toTrackIndex)) = List((holePosition(holes.head), holes.head.trackIndex), (holePosition(holes(1)), holes(1).trackIndex))
+      if(fromTrackIndex.tpe == OutOfBoardType) {
+        val (_, dirTo) = cableArrowDirection(fromTrackIndex, toTrackIndex)
+        directDrawing.drawOneCableArrow(to, dirTo, toTrackIndex, fromTrackIndex, color)
+      } else {
+        directDrawing.drawStraightCable(from, to, color)
+      }
+    }
+  }
+
+  private def drawResistor(component: Component, holes: Seq[Hole], positionOverride: Option[(Int, Int)]): Option[(ComponentName, Int, Int)] = {
+    val Seq(holePos1, holePos2) = holes.map(holePosition).sortBy(_._1)
+    val (centerX, centerY) = positionOverride.getOrElse(
+      ((holePos1._1 + holePos2._1) / 2, Seq(holePos1._2, holePos2._2).min - (0.3 * size.holeStep).toInt)
+    )
+    directDrawing.drawLine(holePos1, (centerX - size.resistorBodySize._1 / 2, centerY - size.resistorBodySize._2 / 2), 2)
+    directDrawing.drawLine(holePos2, (centerX + size.resistorBodySize._1 / 2, centerY - size.resistorBodySize._2 / 2), 2)
+    directDrawing.drawResistorBody(component.name.value, (centerX, centerY))
+    Some((component.name, centerX, centerY))
+  }
+
+  private def drawCapacitor(component: Component, holes: Seq[Hole], bipolar: Boolean, positionOverride: Option[(Int, Int)]): Option[(ComponentName, Int, Int)] = {
+    val Seq(holePos1, holePos2) = holes.map(holePosition).sortBy(_._1)
+    val (centerX, centerY) = positionOverride.getOrElse(
+      ((holePos1._1 + holePos2._1) / 2, Seq(holePos1._2, holePos2._2).min - (0.3 * size.holeStep).toInt)
+    )
+    directDrawing.drawLine(holePos1, (centerX - size.capacitorSize._1 / 2, centerY), 2)
+    directDrawing.drawLine(holePos2, (centerX + size.capacitorSize._1 / 2, centerY), 2)
+    val minusOnLeft = Some(holes(Leg.capMinus.toInt).trackIndex.index < holes(Leg.capPlus.toInt).trackIndex.index).filter(_ => bipolar)
+    directDrawing.drawCapacitorBody(component.name.value, (centerX, centerY), minusOnLeft)
+    Some((component.name, centerX, centerY))
+  }
+
+  private def drawDiode(component: Component, holes: Seq[Hole], positionOverride: Option[(Int, Int)]): Option[(ComponentName, Int, Int)] = {
+    val Seq(holePos1, holePos2) = holes.map(holePosition).sortBy(_._1)
+    val (centerX, centerY) = positionOverride.getOrElse(
+      ((holePos1._1 + holePos2._1) / 2, Seq(holePos1._2, holePos2._2).min - (0.3 * size.holeStep).toInt)
+    )
+    directDrawing.drawLine(holePos1, (centerX - size.diodeBodySize._1 / 2, centerY), 2)
+    directDrawing.drawLine(holePos2, (centerX + size.diodeBodySize._1 / 2, centerY), 2)
+    val cathodeOnLeft = holes.head.trackIndex.index < holes(1).trackIndex.index
+    directDrawing.drawDiodeBody(component.name.value, (centerX, centerY), cathodeOnLeft)
+    Some((component.name, centerX, centerY))
+  }
+
+  private def drawNode(component: Component, holes: Seq[Hole]): Unit = {
+    val holePos = outOfBoardHolePosition(holes.head)
+    directDrawing.drawLine((holePos._1, holePos._2 - size.tracksStep / 3), (holePos._1, holePos._2 + size.tracksStep / 3), 2)
+    directDrawing.drawLine((holePos._1 - size.tracksStep / 3, holePos._2), (holePos._1 + size.tracksStep / 3, holePos._2), 2)
+    directDrawing.drawText((holePos._1 - size.tracksStep / 3, holePos._2 - size.tracksStep / 3 - 1), component.name.value)
+    directDrawing.drawTrackIndex((holePos._1 - size.tracksStep / 3, holePos._2 + size.tracksStep / 3 + size.trackIndexFontSize), holes.head.trackIndex)
+  }
+
+  private def drawPot(component: Component, holes: Seq[Hole]): Unit = {
+    val holePositions = holes.map(outOfBoardHolePosition).sortBy(_._1)
+    holePositions.foreach(directDrawing.drawHole)
+    val margin = size.tracksStep / 2
+    val floorY = holePositions.head._2 + size.holeRadius + 4
+    val lowerRoofY = holePositions.head._2 - size.holeRadius - 4
+    val higherRoofY = holePositions.head._2 - size.holeRadius - margin
+    directDrawing.drawLine((holePositions.head._1 - margin, lowerRoofY), (holePositions.head._1 - margin, floorY), 2)
+    directDrawing.drawLine((holePositions.head._1 - margin, floorY), (holePositions(2)._1 + margin, floorY), 2)
+    directDrawing.drawLine((holePositions(2)._1 + margin, floorY), (holePositions(2)._1 + margin, lowerRoofY), 2)
+    directDrawing.drawLine((holePositions(2)._1 + margin, lowerRoofY), (holePositions(2)._1, higherRoofY), 2)
+    directDrawing.drawLine((holePositions(2)._1, higherRoofY), ((holePositions(2)._1 + holePositions(1)._1) / 2, lowerRoofY), 2)
+    directDrawing.drawLine(((holePositions(2)._1 + holePositions(1)._1) / 2, lowerRoofY), (holePositions(1)._1, higherRoofY), 2)
+    directDrawing.drawLine((holePositions(1)._1, higherRoofY), ((holePositions(1)._1 + holePositions.head._1) / 2, lowerRoofY), 2)
+    directDrawing.drawLine(((holePositions(1)._1 + holePositions.head._1) / 2, lowerRoofY), (holePositions.head._1, higherRoofY), 2)
+    directDrawing.drawLine((holePositions.head._1, higherRoofY), (holePositions.head._1 - margin, lowerRoofY), 2)
+    directDrawing.drawText((holePositions(1)._1 - margin, higherRoofY - size.tracksStep / 8), component.name.value)
+    holePositions.zip(holes).foreach { case (holePos, hole) =>
+      directDrawing.drawTrackIndex((holePos._1 - size.tracksStep / 3, holePos._2 + size.tracksStep / 3 + size.trackIndexFontSize), hole.trackIndex)
+    }
+
   }
 
   private def cableArrowDirection(fromTrackIndex: TrackIndex, toTrackIndex: TrackIndex): ((Int, Int), (Int, Int)) = {

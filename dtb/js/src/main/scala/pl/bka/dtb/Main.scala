@@ -14,7 +14,7 @@ object Main {
   case class DraggedComponent(name: ComponentName, startMouseXOffset: Int, startMouseYOffset: Int)
 
   window.onload = { _ =>
-    Diagrams.potTest match {
+    Diagrams.roll3 match {
       case Right(diagram) =>
         val offsetX = DomOutput.canvas.offsetLeft
         val offsetY = DomOutput.canvas.offsetTop
