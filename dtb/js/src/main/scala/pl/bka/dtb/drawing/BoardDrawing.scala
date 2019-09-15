@@ -10,12 +10,12 @@ class BoardDrawing(directDrawing: DirectDrawing, size: Size, physical: Physical,
     physical.tracksWithFillIns.foreach(drawTrack)
     val componentPositions = physical.components.reverse.zipWithIndex.flatMap { case (component, index) =>
       val positionOverride = movedComponents.get(component.name)
-      drawComponent(physical, component, index, positionOverride)
+      drawComponent(component, index, positionOverride)
     }
     componentPositions.map { case (name, x, y) => ((x, y), ((x, y), name)) }.toMap
   }
 
-  def drawComponent(physical: Physical, component: Component, compIndex: Int, positionOverride: Option[(Int, Int)]): Option[(ComponentName, Int, Int)] = {
+  def drawComponent(component: Component, compIndex: Int, positionOverride: Option[(Int, Int)]): Option[(ComponentName, Int, Int)] = {
     val holes: Seq[Hole] = component.legs.map { leg =>
       physical.connections(LegId(component.name, leg))
     }
