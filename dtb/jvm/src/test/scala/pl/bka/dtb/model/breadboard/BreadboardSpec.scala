@@ -70,7 +70,18 @@ class BreadboardSpec extends PropSpec with TableDrivenPropertyChecks with Matche
     """.stripMargin
   )
 
-  val testInputs = Table("input items", testInput1, testInput2, testInput3, testInput4, testInput5)
+  //out-of-board components with power connections
+  val testInput6 = Diagram(
+    """
+      |d.diode band.1 plus
+      |r.R470K 2 1
+      |n.node-1 1
+      |n.node-2 2
+      |p.pot-100K 1 plus 2
+    """.stripMargin
+  )
+
+  val testInputs = Table("input items", testInput1, testInput2, testInput3, testInput4, testInput5, testInput6)
 
   def testDiagram(testInput: Either[Fail, Diagram]): Diagram = testInput match { case Right(d) => d; case _ => fail() }
 
