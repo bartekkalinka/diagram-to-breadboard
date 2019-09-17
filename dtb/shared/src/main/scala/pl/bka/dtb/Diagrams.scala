@@ -49,13 +49,24 @@ object Diagrams {
     """.stripMargin
   )
 
-  val potTest = Diagram(
+  val doubleICs = Diagram(
     """
-      |d.diode band.1 plus
-      |r.R470K 2 1
-      |n.node-1 1
-      |n.node-2 2
-      |p.pot-100K 1 plus 2
+      |i.082-1 0 1 2 3 0 1 2 3
+      |i.082-2 0 1 2 3 0 1 2 3
+    """.stripMargin
+  )
+
+
+  //TODO
+  val avDog = Diagram(
+    """
+      |d.diode band.11 plus
+      |t.t-plus-1 2 3 4
+      |t.t-plus-2 4 9 11
+      |t.t-plus-3 9 9 11
+      |t.t-plus-4 6 5 4
+      |t.t-minus 9 10 14
+      |i.082
     """.stripMargin
   )
 }

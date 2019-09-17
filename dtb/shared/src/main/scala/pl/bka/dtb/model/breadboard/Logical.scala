@@ -46,7 +46,8 @@ object Logical {
 
   private def icsToTracks(diagram: Diagram, vertical: Seq[DiagramConnectionTrack]): (Seq[DiagramConnectionTrack], Map[LegId, TrackIndex], Map[ComponentName, Group3Index]) = {
     val ics = diagram.components.filter(_.cType.isInstanceOf[IC])
-    var startingIndex = nextVerticalTrackIndex(vertical)
+    var startingUpperIndex = nextVerticalTrackIndex(vertical)
+    var startingLowerIndex = nextVerticalTrackIndex(vertical, upper = false)
     val (allNewVertical, allLegs) = ics.map { ic =>
       val halfLength = ic.legs.length / 2
       val dividedLegs = ic.legs.take(halfLength).map(l => (LegId(ic.name, l), true)).zipWithIndex ++
@@ -54,13 +55,14 @@ object Logical {
       val (newVertical, icsLegs) = dividedLegs.map {
         case ((legId, upper), relativeIndex) =>
           //TODO better starting index for !upper
-          val index = if(upper) relativeIndex + startingIndex else -Breadboard.maxVerticalTracks + relativeIndex
+          val index = if(upper) relativeIndex + startingUpperIndex else relativeIndex + startingLowerIndex
           (
             DiagramConnectionTrack(index, diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1),
             (legId, TrackIndex(VerticalType, index))
           )
       }.unzip
-      startingIndex += halfLength
+      startingUpperIndex += halfLength
+      startingLowerIndex += halfLength
       (newVertical, icsLegs)
     }.reduceOption((vl1, vl2) => (vl1._1 ++ vl2._1, vl1._2 ++ vl2._2))
       .getOrElse((Seq.empty[DiagramConnectionTrack], Seq.empty[(LegId, TrackIndex)]))
