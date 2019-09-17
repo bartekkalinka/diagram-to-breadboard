@@ -54,7 +54,6 @@ object Logical {
         ic.legs.drop(halfLength).map(l => (LegId(ic.name, l), false)).zipWithIndex
       val (newVertical, icsLegs) = dividedLegs.map {
         case ((legId, upper), relativeIndex) =>
-          //TODO better starting index for !upper
           val index = if(upper) relativeIndex + startingUpperIndex else relativeIndex + startingLowerIndex
           (
             DiagramConnectionTrack(index, diagram.legsConnections(legId), freeSpace = Tracks.verticalTrackLength - 1),
